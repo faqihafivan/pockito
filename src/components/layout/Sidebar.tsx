@@ -33,9 +33,11 @@ export const Sidebar: React.FC = () => {
       {/* Brand Header */}
       <div className="p-6 border-b-2 border-brand-dark flex items-center justify-between bg-brand-cream/60">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-primary border-2 border-brand-dark shadow-saweria-sm flex items-center justify-center font-black text-xl text-brand-dark">
-            P
-          </div>
+          <img
+            src="/pockito.jpg"
+            alt="Pockito"
+            className="w-11 h-11 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm shrink-0"
+          />
           <div>
             <h1 className="text-xl font-black text-brand-dark tracking-tight leading-none">
               Pockito<span className="text-brand-primary">.</span>

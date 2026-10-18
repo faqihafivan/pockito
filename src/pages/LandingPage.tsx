@@ -16,9 +16,11 @@ export const LandingPage: React.FC = () => {
       {/* Top Navbar */}
       <header className="border-b-2 border-brand-dark bg-white px-6 sm:px-12 py-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-brand-primary border-2 border-brand-dark shadow-saweria-sm flex items-center justify-center font-black text-xl text-brand-dark">
-            P
-          </div>
+          <img
+            src="/pockito.jpg"
+            alt="Pockito"
+            className="w-10 h-10 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm"
+          />
           <span className="text-xl font-black text-brand-dark tracking-tight">
             Pockito<span className="text-brand-primary">.</span>
           </span>
@@ -39,7 +41,15 @@ export const LandingPage: React.FC = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="px-6 sm:px-12 py-16 sm:py-24 max-w-5xl mx-auto text-center space-y-6">
+      <section className="px-6 sm:px-12 py-12 sm:py-20 max-w-5xl mx-auto text-center space-y-6">
+        <div className="flex justify-center">
+          <img
+            src="/pockito.jpg"
+            alt="Pockito Mascot"
+            className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-contain bg-white border-2 border-brand-dark shadow-saweria-lg animate-bounce duration-1000"
+          />
+        </div>
+
         <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-brand-primary/20 border-2 border-brand-dark text-xs font-black text-brand-dark shadow-saweria-sm">
           <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
           <span>One Workspace for Your Money & Your Life</span>

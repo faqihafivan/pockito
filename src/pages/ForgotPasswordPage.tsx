@@ -21,9 +21,11 @@ export const ForgotPasswordPage: React.FC = () => {
       <div className="w-full max-w-md space-y-6">
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2.5">
-            <div className="w-12 h-12 rounded-2xl bg-brand-primary border-2 border-brand-dark shadow-saweria flex items-center justify-center font-black text-2xl text-brand-dark">
-              P
-            </div>
+            <img
+              src="/pockito.jpg"
+              alt="Pockito"
+              className="w-12 h-12 rounded-2xl object-contain bg-white border-2 border-brand-dark shadow-saweria"
+            />
             <span className="text-2xl font-black text-brand-dark tracking-tight">
               Pockito<span className="text-brand-primary">.</span>
             </span>
