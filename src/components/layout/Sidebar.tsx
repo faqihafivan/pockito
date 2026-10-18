@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-6 border-b-2 border-brand-dark flex items-center justify-between bg-brand-cream/60">
         <div className="flex items-center gap-3">
           <img
-            src="/pockito.jpg"
+            src="/pockito.png"
             alt="Pockito"
             className="w-11 h-11 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm shrink-0"
           />

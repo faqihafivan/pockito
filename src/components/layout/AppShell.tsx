@@ -19,7 +19,7 @@ export const AppShell: React.FC = () => {
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">
         <div className="flex flex-col items-center gap-3">
           <img
-            src="/pockito.jpg"
+            src="/pockito.png"
             alt="Pockito"
             className="w-16 h-16 rounded-2xl object-contain bg-white border-2 border-brand-dark shadow-saweria animate-bounce"
           />
