@@ -117,7 +117,7 @@ export const PocketDetailPage: React.FC = () => {
             onClick={() => setIsTxModalOpen(true)}
             leftIcon={<Plus className="w-4 h-4" />}
           >
-            + Catat Pengeluaran di Sini
+            Catat Pengeluaran di Sini
           </Button>
         </div>
 
@@ -137,9 +137,8 @@ export const PocketDetailPage: React.FC = () => {
               Total Terpakai Bulan Ini
             </span>
             <div
-              className={`text-lg font-black tabular-nums mt-0.5 ${
-                isOverBudget ? 'text-red-600' : 'text-brand-dark'
-              }`}
+              className={`text-lg font-black tabular-nums mt-0.5 ${isOverBudget ? 'text-red-600' : 'text-brand-dark'
+                }`}
             >
               {formatIDR(pocket.spentAmount)}
             </div>
@@ -150,9 +149,8 @@ export const PocketDetailPage: React.FC = () => {
               Sisa Kuota Anggaran
             </span>
             <div
-              className={`text-lg font-black tabular-nums mt-0.5 ${
-                isOverBudget ? 'text-red-600' : 'text-[#047857]'
-              }`}
+              className={`text-lg font-black tabular-nums mt-0.5 ${isOverBudget ? 'text-red-600' : 'text-[#047857]'
+                }`}
             >
               {isOverBudget
                 ? `Melebihi ${formatIDR(Math.abs(pocket.remainingAmount))}`

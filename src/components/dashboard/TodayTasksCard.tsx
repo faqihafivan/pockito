@@ -17,8 +17,9 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
   const activeTasks = tasks.filter((t) => !t.is_completed).slice(0, 4);
 
   return (
-    <Card variant="saweria" className="bg-white">
-      <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
+    <Card variant="saweria" className="bg-white h-full flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
         <div>
           <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
             Agenda & Tugas Hari Ini
@@ -46,7 +47,7 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
               onClick={onOpenNewTask}
               className="text-xs font-bold text-brand-primaryHover underline"
             >
-              + Tambah Tugas Baru
+              Tambah Tugas Baru
             </button>
           </div>
         ) : (
@@ -88,6 +89,7 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
             </div>
           ))
         )}
+      </div>
       </div>
     </Card>
   );

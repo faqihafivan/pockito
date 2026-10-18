@@ -71,7 +71,7 @@ export const GoalsPage: React.FC = () => {
           }}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          + Buat Target Tabungan
+          Buat Target Tabungan
         </Button>
       </div>
 

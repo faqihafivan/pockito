@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -48,6 +48,29 @@ export const PocketModal: React.FC<PocketModalProps> = ({
     });
     return map;
   }, [pockets, pocketToEdit]);
+
+  // Synchronize form fields whenever modal opens or pocketToEdit changes
+  useEffect(() => {
+    if (isOpen) {
+      if (pocketToEdit) {
+        setName(pocketToEdit.name);
+        setIcon(pocketToEdit.icon);
+        setColor(pocketToEdit.color);
+        setPercentage(Number(pocketToEdit.allocation_percentage));
+        setIsStarred(Boolean(pocketToEdit.is_starred));
+      } else {
+        setName('');
+        setIcon('Utensils');
+        const available = PRESET_COLORS.find(
+          (c) => !usedColorsMap.has(c.hex.toLowerCase())
+        )?.hex || '#FF7A59';
+        setColor(available);
+        setPercentage(10);
+        setIsStarred(false);
+      }
+      setError('');
+    }
+  }, [isOpen, pocketToEdit, usedColorsMap]);
 
   const isCurrentColorTaken = usedColorsMap.has(color.toLowerCase());
   const takenByPocketName = usedColorsMap.get(color.toLowerCase());

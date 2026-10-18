@@ -88,7 +88,7 @@ export const PlannerPage: React.FC = () => {
           }}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          + Tambah Tugas
+          Tambah Tugas
         </Button>
       </div>
 
@@ -96,44 +96,40 @@ export const PlannerPage: React.FC = () => {
       <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
         <button
           onClick={() => setActiveTab('today')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${
-            activeTab === 'today'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'today'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-          }`}
+            }`}
         >
           Hari Ini ({groupedTasks.today.length})
         </button>
 
         <button
           onClick={() => setActiveTab('upcoming')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${
-            activeTab === 'upcoming'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'upcoming'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-          }`}
+            }`}
         >
           Mendatang ({groupedTasks.upcoming.length})
         </button>
 
         <button
           onClick={() => setActiveTab('later')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${
-            activeTab === 'later'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'later'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-          }`}
+            }`}
         >
           Kapan-kapan ({groupedTasks.later.length})
         </button>
 
         <button
           onClick={() => setActiveTab('completed')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${
-            activeTab === 'completed'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'completed'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-          }`}
+            }`}
         >
           Selesai ({groupedTasks.completed.length})
         </button>
@@ -168,9 +164,8 @@ export const PlannerPage: React.FC = () => {
 
                   <div className="overflow-hidden">
                     <h4
-                      className={`text-sm font-black text-brand-dark truncate ${
-                        task.is_completed ? 'line-through text-brand-darkMuted' : ''
-                      }`}
+                      className={`text-sm font-black text-brand-dark truncate ${task.is_completed ? 'line-through text-brand-darkMuted' : ''
+                        }`}
                     >
                       {task.title}
                     </h4>

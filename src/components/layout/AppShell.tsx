@@ -53,7 +53,7 @@ export const AppShell: React.FC = () => {
           onOpenNewTask={() => setIsTaskOpen(true)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-24 lg:pb-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-36 sm:pb-40 lg:pb-8 max-w-7xl w-full mx-auto">
           <Outlet />
         </main>
 

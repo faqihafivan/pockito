@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { Card } from '../components/ui/Card';
@@ -12,17 +13,22 @@ import {
   Save,
   CheckCircle2,
   Database,
+  Shield,
+  Trash2,
+  ExternalLink,
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
+  const navigate = useNavigate();
   const { user, updateUser, isCloudMode, logout } = useAuth();
-  const { resetToDefaults } = useData();
+  const { resetToDefaults, deleteAllUserData } = useData();
 
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [email, setEmail] = useState(user?.email || '');
   const [income, setIncome] = useState<number>(user?.monthly_income || 0);
   const [isSaved, setIsSaved] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +51,20 @@ export const SettingsPage: React.FC = () => {
       await resetToDefaults();
       setIsResetting(false);
       alert('Data berhasil direset ke kondisi awal.');
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    const confirmation = window.prompt(
+      'PERINGATAN HAPUS AKUN PERMANEN:\nSeluruh transaksi, kantong, rekening, dan data profil Anda akan DIHAPUS TOTAL dan tidak dapat dikembalikan.\n\nKetik "HAPUS" untuk mengonfirmasi penghapusan:'
+    );
+    if (confirmation === 'HAPUS') {
+      setIsDeleting(true);
+      await deleteAllUserData();
+      logout();
+      setIsDeleting(false);
+      alert('Akun dan seluruh data Anda telah berhasil dihapus secara permanen.');
+      navigate('/');
     }
   };
 
@@ -192,13 +212,60 @@ export const SettingsPage: React.FC = () => {
             </p>
           </div>
           <Button
-            variant="danger"
+            variant="outline"
             size="sm"
             onClick={logout}
             leftIcon={<LogOut className="w-3.5 h-3.5" />}
           >
             Keluar Sekarang
           </Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-red-200">
+          <div>
+            <p className="text-xs font-black text-red-600">Hapus Akun & Seluruh Data</p>
+            <p className="text-[11px] text-brand-darkMuted">
+              Hapus permanen akun, seluruh transaksi, kantong, dan target tabungan Anda (Sesuai Kebijakan Google Play).
+            </p>
+          </div>
+          <Button
+            variant="danger"
+            size="sm"
+            onClick={handleDeleteAccount}
+            isLoading={isDeleting}
+            leftIcon={<Trash2 className="w-3.5 h-3.5" />}
+          >
+            Hapus Akun Permanen
+          </Button>
+        </div>
+      </Card>
+
+      {/* Legal & Compliance (Google Play Store Requirement) */}
+      <Card variant="saweria" className="bg-white space-y-3">
+        <div className="flex items-center gap-2 pb-2 border-b border-brand-border">
+          <Shield className="w-4 h-4 text-brand-primary" />
+          <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
+            Informasi Hukum & Privasi
+          </h3>
+        </div>
+        <p className="text-xs text-brand-darkMuted leading-relaxed">
+          Pockito menjamin integritas dan keamanan data finansial pribadi Anda. Baca dokumen resmi kepatuhan kami:
+        </p>
+        <div className="flex flex-wrap gap-4 pt-1">
+          <Link
+            to="/privacy"
+            className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1.5 underline decoration-brand-border"
+          >
+            <span>Kebijakan Privasi (Privacy Policy)</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
+          <Link
+            to="/terms"
+            className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1.5 underline decoration-brand-border"
+          >
+            <span>Syarat & Ketentuan Layanan</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </Link>
         </div>
       </Card>
     </div>

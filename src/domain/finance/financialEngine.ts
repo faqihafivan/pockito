@@ -274,3 +274,75 @@ export const BUDGET_TEMPLATES: RecommendationTemplate[] = [
     ],
   },
 ];
+
+/**
+ * Indonesian month names in strict chronological order (Januari - Desember).
+ */
+export const INDONESIAN_MONTHS = [
+  'Januari',
+  'Februari',
+  'Maret',
+  'April',
+  'Mei',
+  'Juni',
+  'Juli',
+  'Agustus',
+  'September',
+  'Oktober',
+  'November',
+  'Desember',
+];
+
+export const INDONESIAN_MONTHS_SHORT = [
+  'Jan',
+  'Feb',
+  'Mar',
+  'Apr',
+  'Mei',
+  'Jun',
+  'Jul',
+  'Agu',
+  'Sep',
+  'Okt',
+  'Nov',
+  'Des',
+];
+
+/**
+ * Formats a 'YYYY-MM' period string into a human readable Indonesian label.
+ * E.g. '2026-10' -> 'Oktober 2026', '2026-10' (short) -> 'Okt 2026'
+ */
+export function formatPeriod(periodStr: string, short: boolean = false): string {
+  if (!periodStr) return '';
+  const parts = periodStr.split('-');
+  if (parts.length < 2) return periodStr;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  if (isNaN(year) || isNaN(month) || month < 1 || month > 12) return periodStr;
+  const monthName = short ? INDONESIAN_MONTHS_SHORT[month - 1] : INDONESIAN_MONTHS[month - 1];
+  return `${monthName} ${year}`;
+}
+
+/**
+ * Returns the current real-time period 'YYYY-MM' from system time.
+ */
+export function getCurrentRealtimePeriod(): string {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+/**
+ * Offsets a 'YYYY-MM' period by deltaMonths (+1 for next month, -1 for previous month).
+ */
+export function offsetPeriod(periodStr: string, deltaMonths: number): string {
+  if (!periodStr) return getCurrentRealtimePeriod();
+  const parts = periodStr.split('-');
+  const year = parseInt(parts[0], 10) || new Date().getFullYear();
+  const month = parseInt(parts[1], 10) || (new Date().getMonth() + 1);
+  const date = new Date(year, month - 1 + deltaMonths, 1);
+  const newYear = date.getFullYear();
+  const newMonth = String(date.getMonth() + 1).padStart(2, '0');
+  return `${newYear}-${newMonth}`;
+}

@@ -62,7 +62,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         type,
         amount,
         destination_account_id: type === 'transfer' ? destinationAccountId : undefined,
-        date: new Date(date).toISOString(),
+        date: date.includes('T') ? date : `${date}T12:00:00.000Z`,
         description: description.trim(),
         notes: notes.trim() || undefined,
       });

@@ -8,5 +8,7 @@ describe('Pockito End-to-End Navigation & Render Test', () => {
     expect(screen.getByText(/One Workspace for Your Money & Your Life/i)).toBeInTheDocument();
     expect(screen.getByText(/Tanpa Ribet Akuntansi/i)).toBeInTheDocument();
     expect(screen.getByText(/Mulai Pakai Pockito Sekarang/i)).toBeInTheDocument();
+    expect(screen.getByText(/Lihat Tour Play Store/i)).toBeInTheDocument();
   });
 });
+

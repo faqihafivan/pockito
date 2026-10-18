@@ -80,7 +80,7 @@ export const TransactionsPage: React.FC = () => {
           onClick={() => setIsModalOpen(true)}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          + Catat Transaksi Baru
+          Catat Transaksi Baru
         </Button>
       </div>
 
@@ -188,13 +188,12 @@ export const TransactionsPage: React.FC = () => {
                 >
                   <div className="flex items-center gap-3.5 overflow-hidden">
                     <div
-                      className={`w-10 h-10 rounded-xl border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm ${
-                        isIncome
+                      className={`w-10 h-10 rounded-xl border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm ${isIncome
                           ? 'bg-[#10B981]/20 text-[#047857]'
                           : isExpense
-                          ? 'bg-red-500/15 text-red-600'
-                          : 'bg-brand-primary/20 text-brand-dark'
-                      }`}
+                            ? 'bg-red-500/15 text-red-600'
+                            : 'bg-brand-primary/20 text-brand-dark'
+                        }`}
                     >
                       {isIncome && <ArrowDownLeft className="w-5 h-5 stroke-[2.5]" />}
                       {isExpense && <ArrowUpRight className="w-5 h-5 stroke-[2.5]" />}
@@ -234,15 +233,14 @@ export const TransactionsPage: React.FC = () => {
 
                   <div className="flex items-center gap-3 shrink-0">
                     <div
-                      className={`text-sm font-black tabular-nums text-right ${
-                        isIncome ? 'text-[#047857]' : isExpense ? 'text-red-600' : 'text-brand-dark'
-                      }`}
+                      className={`text-sm font-black tabular-nums text-right ${isIncome ? 'text-[#047857]' : isExpense ? 'text-red-600' : 'text-brand-dark'
+                        }`}
                     >
                       {isIncome
                         ? `+${formatIDR(tx.amount)}`
                         : isExpense
-                        ? `-${formatIDR(tx.amount)}`
-                        : formatIDR(tx.amount)}
+                          ? `-${formatIDR(tx.amount)}`
+                          : formatIDR(tx.amount)}
                     </div>
                     <button
                       onClick={() => handleDelete(tx.id, tx.description)}

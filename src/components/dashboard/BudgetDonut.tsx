@@ -17,6 +17,9 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
   unallocatedPercentage,
   unallocatedIncome,
 }) => {
+  const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
+  const [isTooltipActive, setIsTooltipActive] = React.useState(false);
+
   // Build data points
   const chartData = pocketSummaries.map((p) => ({
     name: p.name,
@@ -36,6 +39,14 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
   }
 
   const CustomTooltip = ({ active, payload }: any) => {
+    React.useEffect(() => {
+      if (active && payload && payload.length) {
+        setIsTooltipActive(true);
+      } else {
+        setIsTooltipActive(false);
+      }
+    }, [active, payload]);
+
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       const sliceColor = data.color || '#FAAE2B';
@@ -45,7 +56,7 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
 
       return (
         <div
-          className="p-3 rounded-2xl border-2 border-brand-dark text-xs shadow-saweria font-bold select-none min-w-[150px]"
+          className="p-3 rounded-2xl border-2 border-brand-dark text-xs shadow-saweria font-bold select-none min-w-[150px] animate-in fade-in zoom-in-95 duration-150"
           style={{ backgroundColor: sliceColor }}
         >
           <p className="font-black drop-shadow-sm truncate" style={{ color: textColor }}>
@@ -63,11 +74,17 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
     return null;
   };
 
+  const isAnyActive = hoveredIndex !== null || isTooltipActive;
+
   return (
     <div className="flex flex-col items-center justify-center relative w-full h-64">
       <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Tooltip content={<CustomTooltip />} />
+        <PieChart onMouseLeave={() => setHoveredIndex(null)}>
+          <Tooltip
+            content={<CustomTooltip />}
+            wrapperStyle={{ zIndex: 50, pointerEvents: 'none' }}
+            allowEscapeViewBox={{ x: true, y: true }}
+          />
           <Pie
             data={chartData}
             cx="50%"
@@ -78,16 +95,30 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
             dataKey="value"
             stroke="#18181B"
             strokeWidth={2}
+            onMouseEnter={(_, index) => setHoveredIndex(index)}
+            onMouseLeave={() => setHoveredIndex(null)}
+            onClick={(_, index) => setHoveredIndex(hoveredIndex === index ? null : index)}
           >
             {chartData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.color} />
+              <Cell
+                key={`cell-${index}`}
+                fill={entry.color}
+                className="cursor-pointer transition-all duration-150"
+                opacity={hoveredIndex === null || hoveredIndex === index ? 1 : 0.45}
+                stroke="#18181B"
+                strokeWidth={hoveredIndex === index ? 3 : 2}
+              />
             ))}
           </Pie>
         </PieChart>
       </ResponsiveContainer>
 
-      {/* Center Label */}
-      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+      {/* Center Label (Smoothly hidden when hovering/tapping any slice to prevent text collisions) */}
+      <div
+        className={`absolute inset-0 flex flex-col items-center justify-center pointer-events-none transition-opacity duration-200 ${
+          isAnyActive ? 'opacity-0' : 'opacity-100'
+        }`}
+      >
         <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-darkMuted">
           Total Gaji
         </span>

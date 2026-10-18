@@ -10,63 +10,63 @@ interface StatCardsProps {
 
 export const StatCards: React.FC<StatCardsProps> = ({ overview }) => {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-4">
       {/* 1. Saldo Riil */}
-      <Card variant="saweria" className="bg-white">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-brand-darkMuted uppercase tracking-wider">
-            Saldo Riil (Kas & Bank)
+      <Card variant="saweria" className="bg-white p-3 sm:p-5 flex flex-col justify-between">
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider truncate">
+            Saldo Riil
           </span>
-          <div className="w-8 h-8 rounded-xl bg-brand-primary/20 border border-brand-dark flex items-center justify-center text-brand-dark">
-            <Wallet className="w-4 h-4" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-brand-primary/20 border border-brand-dark flex items-center justify-center text-brand-dark shrink-0">
+            <Wallet className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </div>
         </div>
-        <div className="mt-2">
-          <div className="text-2xl font-black text-brand-dark tabular-nums tracking-tight">
+        <div className="mt-1.5 sm:mt-2">
+          <div className="text-base sm:text-xl lg:text-2xl font-black text-brand-dark tabular-nums tracking-tight truncate">
             {formatIDR(overview.totalRecordedBalance)}
           </div>
-          <p className="text-[11px] text-brand-darkMuted mt-1">
-            Total uang tunai & rekening aktif
+          <p className="text-[9px] sm:text-[11px] text-brand-darkMuted mt-0.5 truncate">
+            Kas & rekening aktif
           </p>
         </div>
       </Card>
 
       {/* 2. Pemasukan Bulanan */}
-      <Card variant="saweria" className="bg-white">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-brand-darkMuted uppercase tracking-wider">
-            Pemasukan Bulan Ini
+      <Card variant="saweria" className="bg-white p-3 sm:p-5 flex flex-col justify-between">
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider truncate">
+            Pemasukan
           </span>
-          <div className="w-8 h-8 rounded-xl bg-[#10B981]/20 border border-brand-dark flex items-center justify-center text-[#047857]">
-            <TrendingUp className="w-4 h-4 stroke-[2.5]" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-[#10B981]/20 border border-brand-dark flex items-center justify-center text-[#047857] shrink-0">
+            <TrendingUp className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
           </div>
         </div>
-        <div className="mt-2">
-          <div className="text-2xl font-black text-brand-dark tabular-nums tracking-tight">
+        <div className="mt-1.5 sm:mt-2">
+          <div className="text-base sm:text-xl lg:text-2xl font-black text-brand-dark tabular-nums tracking-tight truncate">
             {formatIDR(overview.monthlyIncome)}
           </div>
-          <p className="text-[11px] text-brand-darkMuted mt-1">
-            Dasar alokasi kantong budget
+          <p className="text-[9px] sm:text-[11px] text-brand-darkMuted mt-0.5 truncate">
+            Bulan terpilih
           </p>
         </div>
       </Card>
 
       {/* 3. Total Pengeluaran */}
-      <Card variant="saweria" className="bg-white">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-brand-darkMuted uppercase tracking-wider">
-            Pengeluaran Bulan Ini
+      <Card variant="saweria" className="bg-white p-3 sm:p-5 flex flex-col justify-between">
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider truncate">
+            Pengeluaran
           </span>
-          <div className="w-8 h-8 rounded-xl bg-red-500/15 border border-brand-dark flex items-center justify-center text-red-600">
-            <TrendingDown className="w-4 h-4 stroke-[2.5]" />
+          <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl bg-red-500/15 border border-brand-dark flex items-center justify-center text-red-600 shrink-0">
+            <TrendingDown className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
           </div>
         </div>
-        <div className="mt-2">
-          <div className="text-2xl font-black text-brand-dark tabular-nums tracking-tight">
+        <div className="mt-1.5 sm:mt-2">
+          <div className="text-base sm:text-xl lg:text-2xl font-black text-brand-dark tabular-nums tracking-tight truncate">
             {formatIDR(overview.totalMonthlyExpense)}
           </div>
-          <p className="text-[11px] text-brand-darkMuted mt-1">
-            Total kas keluar periode ini
+          <p className="text-[9px] sm:text-[11px] text-brand-darkMuted mt-0.5 truncate">
+            Kas keluar tercatat
           </p>
         </div>
       </Card>
@@ -74,40 +74,40 @@ export const StatCards: React.FC<StatCardsProps> = ({ overview }) => {
       {/* 4. Sisa Anggaran */}
       <Card
         variant="saweria"
-        className={overview.isOverallocated ? 'bg-red-50 border-red-600' : 'bg-white'}
+        className={`p-3 sm:p-5 flex flex-col justify-between ${
+          overview.isOverallocated ? 'bg-red-50 border-red-600' : 'bg-white'
+        }`}
       >
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-brand-darkMuted uppercase tracking-wider">
-            {overview.isOverallocated ? 'Alokasi Berlebih!' : 'Sisa Kuota Anggaran'}
+        <div className="flex items-center justify-between gap-1">
+          <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider truncate">
+            {overview.isOverallocated ? 'Over-Alloc!' : 'Sisa Kuota'}
           </span>
           <div
-            className={`w-8 h-8 rounded-xl border border-brand-dark flex items-center justify-center ${
+            className={`w-6 h-6 sm:w-8 sm:h-8 rounded-lg sm:rounded-xl border border-brand-dark flex items-center justify-center shrink-0 ${
               overview.isOverallocated
                 ? 'bg-red-500 text-white'
                 : 'bg-[#8B5CF6]/20 text-[#6D28D9]'
             }`}
           >
             {overview.isOverallocated ? (
-              <AlertTriangle className="w-4 h-4 stroke-[2.5]" />
+              <AlertTriangle className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[2.5]" />
             ) : (
-              <PiggyBank className="w-4 h-4" />
+              <PiggyBank className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             )}
           </div>
         </div>
-        <div className="mt-2">
+        <div className="mt-1.5 sm:mt-2">
           <div
-            className={`text-2xl font-black tabular-nums tracking-tight ${
+            className={`text-base sm:text-xl lg:text-2xl font-black tabular-nums tracking-tight truncate ${
               overview.isOverallocated ? 'text-red-600' : 'text-brand-dark'
             }`}
           >
             {overview.isOverallocated
-              ? `+${overview.totalAllocationPercentage}% (Kelebihan)`
+              ? `+${overview.totalAllocationPercentage}%`
               : formatIDR(overview.totalBudgetRemaining)}
           </div>
-          <p className="text-[11px] text-brand-darkMuted mt-1">
-            {overview.isOverallocated
-              ? 'Total alokasi melebihi 100% pendapatan'
-              : 'Sisa batas pengeluaran terencana'}
+          <p className="text-[9px] sm:text-[11px] text-brand-darkMuted mt-0.5 truncate">
+            {overview.isOverallocated ? 'Melebihi 100%' : 'Batas rencana'}
           </p>
         </div>
       </Card>

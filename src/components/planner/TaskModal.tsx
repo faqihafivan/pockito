@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -27,6 +27,28 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
   const [setReminder, setReminderState] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Synchronize form fields whenever modal opens or taskToEdit changes
+  useEffect(() => {
+    if (isOpen) {
+      if (taskToEdit) {
+        setTitle(taskToEdit.title);
+        setDescription(taskToEdit.description || '');
+        setDueDate(taskToEdit.due_date || new Date().toISOString().split('T')[0]);
+        setStartTime(taskToEdit.start_time || '09:00');
+        setPriority(taskToEdit.priority || 'medium');
+        setReminderState(false);
+      } else {
+        setTitle('');
+        setDescription('');
+        setDueDate(new Date().toISOString().split('T')[0]);
+        setStartTime('09:00');
+        setPriority('medium');
+        setReminderState(false);
+      }
+      setError('');
+    }
+  }, [isOpen, taskToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

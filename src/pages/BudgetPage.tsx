@@ -83,20 +83,19 @@ export const BudgetPage: React.FC = () => {
             }}
             leftIcon={<Plus className="w-4 h-4" />}
           >
-            + Buat Kantong
+            Buat Kantong
           </Button>
         </div>
       </div>
 
       {/* Allocation Status Alert Banner */}
       <div
-        className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-4 ${
-          overview.isOverallocated
+        className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-4 ${overview.isOverallocated
             ? 'bg-red-50 border-red-500 text-red-800'
             : overview.unallocatedPercentage > 0
-            ? 'bg-brand-primary/20 border-brand-dark text-brand-dark'
-            : 'bg-[#10B981]/20 border-brand-dark text-[#047857]'
-        }`}
+              ? 'bg-brand-primary/20 border-brand-dark text-brand-dark'
+              : 'bg-[#10B981]/20 border-brand-dark text-[#047857]'
+          }`}
       >
         <div className="flex items-center gap-3">
           {overview.isOverallocated ? (
@@ -109,8 +108,8 @@ export const BudgetPage: React.FC = () => {
               {overview.isOverallocated
                 ? `Alokasi Melebihi 100% (${overview.totalAllocationPercentage}% terpakai)! Mohon kurangi persentase kantong.`
                 : overview.unallocatedPercentage > 0
-                ? `Ada sisa ${overview.unallocatedPercentage}% (${formatIDR(overview.unallocatedIncome)}) yang belum dialokasikan.`
-                : 'Alokasi Seimbang Sempurna (100% Gaji Terbagi)!'}
+                  ? `Ada sisa ${overview.unallocatedPercentage}% (${formatIDR(overview.unallocatedIncome)}) yang belum dialokasikan.`
+                  : 'Alokasi Seimbang Sempurna (100% Gaji Terbagi)!'}
             </p>
             <p className="text-[11px] opacity-80 mt-0.5">
               Dasar perhitungan: Gaji bulanan {formatIDR(monthlyIncome)}
@@ -148,9 +147,8 @@ export const BudgetPage: React.FC = () => {
                         className="p-1 hover:scale-110 transition-transform"
                       >
                         <Star
-                          className={`w-4 h-4 ${
-                            pocket.is_starred ? 'fill-brand-primary text-brand-dark' : 'text-gray-300'
-                          }`}
+                          className={`w-4 h-4 ${pocket.is_starred ? 'fill-brand-primary text-brand-dark' : 'text-gray-300'
+                            }`}
                         />
                       </button>
                     </div>

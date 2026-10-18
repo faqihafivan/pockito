@@ -326,4 +326,23 @@ export class DataService {
     setLocalItem(STORAGE_KEYS.GOALS, INITIAL_GOALS);
     setLocalItem(STORAGE_KEYS.TASKS, INITIAL_TASKS);
   }
+
+  static async deleteAllUserData(): Promise<void> {
+    if (this.isCloud() && supabase) {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        await supabase.from('transactions').delete().eq('user_id', user.id);
+        await supabase.from('pockets').delete().eq('user_id', user.id);
+        await supabase.from('accounts').delete().eq('user_id', user.id);
+        await supabase.from('goals').delete().eq('user_id', user.id);
+        await supabase.from('tasks').delete().eq('user_id', user.id);
+        await supabase.from('profiles').delete().eq('id', user.id);
+        await supabase.auth.signOut();
+      }
+    }
+    Object.values(STORAGE_KEYS).forEach((key) => {
+      localStorage.removeItem(key);
+    });
+    localStorage.removeItem('pockito_demo_user');
+  }
 }

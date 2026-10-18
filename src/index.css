@@ -30,3 +30,27 @@
 ::-webkit-scrollbar-thumb:hover {
   background: #18181B;
 }
+
+/* Continuous Infinite Marquee for Cards (Mobile, Tablet & Desktop) */
+@keyframes marquee-glide {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee-glide 32s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover,
+.animate-marquee:active,
+.animation-paused {
+  animation-play-state: paused !important;
+}
+

@@ -2,12 +2,16 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { AppShell } from './components/layout/AppShell';
+import { ErrorBoundary } from './components/ui/ErrorBoundary';
 
 // Public Pages
 import { LandingPage } from './pages/LandingPage';
+import { WelcomePage } from './pages/WelcomePage';
 import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
+import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
+import { TermsPage } from './pages/TermsPage';
 
 // Authenticated Pages
 import { OnboardingPage } from './pages/OnboardingPage';
@@ -22,15 +26,19 @@ import { SettingsPage } from './pages/SettingsPage';
 
 export function App() {
   return (
-    <BrowserRouter>
-      <AuthProvider>
-        <DataProvider>
-          <Routes>
-            {/* Public Routes */}
-            <Route path="/" element={<LandingPage />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AuthProvider>
+          <DataProvider>
+            <Routes>
+              {/* Public Routes */}
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/welcome" element={<WelcomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
+              <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+              <Route path="/privacy" element={<PrivacyPolicyPage />} />
+              <Route path="/terms" element={<TermsPage />} />
 
             {/* Authenticated Application Shell */}
             <Route path="/app" element={<AppShell />}>
@@ -53,6 +61,7 @@ export function App() {
         </DataProvider>
       </AuthProvider>
     </BrowserRouter>
+  </ErrorBoundary>
   );
 }
 

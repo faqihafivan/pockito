@@ -18,8 +18,9 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
   const recent = transactions.slice(0, 5);
 
   return (
-    <Card variant="saweria" className="bg-white">
-      <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
+    <Card variant="saweria" className="bg-white h-full flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
         <div>
           <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
             Aktivitas Transaksi Terbaru
@@ -40,7 +41,7 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
       <div className="divide-y divide-brand-border/60 mt-2">
         {recent.length === 0 ? (
           <p className="py-6 text-center text-xs text-brand-darkMuted">
-            Belum ada transaksi tercatat. Klik tombol "+ Catat Transaksi" untuk memulai!
+            Belum ada transaksi tercatat. Klik tombol "Catat Transaksi" untuk memulai!
           </p>
         ) : (
           recent.map((tx) => {
@@ -92,6 +93,7 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
             );
           })
         )}
+      </div>
       </div>
     </Card>
   );

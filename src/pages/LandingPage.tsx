@@ -8,6 +8,7 @@ import {
   ShieldCheck,
   Sparkles,
   ArrowRight,
+  Smartphone,
 } from 'lucide-react';
 
 export const LandingPage: React.FC = () => {
@@ -26,7 +27,12 @@ export const LandingPage: React.FC = () => {
           </span>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link to="/welcome">
+            <Button variant="ghost" size="sm" leftIcon={<Smartphone className="w-4 h-4 text-brand-primary" />}>
+              <span className="hidden sm:inline">Tour</span> Walkthrough
+            </Button>
+          </Link>
           <Link to="/login">
             <Button variant="ghost" size="sm">
               Masuk
@@ -66,15 +72,20 @@ export const LandingPage: React.FC = () => {
           Pockito membagi gajimu ke dalam kantong-kantong cerdas, mencatat pengeluaran riil, serta menyinkronkan tugas dan tagihan harian dalam satu interface ceria khas Saweria.
         </p>
 
-        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-4">
+        <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
           <Link to="/register" className="w-full sm:w-auto">
             <Button variant="primary" size="lg" className="w-full sm:w-auto" rightIcon={<ArrowRight className="w-5 h-5" />}>
               Mulai Pakai Pockito Sekarang
             </Button>
           </Link>
+          <Link to="/welcome" className="w-full sm:w-auto">
+            <Button variant="secondary" size="lg" className="w-full sm:w-auto" leftIcon={<Sparkles className="w-4 h-4 text-brand-dark" />}>
+              Lihat Tour Play Store (3 Slide)
+            </Button>
+          </Link>
           <Link to="/app/dashboard" className="w-full sm:w-auto">
-            <Button variant="secondary" size="lg" className="w-full sm:w-auto">
-              Coba Mode Demo Langsung
+            <Button variant="ghost" size="lg" className="w-full sm:w-auto">
+              Mode Demo Langsung
             </Button>
           </Link>
         </div>
@@ -114,7 +125,16 @@ export const LandingPage: React.FC = () => {
       </section>
 
       {/* Footer */}
-      <footer className="mt-auto border-t-2 border-brand-dark bg-white px-6 py-8 text-center text-xs font-bold text-brand-darkMuted">
+      <footer className="mt-auto border-t-2 border-brand-dark bg-white px-6 py-8 text-center text-xs font-bold text-brand-darkMuted space-y-3">
+        <div className="flex items-center justify-center gap-6 text-brand-dark">
+          <Link to="/privacy" className="hover:text-brand-primaryHover transition-colors underline decoration-brand-border">
+            Kebijakan Privasi
+          </Link>
+          <span className="text-brand-border">•</span>
+          <Link to="/terms" className="hover:text-brand-primaryHover transition-colors underline decoration-brand-border">
+            Syarat & Ketentuan
+          </Link>
+        </div>
         <p>© 2026 Pockito — Personal Finance & Productivity Workspace. Dibuat dengan cinta untuk generasi produktif Indonesia.</p>
       </footer>
     </div>

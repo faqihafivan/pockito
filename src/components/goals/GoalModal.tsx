@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -19,13 +19,39 @@ export const GoalModal: React.FC<GoalModalProps> = ({ isOpen, onClose, goalToEdi
   const { user } = useAuth();
   const { addGoal, updateGoal } = useData();
 
+  const getDefaultTargetDate = () => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() + 1);
+    return d.toISOString().split('T')[0];
+  };
+
   const [name, setName] = useState(goalToEdit?.name || '');
   const [targetAmount, setTargetAmount] = useState<number>(goalToEdit?.target_amount || 5000000);
   const [currentAmount, setCurrentAmount] = useState<number>(goalToEdit?.current_amount || 0);
-  const [targetDate, setTargetDate] = useState(goalToEdit?.target_date || '2026-12-31');
+  const [targetDate, setTargetDate] = useState(goalToEdit?.target_date || getDefaultTargetDate());
   const [color, setColor] = useState(goalToEdit?.color || '#FAAE2B');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Synchronize form fields whenever modal opens or goalToEdit changes
+  useEffect(() => {
+    if (isOpen) {
+      if (goalToEdit) {
+        setName(goalToEdit.name);
+        setTargetAmount(goalToEdit.target_amount);
+        setCurrentAmount(goalToEdit.current_amount);
+        setTargetDate(goalToEdit.target_date || getDefaultTargetDate());
+        setColor(goalToEdit.color || '#FAAE2B');
+      } else {
+        setName('');
+        setTargetAmount(5000000);
+        setCurrentAmount(0);
+        setTargetDate(getDefaultTargetDate());
+        setColor('#FAAE2B');
+      }
+      setError('');
+    }
+  }, [isOpen, goalToEdit]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { formatIDR } from '../domain/finance/financialEngine';
+import { formatIDR, formatPeriod } from '../domain/finance/financialEngine';
 import { isColorLight } from '../domain/finance/pocketIcons';
 import {
   BarChart,
@@ -205,7 +205,7 @@ export const ReportsPage: React.FC = () => {
               <span>Arus Kas: Pemasukan vs Pengeluaran</span>
             </h3>
             <span className="text-[11px] font-bold text-brand-darkMuted bg-brand-cream px-2 py-0.5 rounded-lg border border-brand-border">
-              Periode {selectedPeriod}
+              Periode {formatPeriod(selectedPeriod)}
             </span>
           </div>
 
@@ -298,8 +298,12 @@ export const ReportsPage: React.FC = () => {
               {/* Donut Chart Visual with Center Hole Total */}
               <div className="w-full sm:w-5/12 h-64 relative flex items-center justify-center shrink-0">
                 <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Tooltip content={<CustomDonutTooltip />} />
+                  <PieChart onMouseLeave={() => setHoveredPocket(null)}>
+                    <Tooltip
+                      content={<CustomDonutTooltip />}
+                      wrapperStyle={{ zIndex: 50, pointerEvents: 'none' }}
+                      allowEscapeViewBox={{ x: true, y: true }}
+                    />
                     <Pie
                       data={categoryData}
                       cx="50%"
@@ -312,26 +316,39 @@ export const ReportsPage: React.FC = () => {
                       strokeWidth={2}
                       onMouseEnter={(_, index) => setHoveredPocket(categoryData[index])}
                       onMouseLeave={() => setHoveredPocket(null)}
+                      onClick={(_, index) =>
+                        setHoveredPocket(
+                          hoveredPocket?.name === categoryData[index].name
+                            ? null
+                            : categoryData[index]
+                        )
+                      }
                     >
                       {categoryData.map((entry, index) => (
                         <Cell
                           key={`cell-${index}`}
                           fill={entry.color}
                           className="cursor-pointer transition-opacity duration-150"
-                          opacity={hoveredPocket && hoveredPocket.name !== entry.name ? 0.5 : 1}
+                          opacity={hoveredPocket && hoveredPocket.name !== entry.name ? 0.45 : 1}
+                          stroke="#18181B"
+                          strokeWidth={hoveredPocket?.name === entry.name ? 3 : 2}
                         />
                       ))}
                     </Pie>
                   </PieChart>
                 </ResponsiveContainer>
 
-                {/* Donut Hole Metric (Interactive on hover) */}
-                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
+                {/* Donut Hole Metric (Smoothly hidden when hovering to prevent text collision) */}
+                <div
+                  className={`absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2 transition-opacity duration-200 ${
+                    hoveredPocket ? 'opacity-0' : 'opacity-100'
+                  }`}
+                >
                   <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-darkMuted truncate max-w-[110px]">
-                    {hoveredPocket ? hoveredPocket.name : 'Total Keluar'}
+                    Total Keluar
                   </span>
                   <span className="text-xs sm:text-sm font-black text-brand-dark mt-0.5">
-                    {formatIDR(hoveredPocket ? hoveredPocket.value : overview.totalMonthlyExpense)}
+                    {formatIDR(overview.totalMonthlyExpense)}
                   </span>
                 </div>
               </div>

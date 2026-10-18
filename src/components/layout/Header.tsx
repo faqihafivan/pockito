@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Plus, Bell, Calendar, ChevronDown, Check } from 'lucide-react';
+import { Plus, Bell, Check } from 'lucide-react';
 import { Button } from '../ui/Button';
-import { useData } from '../../context/DataContext';
+import { PeriodSelector } from './PeriodSelector';
 import { InAppAlert, ReminderService } from '../../services/reminderService';
 
 interface HeaderProps {
@@ -10,46 +10,14 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewTask }) => {
-  const { selectedPeriod, setSelectedPeriod } = useData();
   const [showAlerts, setShowAlerts] = useState(false);
   const [alerts, setAlerts] = useState<InAppAlert[]>(() => ReminderService.getAlerts());
 
-  // Available monthly periods
-  const periods = [
-    { value: '2026-10', label: 'Oktober 2026' },
-    { value: '2026-09', label: 'September 2026' },
-    { value: '2026-08', label: 'Agustus 2026' },
-    { value: '2026-11', label: 'November 2026' },
-  ];
-
-  const handlePeriodChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPeriod(e.target.value);
-  };
-
   return (
     <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b-2 border-brand-dark px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
-      {/* Left: Period Selector */}
+      {/* Left: Dynamic Realtime Period Selector */}
       <div className="flex items-center gap-3">
-        <div className="relative inline-flex items-center">
-          <div className="absolute left-3 pointer-events-none text-brand-darkMuted">
-            <Calendar className="w-5 h-5" />
-          </div>
-          <select
-            value={selectedPeriod}
-            onChange={handlePeriodChange}
-            aria-label="Pilih Periode Bulan"
-            className="appearance-none bg-brand-cream border-2 border-brand-dark font-black text-xs sm:text-sm text-brand-dark rounded-xl pl-10 pr-9 py-2 cursor-pointer shadow-saweria-sm hover:bg-brand-primary/20 transition-colors focus:outline-none"
-          >
-            {periods.map((p) => (
-              <option key={p.value} value={p.value}>
-                {p.label}
-              </option>
-            ))}
-          </select>
-          <div className="absolute right-2.5 pointer-events-none text-brand-dark">
-            <ChevronDown className="w-5 h-5" />
-          </div>
-        </div>
+        <PeriodSelector />
       </div>
 
       {/* Right: Actions */}
@@ -127,8 +95,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           onClick={onOpenNewTransaction}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          <span className="hidden xs:inline">+ Catat Transaksi</span>
-          <span className="xs:hidden">+ Catat</span>
+          <span className="hidden xs:inline">Catat Transaksi</span>
+          <span className="xs:hidden">Catat</span>
         </Button>
       </div>
     </header>

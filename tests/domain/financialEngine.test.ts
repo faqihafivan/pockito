@@ -6,6 +6,9 @@ import {
   calculateNetBalance,
   calculatePocketSummaries,
   calculateFinancialOverview,
+  formatPeriod,
+  offsetPeriod,
+  getCurrentRealtimePeriod,
 } from '../../src/domain/finance/financialEngine';
 import { Account, Pocket, Transaction } from '../../src/types';
 
@@ -206,6 +209,33 @@ describe('Financial Domain Engine: Pockito Integrity', () => {
       expect(overview.isOverallocated).toBe(true);
       expect(overview.totalAllocationPercentage).toBe(115);
       expect(overview.unallocatedPercentage).toBe(0);
+    });
+  });
+
+  describe('Period Formatting and Manipulation', () => {
+    it('formats YYYY-MM to full Indonesian month and year', () => {
+      expect(formatPeriod('2026-10')).toBe('Oktober 2026');
+      expect(formatPeriod('2026-01')).toBe('Januari 2026');
+      expect(formatPeriod('2026-12')).toBe('Desember 2026');
+      expect(formatPeriod('2027-05')).toBe('Mei 2027');
+    });
+
+    it('formats YYYY-MM to short Indonesian month and year', () => {
+      expect(formatPeriod('2026-10', true)).toBe('Okt 2026');
+      expect(formatPeriod('2026-08', true)).toBe('Agu 2026');
+      expect(formatPeriod('2026-11', true)).toBe('Nov 2026');
+    });
+
+    it('offsets period forward and backward correctly across years', () => {
+      expect(offsetPeriod('2026-10', 1)).toBe('2026-11');
+      expect(offsetPeriod('2026-10', -1)).toBe('2026-09');
+      expect(offsetPeriod('2026-12', 1)).toBe('2027-01');
+      expect(offsetPeriod('2026-01', -1)).toBe('2025-12');
+    });
+
+    it('gets valid real-time period matching current year-month', () => {
+      const current = getCurrentRealtimePeriod();
+      expect(current).toMatch(/^\d{4}-\d{2}$/);
     });
   });
 });
