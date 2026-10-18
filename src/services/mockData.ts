@@ -1,0 +1,236 @@
+import { Account, Pocket, SavingsGoal, Task, Transaction, UserProfile } from '../types';
+
+export const INITIAL_PROFILE: UserProfile = {
+  id: 'user-demo-1',
+  full_name: 'Faqih Pratama',
+  email: 'faqih@pockito.app',
+  currency: 'IDR',
+  timezone: 'Asia/Jakarta',
+  monthly_income: 7500000, // Rp 7.500.000
+  onboarding_completed: true,
+};
+
+export const INITIAL_ACCOUNTS: Account[] = [
+  {
+    id: 'acc-bca',
+    user_id: 'user-demo-1',
+    name: 'Bank BCA Utama',
+    type: 'bank',
+    opening_balance: 3500000,
+    currency: 'IDR',
+    color: '#00529C',
+    is_archived: false,
+  },
+  {
+    id: 'acc-gopay',
+    user_id: 'user-demo-1',
+    name: 'GoPay / QRIS',
+    type: 'ewallet',
+    opening_balance: 450000,
+    currency: 'IDR',
+    color: '#00AED6',
+    is_archived: false,
+  },
+  {
+    id: 'acc-cash',
+    user_id: 'user-demo-1',
+    name: 'Uang Saku Tunai',
+    type: 'cash',
+    opening_balance: 150000,
+    currency: 'IDR',
+    color: '#10B981',
+    is_archived: false,
+  },
+];
+
+export const INITIAL_POCKETS: Pocket[] = [
+  {
+    id: 'pocket-food',
+    user_id: 'user-demo-1',
+    name: 'Makan & Minum',
+    icon: 'Utensils',
+    color: '#FF7A59',
+    allocation_percentage: 30, // Rp 2.250.000
+    is_starred: true,
+    sort_order: 1,
+  },
+  {
+    id: 'pocket-bills',
+    user_id: 'user-demo-1',
+    name: 'Kos & Tagihan Rutin',
+    icon: 'Home',
+    color: '#713B3B',
+    allocation_percentage: 25, // Rp 1.875.000
+    is_starred: true,
+    sort_order: 2,
+  },
+  {
+    id: 'pocket-savings',
+    user_id: 'user-demo-1',
+    name: 'Tabungan Dana Darurat',
+    icon: 'ShieldCheck',
+    color: '#10B981',
+    allocation_percentage: 20, // Rp 1.500.000
+    is_starred: true,
+    sort_order: 3,
+  },
+  {
+    id: 'pocket-transport',
+    user_id: 'user-demo-1',
+    name: 'Transport & Bensin',
+    icon: 'Car',
+    color: '#0EA5E9',
+    allocation_percentage: 15, // Rp 1.125.000
+    is_starred: false,
+    sort_order: 4,
+  },
+  {
+    id: 'pocket-coffee',
+    user_id: 'user-demo-1',
+    name: 'Nongkrong & Kopi',
+    icon: 'Coffee',
+    color: '#FAAE2B',
+    allocation_percentage: 10, // Rp 750.000
+    is_starred: false,
+    sort_order: 5,
+  },
+];
+
+export const INITIAL_TRANSACTIONS: Transaction[] = [
+  {
+    id: 'tx-1',
+    user_id: 'user-demo-1',
+    account_id: 'acc-bca',
+    type: 'income',
+    amount: 7500000,
+    date: '2026-10-01T08:30:00Z',
+    description: 'Gaji Pokok Oktober 2026',
+    notes: 'Payroll resmi kantor',
+  },
+  {
+    id: 'tx-2',
+    user_id: 'user-demo-1',
+    account_id: 'acc-bca',
+    pocket_id: 'pocket-bills',
+    type: 'expense',
+    amount: 1500000,
+    date: '2026-10-02T10:00:00Z',
+    description: 'Sewa Kamar Kos Bulan Oktober',
+  },
+  {
+    id: 'tx-3',
+    user_id: 'user-demo-1',
+    account_id: 'acc-bca',
+    pocket_id: 'pocket-bills',
+    type: 'expense',
+    amount: 250000,
+    date: '2026-10-03T11:15:00Z',
+    description: 'Token Listrik & Air Bersih',
+  },
+  {
+    id: 'tx-4',
+    user_id: 'user-demo-1',
+    account_id: 'acc-gopay',
+    pocket_id: 'pocket-food',
+    type: 'expense',
+    amount: 45000,
+    date: '2026-10-05T12:30:00Z',
+    description: 'Nasi Padang Siang + Es Teh',
+  },
+  {
+    id: 'tx-5',
+    user_id: 'user-demo-1',
+    account_id: 'acc-gopay',
+    pocket_id: 'pocket-coffee',
+    type: 'expense',
+    amount: 38000,
+    date: '2026-10-07T16:00:00Z',
+    description: 'Kopi Susu Gula Aren & Croissant',
+  },
+  {
+    id: 'tx-6',
+    user_id: 'user-demo-1',
+    account_id: 'acc-bca',
+    destination_account_id: 'acc-cash',
+    type: 'transfer',
+    amount: 200000,
+    date: '2026-10-08T18:20:00Z',
+    description: 'Tarik Tunai ATM BCA untuk Kasir Toko',
+  },
+  {
+    id: 'tx-7',
+    user_id: 'user-demo-1',
+    account_id: 'acc-gopay',
+    pocket_id: 'pocket-transport',
+    type: 'expense',
+    amount: 32000,
+    date: '2026-10-10T08:15:00Z',
+    description: 'Ojek Online ke Stasiun',
+  },
+];
+
+export const INITIAL_GOALS: SavingsGoal[] = [
+  {
+    id: 'goal-1',
+    user_id: 'user-demo-1',
+    name: 'Beli Laptop Kerja Baru',
+    target_amount: 15000000,
+    current_amount: 6500000,
+    target_date: '2026-12-31',
+    icon: 'Laptop',
+    color: '#FAAE2B',
+    is_completed: false,
+  },
+  {
+    id: 'goal-2',
+    user_id: 'user-demo-1',
+    name: 'Dana Liburan Akhir Tahun',
+    target_amount: 4000000,
+    current_amount: 2800000,
+    target_date: '2026-11-30',
+    icon: 'Palmtree',
+    color: '#10B981',
+    is_completed: false,
+  },
+];
+
+export const INITIAL_TASKS: Task[] = [
+  {
+    id: 'task-1',
+    user_id: 'user-demo-1',
+    title: 'Bayar tagihan internet & wifi kos',
+    description: 'Sebelum tanggal 20 agar tidak kena denda',
+    due_date: '2026-10-19',
+    start_time: '09:00',
+    priority: 'high',
+    is_completed: false,
+  },
+  {
+    id: 'task-2',
+    user_id: 'user-demo-1',
+    title: 'Review sisa budget mingguan di Pockito',
+    description: 'Cek alokasi uang makan dan nongkrong',
+    due_date: '2026-10-18',
+    start_time: '19:30',
+    priority: 'medium',
+    is_completed: false,
+  },
+  {
+    id: 'task-3',
+    user_id: 'user-demo-1',
+    title: 'Top-up saldo tabungan darurat via BCA',
+    due_date: '2026-10-25',
+    start_time: '10:00',
+    priority: 'medium',
+    is_completed: false,
+  },
+  {
+    id: 'task-4',
+    user_id: 'user-demo-1',
+    title: 'Belanja stok kebutuhan bulanan',
+    due_date: '2026-10-02',
+    priority: 'low',
+    is_completed: true,
+    completed_at: '2026-10-02T15:00:00Z',
+  },
+];
