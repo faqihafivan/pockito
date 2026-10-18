@@ -32,13 +32,13 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
       <div className="flex items-center gap-3">
         <div className="relative inline-flex items-center">
           <div className="absolute left-3 pointer-events-none text-brand-darkMuted">
-            <Calendar className="w-4 h-4" />
+            <Calendar className="w-5 h-5" />
           </div>
           <select
             value={selectedPeriod}
             onChange={handlePeriodChange}
             aria-label="Pilih Periode Bulan"
-            className="appearance-none bg-brand-cream border-2 border-brand-dark font-black text-xs sm:text-sm text-brand-dark rounded-xl pl-9 pr-8 py-2 cursor-pointer shadow-saweria-sm hover:bg-brand-primary/20 transition-colors focus:outline-none"
+            className="appearance-none bg-brand-cream border-2 border-brand-dark font-black text-xs sm:text-sm text-brand-dark rounded-xl pl-10 pr-9 py-2 cursor-pointer shadow-saweria-sm hover:bg-brand-primary/20 transition-colors focus:outline-none"
           >
             {periods.map((p) => (
               <option key={p.value} value={p.value}>
@@ -47,7 +47,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
             ))}
           </select>
           <div className="absolute right-2.5 pointer-events-none text-brand-dark">
-            <ChevronDown className="w-4 h-4" />
+            <ChevronDown className="w-5 h-5" />
           </div>
         </div>
       </div>
@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
             className="p-2 sm:p-2.5 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark relative"
             title="Pengingat & Notifikasi"
           >
-            <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Bell className="w-5 h-5 stroke-[2.2]" />
             {alerts.length > 0 && (
               <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-brand-primary text-brand-dark border border-brand-dark text-[10px] font-black flex items-center justify-center">
                 {alerts.length}

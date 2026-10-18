@@ -17,7 +17,7 @@ export const LandingPage: React.FC = () => {
       <header className="border-b-2 border-brand-dark bg-white px-6 sm:px-12 py-4 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <img
-            src="/pockito.png"
+            src="/pockito.jpg"
             alt="Pockito"
             className="w-10 h-10 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm"
           />
@@ -44,7 +44,7 @@ export const LandingPage: React.FC = () => {
       <section className="px-6 sm:px-12 py-12 sm:py-20 max-w-5xl mx-auto text-center space-y-6">
         <div className="flex justify-center">
           <img
-            src="/pockito.png"
+            src="/pockito.jpg"
             alt="Pockito Mascot"
             className="w-24 h-24 sm:w-28 sm:h-28 rounded-3xl object-contain bg-white border-2 border-brand-dark shadow-saweria-lg animate-bounce duration-1000"
           />

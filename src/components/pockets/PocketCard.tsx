@@ -4,46 +4,17 @@ import { Card } from '../ui/Card';
 import { ProgressBar } from '../ui/ProgressBar';
 import { PocketSummary } from '../../types';
 import { formatIDR } from '../../domain/finance/financialEngine';
-import {
-  Utensils,
-  Home,
-  ShieldCheck,
-  Car,
-  Coffee,
-  Smile,
-  PiggyBank,
-  ShoppingBag,
-  BookOpen,
-  Smartphone,
-  HeartPulse,
-  Film,
-  Star,
-  ChevronRight,
-} from 'lucide-react';
+import { Star, ChevronRight } from 'lucide-react';
+import { getPocketIcon } from '../../domain/finance/pocketIcons';
 
 interface PocketCardProps {
   pocket: PocketSummary;
   onEdit?: (pocket: PocketSummary) => void;
 }
 
-const ICON_MAP: Record<string, React.ElementType> = {
-  Utensils,
-  Home,
-  ShieldCheck,
-  Car,
-  Coffee,
-  Smile,
-  PiggyBank,
-  ShoppingBag,
-  BookOpen,
-  Smartphone,
-  HeartPulse,
-  Film,
-};
-
 export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
   const navigate = useNavigate();
-  const IconComponent = ICON_MAP[pocket.icon] || Utensils;
+  const IconComponent = getPocketIcon(pocket.icon);
   const isOverBudget = pocket.spentAmount > pocket.plannedAmount;
 
   return (
@@ -58,10 +29,10 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
             <div
-              className="w-10 h-10 rounded-xl border-2 border-brand-dark flex items-center justify-center text-brand-dark shrink-0 shadow-saweria-sm"
+              className="w-12 h-12 rounded-2xl border-2 border-brand-dark flex items-center justify-center text-brand-dark shrink-0 shadow-saweria-sm"
               style={{ backgroundColor: pocket.color }}
             >
-              <IconComponent className="w-5 h-5 stroke-[2.2]" />
+              <IconComponent className="w-6 h-6 stroke-[2.2]" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">

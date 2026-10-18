@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
@@ -6,39 +6,19 @@ import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Pocket } from '../../types';
 import { formatIDR } from '../../domain/finance/financialEngine';
-import { Star } from 'lucide-react';
+import { Star, Lock, Check } from 'lucide-react';
+import {
+  POCKET_ICONS,
+  PRESET_COLORS,
+  getPocketIcon,
+  isColorLight,
+} from '../../domain/finance/pocketIcons';
 
 interface PocketModalProps {
   isOpen: boolean;
   onClose: () => void;
   pocketToEdit?: Pocket | null;
 }
-
-const AVAILABLE_COLORS = [
-  { hex: '#FF7A59', name: 'Coral / Makanan' },
-  { hex: '#713B3B', name: 'Burgundy / Tagihan' },
-  { hex: '#10B981', name: 'Mint / Tabungan' },
-  { hex: '#8B5CF6', name: 'Lavender / Keinginan' },
-  { hex: '#0EA5E9', name: 'Cyan / Transport' },
-  { hex: '#FAAE2B', name: 'Saweria Amber / Prioritas' },
-  { hex: '#EC4899', name: 'Pink / Belanja' },
-  { hex: '#18181B', name: 'Charcoal / Investasi' },
-];
-
-const AVAILABLE_ICONS = [
-  'Utensils',
-  'Home',
-  'ShieldCheck',
-  'Car',
-  'Coffee',
-  'Smile',
-  'PiggyBank',
-  'ShoppingBag',
-  'BookOpen',
-  'Smartphone',
-  'HeartPulse',
-  'Film',
-];
 
 export const PocketModal: React.FC<PocketModalProps> = ({
   isOpen,
@@ -58,13 +38,33 @@ export const PocketModal: React.FC<PocketModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
+  // Map of colors already used by OTHER pockets
+  const usedColorsMap = useMemo(() => {
+    const map = new Map<string, string>();
+    pockets.forEach((p) => {
+      // If editing existing pocket, don't lock its own color
+      if (pocketToEdit && p.id === pocketToEdit.id) return;
+      map.set(p.color.toLowerCase(), p.name);
+    });
+    return map;
+  }, [pockets, pocketToEdit]);
+
+  const isCurrentColorTaken = usedColorsMap.has(color.toLowerCase());
+  const takenByPocketName = usedColorsMap.get(color.toLowerCase());
+
   const monthlyIncome = user?.monthly_income || 0;
   const estimatedNominal = Math.round((monthlyIncome * percentage) / 100);
+
+  const CurrentIcon = getPocketIcon(icon);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
       setError('Nama kantong wajib diisi');
+      return;
+    }
+    if (isCurrentColorTaken) {
+      setError(`Warna ini sudah dipakai oleh kantong "${takenByPocketName}". Silakan pilih warna lain agar setiap kantong unik.`);
       return;
     }
     if (percentage <= 0 || percentage > 100) {
@@ -106,60 +106,161 @@ export const PocketModal: React.FC<PocketModalProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       title={pocketToEdit ? 'Edit Kantong (Pocket)' : 'Buat Kantong Baru'}
-      subtitle="Tentukan nama, warna ceria, dan porsi alokasi bulanan"
+      subtitle="Sesuaikan nama, ikon unik, warna bebas tanpa duplikasi, dan alokasi gaji"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <Input
-          label="Nama Kantong"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="Contoh: Makan Harian, Kos, Ngopi"
-          required
-        />
-
-        {/* Color Palette Picker */}
-        <div>
-          <label className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider">
-            Warna Aksen Kantong
-          </label>
-          <div className="flex flex-wrap gap-2.5">
-            {AVAILABLE_COLORS.map((c) => (
-              <button
-                key={c.hex}
-                type="button"
-                onClick={() => setColor(c.hex)}
-                className={`w-8 h-8 rounded-xl border-2 transition-transform ${
-                  color === c.hex
-                    ? 'border-brand-dark scale-110 shadow-saweria-sm'
-                    : 'border-transparent hover:scale-105'
-                }`}
-                style={{ backgroundColor: c.hex }}
-                title={c.name}
-              />
-            ))}
+        {/* Live Preview Card */}
+        <div className="flex items-center gap-3.5 p-3.5 bg-brand-cream/80 rounded-2xl border-2 border-brand-dark">
+          <div
+            className="w-12 h-12 rounded-xl border-2 border-brand-dark flex items-center justify-center shadow-saweria-sm shrink-0 transition-colors"
+            style={{ backgroundColor: color }}
+          >
+            <CurrentIcon className="w-6 h-6 stroke-[2.2] text-brand-dark" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <span className="text-[10px] font-bold text-brand-darkMuted uppercase tracking-wider block">
+              Pratinjau Kantong
+            </span>
+            <h4 className="text-sm font-black text-brand-dark truncate">
+              {name.trim() || 'Nama Kantong Baru'}
+            </h4>
+            <span className="text-[11px] font-bold text-brand-darkMuted">
+              Alokasi: {percentage}% ({formatIDR(estimatedNominal)})
+            </span>
           </div>
         </div>
 
-        {/* Icon Picker */}
+        <Input
+          label="Nama Kantong"
+          value={name}
+          onChange={(e) => {
+            setName(e.target.value);
+            if (error) setError('');
+          }}
+          placeholder="Contoh: Makan Harian, Kos & Listrik, Ngopi"
+          required
+        />
+
+        {/* Color Palette Picker with Unique Color Constraint */}
         <div>
-          <label className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider">
-            Pilih Ikon Kantong
-          </label>
-          <div className="flex flex-wrap gap-2">
-            {AVAILABLE_ICONS.map((ic) => (
-              <button
-                key={ic}
-                type="button"
-                onClick={() => setIcon(ic)}
-                className={`px-2.5 py-1.5 rounded-xl border-2 text-xs font-bold transition-all ${
-                  icon === ic
-                    ? 'bg-brand-primary border-brand-dark shadow-saweria-sm text-brand-dark'
-                    : 'bg-white border-brand-border text-brand-darkMuted hover:border-brand-dark'
-                }`}
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider">
+              Pilih Warna Aksen (Bebas & Unik)
+            </label>
+            <span className="text-[10px] font-bold text-brand-darkMuted">
+              {usedColorsMap.size} warna telah terpakai
+            </span>
+          </div>
+
+          <div className="flex flex-wrap gap-2 items-center">
+            {PRESET_COLORS.map((c) => {
+              const isUsed = usedColorsMap.has(c.hex.toLowerCase());
+              const usedBy = usedColorsMap.get(c.hex.toLowerCase());
+              const isSelected = color.toLowerCase() === c.hex.toLowerCase();
+              const light = isColorLight(c.hex);
+
+              return (
+                <button
+                  key={c.hex}
+                  type="button"
+                  disabled={isUsed}
+                  onClick={() => {
+                    setColor(c.hex);
+                    if (error) setError('');
+                  }}
+                  className={`relative w-8 h-8 rounded-xl border-2 transition-all flex items-center justify-center ${
+                    isUsed
+                      ? 'border-gray-400 opacity-30 cursor-not-allowed scale-95'
+                      : isSelected
+                      ? 'border-brand-dark scale-110 shadow-saweria-sm ring-2 ring-brand-primary'
+                      : 'border-transparent hover:scale-105 hover:border-brand-dark'
+                  }`}
+                  style={{ backgroundColor: c.hex }}
+                  title={
+                    isUsed
+                      ? `Terkunci: Sudah dipakai oleh kantong "${usedBy}"`
+                      : c.name
+                  }
+                >
+                  {isUsed ? (
+                    <Lock className="w-3.5 h-3.5 text-brand-dark" />
+                  ) : isSelected ? (
+                    <Check
+                      className="w-4 h-4 stroke-[3]"
+                      style={{ color: light ? '#18181B' : '#FFFFFF' }}
+                    />
+                  ) : null}
+                </button>
+              );
+            })}
+
+            {/* Custom Color Input */}
+            <div className="relative inline-flex items-center gap-1.5 pl-2 border-l border-brand-border">
+              <label
+                htmlFor="custom-color-picker"
+                className="w-8 h-8 rounded-xl border-2 border-brand-dark cursor-pointer flex items-center justify-center bg-white shadow-saweria-sm hover:scale-105 transition-transform"
+                title="Pilih warna kustom sendiri"
+                style={{ backgroundColor: color }}
               >
-                {ic}
-              </button>
-            ))}
+                <input
+                  id="custom-color-picker"
+                  type="color"
+                  value={color}
+                  onChange={(e) => {
+                    setColor(e.target.value);
+                    if (error) setError('');
+                  }}
+                  className="opacity-0 w-0 h-0 absolute pointer-events-none"
+                />
+              </label>
+              <span className="text-[10px] font-bold text-brand-dark uppercase">
+                {color}
+              </span>
+            </div>
+          </div>
+
+          {isCurrentColorTaken && (
+            <p className="text-[11px] font-bold text-red-600 mt-1.5 flex items-center gap-1">
+              <Lock className="w-3 h-3" />
+              Warna ini sudah digunakan oleh kantong &quot;{takenByPocketName}&quot;. Silakan pilih warna yang belum dipakai.
+            </p>
+          )}
+        </div>
+
+        {/* Icon Picker with Visual Icon Grid */}
+        <div>
+          <div className="flex items-center justify-between mb-1.5">
+            <label className="block text-xs font-bold text-brand-dark uppercase tracking-wider">
+              Pilih Ikon Kantong ({POCKET_ICONS.length} Ikon Unik)
+            </label>
+            <span className="text-[10px] font-bold text-brand-primary font-black">
+              Ikon Aktif: {POCKET_ICONS.find((i) => i.id === icon)?.label || icon}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 max-h-48 overflow-y-auto p-2 bg-brand-cream/40 rounded-2xl border border-brand-border">
+            {POCKET_ICONS.map((item) => {
+              const IconComp = item.icon;
+              const isSelected = icon === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => setIcon(item.id)}
+                  title={item.label}
+                  className={`flex flex-col items-center justify-center p-2 rounded-xl border-2 transition-all ${
+                    isSelected
+                      ? 'bg-brand-primary border-brand-dark shadow-saweria-sm scale-105'
+                      : 'bg-white border-brand-border text-brand-darkMuted hover:border-brand-dark hover:bg-white'
+                  }`}
+                >
+                  <IconComp className="w-6 h-6 stroke-[2.2] text-brand-dark shrink-0" />
+                  <span className="text-[9px] font-bold text-brand-dark truncate max-w-full mt-1">
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
 
@@ -221,7 +322,12 @@ export const PocketModal: React.FC<PocketModalProps> = ({
           <Button type="button" variant="outline" onClick={onClose}>
             Batal
           </Button>
-          <Button type="submit" variant="primary" isLoading={isSubmitting}>
+          <Button
+            type="submit"
+            variant="primary"
+            isLoading={isSubmitting}
+            disabled={isCurrentColorTaken}
+          >
             {pocketToEdit ? 'Simpan Perubahan' : 'Buat Kantong'}
           </Button>
         </div>

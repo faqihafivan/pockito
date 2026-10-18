@@ -1,19 +1,22 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useData } from '../context/DataContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { formatIDR } from '../domain/finance/financialEngine';
+import { isColorLight } from '../domain/finance/pocketIcons';
 import {
   BarChart,
   Bar,
   XAxis,
   YAxis,
+  CartesianGrid,
   Tooltip,
   ResponsiveContainer,
   Legend,
   PieChart,
   Pie,
   Cell,
+  LabelList,
 } from 'recharts';
 import {
   TrendingUp,
@@ -35,6 +38,12 @@ export const ReportsPage: React.FC = () => {
     },
   ];
 
+  // Computed dynamic Y-Axis max ceiling for clear headroom & readable intervals
+  const yAxisMax = useMemo(() => {
+    const maxVal = Math.max(overview.monthlyIncome, overview.totalMonthlyExpense, 1000000);
+    return Math.ceil((maxVal * 1.25) / 2000000) * 2000000;
+  }, [overview.monthlyIncome, overview.totalMonthlyExpense]);
+
   // Category spending data
   const categoryData = useMemo(() => {
     return pocketSummaries
@@ -45,6 +54,61 @@ export const ReportsPage: React.FC = () => {
         color: p.color,
       }));
   }, [pocketSummaries]);
+
+  const [hoveredPocket, setHoveredPocket] = useState<{
+    name: string;
+    value: number;
+    color: string;
+  } | null>(null);
+
+  // Dynamic custom tooltip that matches hovered slice color with high-contrast text
+  const CustomDonutTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0];
+      const sliceColor = data.payload.color || '#FAAE2B';
+      const isLight = isColorLight(sliceColor);
+      const textColor = isLight ? '#18181B' : '#FFFFFF';
+      const subTextColor = isLight ? '#27272A' : '#F4F4F5';
+      const total = overview.totalMonthlyExpense || 1;
+      const percent = ((data.value / total) * 100).toFixed(1);
+
+      return (
+        <div
+          className="px-4 py-3 rounded-2xl border-2 border-brand-dark shadow-saweria select-none min-w-[170px]"
+          style={{ backgroundColor: sliceColor }}
+        >
+          <div className="flex items-center gap-2">
+            <span
+              className="w-2.5 h-2.5 rounded-full border border-brand-dark shrink-0"
+              style={{ backgroundColor: isLight ? '#18181B' : '#FFFFFF' }}
+            />
+            <p
+              className="text-xs font-black tracking-tight truncate drop-shadow-sm"
+              style={{ color: textColor }}
+            >
+              {data.name}
+            </p>
+          </div>
+
+          <p
+            className="text-base font-black tabular-nums mt-1 drop-shadow-sm"
+            style={{ color: textColor }}
+          >
+            {formatIDR(data.value)}
+          </p>
+
+          <div
+            className="mt-1 pt-1 border-t border-black/15 flex items-center justify-between text-[10px] font-extrabold uppercase tracking-wider"
+            style={{ color: subTextColor }}
+          >
+            <span>Porsi</span>
+            <span>{percent}% dari total</span>
+          </div>
+        </div>
+      );
+    }
+    return null;
+  };
 
   const handleExportCSV = () => {
     const headers = ['Tanggal', 'Tipe', 'Kategori/Kantong', 'Keterangan', 'Nominal (IDR)'];
@@ -135,18 +199,30 @@ export const ReportsPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Bar Chart: Income vs Expense */}
         <Card variant="saweria" className="bg-white">
-          <div className="pb-3 border-b-2 border-brand-border">
+          <div className="pb-3 border-b-2 border-brand-border flex items-center justify-between">
             <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
               <BarChart3 className="w-4 h-4 text-brand-primary" />
               <span>Arus Kas: Pemasukan vs Pengeluaran</span>
             </h3>
+            <span className="text-[11px] font-bold text-brand-darkMuted bg-brand-cream px-2 py-0.5 rounded-lg border border-brand-border">
+              Periode {selectedPeriod}
+            </span>
           </div>
 
-          <div className="h-64 mt-4">
+          <div className="h-72 mt-4">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={incomeVsExpenseData} margin={{ top: 10, right: 10, left: 10, bottom: 0 }}>
+              <BarChart
+                data={incomeVsExpenseData}
+                margin={{ top: 25, right: 15, left: 10, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" stroke="#E4E4E7" vertical={false} />
                 <XAxis dataKey="name" stroke="#18181B" fontSize={11} fontWeight={700} />
-                <YAxis stroke="#18181B" fontSize={11} tickFormatter={(val) => `Rp ${val / 1000}k`} />
+                <YAxis
+                  stroke="#18181B"
+                  fontSize={11}
+                  domain={[0, yAxisMax]}
+                  tickFormatter={(val) => `Rp ${(val / 1000).toLocaleString('id-ID')}k`}
+                />
                 <Tooltip
                   formatter={(val: number) => formatIDR(val)}
                   contentStyle={{
@@ -158,58 +234,144 @@ export const ReportsPage: React.FC = () => {
                   }}
                 />
                 <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 700 }} />
-                <Bar dataKey="Pemasukan" fill="#10B981" stroke="#18181B" strokeWidth={1.5} radius={[6, 6, 0, 0]} />
-                <Bar dataKey="Pengeluaran" fill="#EF4444" stroke="#18181B" strokeWidth={1.5} radius={[6, 6, 0, 0]} />
+                <Bar
+                  dataKey="Pemasukan"
+                  fill="#10B981"
+                  stroke="#18181B"
+                  strokeWidth={1.5}
+                  radius={[6, 6, 0, 0]}
+                >
+                  <LabelList
+                    dataKey="Pemasukan"
+                    position="top"
+                    formatter={(val: number) => formatIDR(val)}
+                    fill="#18181B"
+                    fontSize={11}
+                    fontWeight={800}
+                    offset={8}
+                  />
+                </Bar>
+                <Bar
+                  dataKey="Pengeluaran"
+                  fill="#EF4444"
+                  stroke="#18181B"
+                  strokeWidth={1.5}
+                  radius={[6, 6, 0, 0]}
+                >
+                  <LabelList
+                    dataKey="Pengeluaran"
+                    position="top"
+                    formatter={(val: number) => formatIDR(val)}
+                    fill="#18181B"
+                    fontSize={11}
+                    fontWeight={800}
+                    offset={8}
+                  />
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
 
-        {/* Pie Chart: Spending Breakdown by Category */}
+        {/* Donut Chart: Spending Breakdown by Category */}
         <Card variant="saweria" className="bg-white">
-          <div className="pb-3 border-b-2 border-brand-border">
+          <div className="pb-3 border-b-2 border-brand-border flex items-center justify-between">
             <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
               <PieIcon className="w-4 h-4 text-brand-primary" />
               <span>Komposisi Pengeluaran per Kantong</span>
             </h3>
+            {categoryData.length > 0 && (
+              <span className="text-[11px] font-bold text-brand-darkMuted bg-brand-cream px-2 py-0.5 rounded-lg border border-brand-border">
+                {categoryData.length} Kantong
+              </span>
+            )}
           </div>
 
-          <div className="h-64 mt-4 flex items-center justify-center">
-            {categoryData.length === 0 ? (
+          {categoryData.length === 0 ? (
+            <div className="h-72 flex items-center justify-center">
               <p className="text-xs text-brand-darkMuted font-bold">
                 Belum ada data pengeluaran pada periode ini.
               </p>
-            ) : (
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Tooltip
-                    formatter={(val: number) => formatIDR(val)}
-                    contentStyle={{
-                      backgroundColor: '#18181B',
-                      borderRadius: '12px',
-                      color: '#fff',
-                      fontWeight: 700,
-                    }}
-                  />
-                  <Pie
-                    data={categoryData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    dataKey="value"
-                    stroke="#18181B"
-                    strokeWidth={2}
-                    label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                    labelLine={false}
-                  >
-                    {categoryData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
+            </div>
+          ) : (
+            <div className="mt-4 flex flex-col sm:flex-row items-center gap-4 min-h-[288px]">
+              {/* Donut Chart Visual with Center Hole Total */}
+              <div className="w-full sm:w-5/12 h-64 relative flex items-center justify-center shrink-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Tooltip content={<CustomDonutTooltip />} />
+                    <Pie
+                      data={categoryData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={55}
+                      outerRadius={80}
+                      paddingAngle={3}
+                      dataKey="value"
+                      stroke="#18181B"
+                      strokeWidth={2}
+                      onMouseEnter={(_, index) => setHoveredPocket(categoryData[index])}
+                      onMouseLeave={() => setHoveredPocket(null)}
+                    >
+                      {categoryData.map((entry, index) => (
+                        <Cell
+                          key={`cell-${index}`}
+                          fill={entry.color}
+                          className="cursor-pointer transition-opacity duration-150"
+                          opacity={hoveredPocket && hoveredPocket.name !== entry.name ? 0.5 : 1}
+                        />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+
+                {/* Donut Hole Metric (Interactive on hover) */}
+                <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center px-2">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wider text-brand-darkMuted truncate max-w-[110px]">
+                    {hoveredPocket ? hoveredPocket.name : 'Total Keluar'}
+                  </span>
+                  <span className="text-xs sm:text-sm font-black text-brand-dark mt-0.5">
+                    {formatIDR(hoveredPocket ? hoveredPocket.value : overview.totalMonthlyExpense)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Side Breakdown List (Sebelah Chart Donut) */}
+              <div className="w-full sm:w-7/12 max-h-64 overflow-y-auto pr-1 space-y-2">
+                {categoryData.map((item, index) => {
+                  const total = overview.totalMonthlyExpense || 1;
+                  const percent = ((item.value / total) * 100).toFixed(1);
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 rounded-xl bg-brand-cream/60 border-2 border-brand-border hover:border-brand-dark transition-all text-xs"
+                    >
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {/* Tanda Warna (Color Indicator Badge) */}
+                        <span
+                          className="w-3.5 h-3.5 rounded-md border-2 border-brand-dark shrink-0 shadow-saweria-sm"
+                          style={{ backgroundColor: item.color }}
+                        />
+                        {/* Nama Kantong (Di sebelahnya apa) */}
+                        <span className="font-bold text-brand-dark truncate" title={item.name}>
+                          {item.name}
+                        </span>
+                      </div>
+                      {/* Persentase & Nominal */}
+                      <div className="text-right shrink-0 ml-3">
+                        <span className="font-black text-brand-dark block text-xs">
+                          {percent}%
+                        </span>
+                        <span className="text-[10px] font-bold text-brand-darkMuted">
+                          {formatIDR(item.value)}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </Card>
       </div>
 

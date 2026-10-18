@@ -52,7 +52,7 @@ export const LoginPage: React.FC = () => {
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2.5">
             <img
-              src="/pockito.png"
+              src="/pockito.jpg"
               alt="Pockito"
               className="w-12 h-12 rounded-2xl object-contain bg-white border-2 border-brand-dark shadow-saweria"
             />

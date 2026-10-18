@@ -15,6 +15,7 @@ import {
   Star,
   ArrowUpRight,
 } from 'lucide-react';
+import { getPocketIcon } from '../domain/finance/pocketIcons';
 
 export const PocketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -88,10 +89,12 @@ export const PocketDetailPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div
-              className="w-14 h-14 rounded-2xl border-2 border-brand-dark flex items-center justify-center text-brand-dark shadow-saweria font-black text-2xl"
+              className="w-16 h-16 rounded-2xl border-2 border-brand-dark flex items-center justify-center text-brand-dark shadow-saweria shrink-0"
               style={{ backgroundColor: pocket.color }}
             >
-              {pocket.name.charAt(0)}
+              {React.createElement(getPocketIcon(pocket.icon), {
+                className: 'w-8 h-8 stroke-[2.2]',
+              })}
             </div>
             <div>
               <div className="flex items-center gap-2">

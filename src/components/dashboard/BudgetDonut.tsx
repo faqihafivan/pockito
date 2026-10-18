@@ -2,6 +2,7 @@ import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { PocketSummary } from '../../types';
 import { formatIDR } from '../../domain/finance/financialEngine';
+import { isColorLight } from '../../domain/finance/pocketIcons';
 
 interface BudgetDonutProps {
   pocketSummaries: PocketSummary[];
@@ -37,11 +38,25 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
+      const sliceColor = data.color || '#FAAE2B';
+      const isLight = isColorLight(sliceColor);
+      const textColor = isLight ? '#18181B' : '#FFFFFF';
+      const subTextColor = isLight ? '#27272A' : '#F4F4F5';
+
       return (
-        <div className="bg-brand-dark text-white p-3 rounded-xl border border-brand-dark text-xs shadow-saweria font-bold">
-          <p className="text-brand-primary">{data.name}</p>
-          <p className="text-sm font-black tabular-nums mt-0.5">{formatIDR(data.value)}</p>
-          <p className="text-[10px] text-gray-300 font-medium">Porsi: {data.percentage}%</p>
+        <div
+          className="p-3 rounded-2xl border-2 border-brand-dark text-xs shadow-saweria font-bold select-none min-w-[150px]"
+          style={{ backgroundColor: sliceColor }}
+        >
+          <p className="font-black drop-shadow-sm truncate" style={{ color: textColor }}>
+            {data.name}
+          </p>
+          <p className="text-sm font-black tabular-nums mt-0.5 drop-shadow-sm" style={{ color: textColor }}>
+            {formatIDR(data.value)}
+          </p>
+          <p className="text-[10px] font-extrabold uppercase mt-0.5" style={{ color: subTextColor }}>
+            Porsi: {data.percentage}%
+          </p>
         </div>
       );
     }

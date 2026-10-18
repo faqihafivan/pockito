@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {
-  LayoutDashboard,
-  Wallet,
-  ArrowLeftRight,
-  CheckSquare,
-  BarChart3,
-  Target,
-  Settings,
+  LayoutGrid,
+  WalletCards,
+  ReceiptText,
+  CalendarCheck2,
+  PieChart,
+  PiggyBank,
+  Settings2,
   LogOut,
   Sparkles,
 } from 'lucide-react';
@@ -20,12 +20,12 @@ export const Sidebar: React.FC = () => {
   const { overview } = useData();
 
   const navItems = [
-    { to: '/app/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { to: '/app/budget', label: 'Kantong / Pockets', icon: Wallet },
-    { to: '/app/transactions', label: 'Transaksi', icon: ArrowLeftRight },
-    { to: '/app/planner', label: 'Planner & Tugas', icon: CheckSquare },
-    { to: '/app/reports', label: 'Laporan Keuangan', icon: BarChart3 },
-    { to: '/app/goals', label: 'Target Tabungan', icon: Target },
+    { to: '/app/dashboard', label: 'Dashboard', icon: LayoutGrid },
+    { to: '/app/budget', label: 'Kantong / Pockets', icon: WalletCards },
+    { to: '/app/transactions', label: 'Transaksi', icon: ReceiptText },
+    { to: '/app/planner', label: 'Planner & Tugas', icon: CalendarCheck2 },
+    { to: '/app/reports', label: 'Laporan Keuangan', icon: PieChart },
+    { to: '/app/goals', label: 'Target Tabungan', icon: PiggyBank },
   ];
 
   return (
@@ -34,7 +34,7 @@ export const Sidebar: React.FC = () => {
       <div className="p-6 border-b-2 border-brand-dark flex items-center justify-between bg-brand-cream/60">
         <div className="flex items-center gap-3">
           <img
-            src="/pockito.png"
+            src="/pockito.jpg"
             alt="Pockito"
             className="w-11 h-11 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm shrink-0"
           />
@@ -78,7 +78,7 @@ export const Sidebar: React.FC = () => {
                 }`
               }
             >
-              <Icon className="w-4 h-4 shrink-0" />
+              <Icon className="w-5 h-5 stroke-[2.2] shrink-0" />
               <span>{item.label}</span>
             </NavLink>
           );
@@ -90,14 +90,14 @@ export const Sidebar: React.FC = () => {
         <NavLink
           to="/app/settings"
           className={({ isActive }) =>
-            `flex items-center gap-3 px-3.5 py-2 rounded-xl font-bold text-xs transition-all ${
+            `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all ${
               isActive
                 ? 'bg-brand-dark text-white'
                 : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
             }`
           }
         >
-          <Settings className="w-4 h-4 shrink-0" />
+          <Settings2 className="w-5 h-5 stroke-[2.2] shrink-0" />
           <span>Pengaturan Akun</span>
         </NavLink>
 
@@ -116,7 +116,7 @@ export const Sidebar: React.FC = () => {
             className="p-1.5 rounded-lg text-brand-darkMuted hover:text-red-600 hover:bg-red-50 transition-colors"
             title="Keluar"
           >
-            <LogOut className="w-4 h-4" />
+            <LogOut className="w-5 h-5 stroke-[2.2]" />
           </button>
         </div>
       </div>
