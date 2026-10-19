@@ -16,11 +16,13 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import { getPocketIcon } from '../domain/finance/pocketIcons';
+import { useNotification } from '../context/NotificationContext';
 
 export const PocketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { pocketSummaries, transactions, deletePocket } = useData();
+  const { showConfirm, showToast } = useNotification();
 
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -46,8 +48,15 @@ export const PocketDetailPage: React.FC = () => {
   const isOverBudget = pocket.spentAmount > pocket.plannedAmount;
 
   const handleDelete = async () => {
-    if (window.confirm(`Yakin ingin menghapus kantong "${pocket.name}"?`)) {
+    const confirmed = await showConfirm({
+      title: 'Hapus Kantong?',
+      message: `Yakin ingin menghapus kantong "${pocket.name}"?\nTransaksi yang sudah dicatat tidak akan terhapus.`,
+      confirmText: 'Ya, Hapus',
+      isDanger: true,
+    });
+    if (confirmed) {
       await deletePocket(pocket.id);
+      showToast(`Kantong "${pocket.name}" berhasil dihapus`, 'info');
       navigate('/app/budget');
     }
   };

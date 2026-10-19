@@ -14,9 +14,11 @@ import {
   Edit2,
   CheckCircle2,
 } from 'lucide-react';
+import { useNotification } from '../context/NotificationContext';
 
 export const PlannerPage: React.FC = () => {
   const { tasks, toggleTask, deleteTask } = useData();
+  const { showConfirm, showToast } = useNotification();
 
   const [activeTab, setActiveTab] = useState<'today' | 'upcoming' | 'later' | 'completed'>('today');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -61,8 +63,15 @@ export const PlannerPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string, title: string) => {
-    if (window.confirm(`Hapus tugas "${title}"?`)) {
+    const confirmed = await showConfirm({
+      title: 'Hapus Tugas?',
+      message: `Hapus agenda tugas "${title}"?`,
+      confirmText: 'Ya, Hapus',
+      isDanger: true,
+    });
+    if (confirmed) {
       await deleteTask(id);
+      showToast('Tugas berhasil dihapus', 'info');
     }
   };
 

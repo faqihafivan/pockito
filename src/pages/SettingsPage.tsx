@@ -20,10 +20,13 @@ import {
 } from 'lucide-react';
 import { formatIDR } from '../domain/finance/financialEngine';
 
+import { useNotification } from '../context/NotificationContext';
+
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser, isCloudMode, logout } = useAuth();
   const { resetToDefaults, clearTransactionsAndResetBalance, deleteAllUserData } = useData();
+  const { showConfirm, showPrompt, showToast } = useNotification();
 
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -40,46 +43,53 @@ export const SettingsPage: React.FC = () => {
       monthly_income: income,
     });
     setIsSaved(true);
+    showToast('Profil dan gaji pokok berhasil disimpan!', 'success');
     setTimeout(() => setIsSaved(false), 3000);
   };
 
   const handleResetData = async () => {
-    if (
-      window.confirm(
-        'PERINGATAN: Apakah Anda yakin ingin mereset seluruh data simulasi kembali ke pengaturan bawaan awal?'
-      )
-    ) {
+    const confirmed = await showConfirm({
+      title: 'Reset Data Simulasi?',
+      message: 'Apakah Anda yakin ingin mereset seluruh data kembali ke pengaturan simulasi bawaan awal?',
+      confirmText: 'Ya, Reset Data',
+      isDanger: true,
+    });
+    if (confirmed) {
       setIsResetting(true);
       await resetToDefaults();
       setIsResetting(false);
-      alert('Data berhasil direset ke kondisi awal.');
+      showToast('Data berhasil direset ke kondisi awal.', 'success');
     }
   };
 
   const handleClearTransactions = async () => {
     const targetAmount = income > 0 ? income : 0;
-    if (
-      window.confirm(
-        `Bersihkan transaksi simulasi lama dan setel Saldo Riil menjadi ${formatIDR(targetAmount)} sesuai gaji pokok?\n(Kantong anggaran dan profil akunmu tetap tersimpan aman).`
-      )
-    ) {
+    const confirmed = await showConfirm({
+      title: 'Setel Saldo Awal Bersih?',
+      message: `Bersihkan transaksi simulasi lama dan setel Saldo Riil menjadi ${formatIDR(targetAmount)} sesuai gaji pokok?\n(Kantong anggaran dan profil akunmu tetap tersimpan aman).`,
+      confirmText: `Setel ${formatIDR(targetAmount)}`,
+    });
+    if (confirmed) {
       setIsResetting(true);
       await clearTransactionsAndResetBalance();
       setIsResetting(false);
-      alert(`Berhasil! Saldo riil akunmu sekarang ${formatIDR(targetAmount)} dan riwayat transaksi simulasi lama telah dibersihkan.`);
+      showToast(`Berhasil! Saldo riil akunmu sekarang ${formatIDR(targetAmount)}.`, 'success');
     }
   };
 
   const handleDeleteAccount = async () => {
-    const confirmation = window.prompt(
-      'PERINGATAN HAPUS AKUN PERMANEN:\nSeluruh transaksi, kantong, rekening, dan data profil Anda akan DIHAPUS TOTAL dan tidak dapat dikembalikan.\n\nKetik "HAPUS" untuk mengonfirmasi penghapusan:'
-    );
+    const confirmation = await showPrompt({
+      title: 'Hapus Akun Permanen',
+      message: 'PERINGATAN: Seluruh transaksi, kantong, rekening, dan data profil Anda akan DIHAPUS TOTAL dan tidak dapat dikembalikan.\n\nKetik "HAPUS" untuk mengonfirmasi:',
+      placeholder: 'Ketik HAPUS',
+      confirmText: 'Hapus Sekarang',
+    });
     if (confirmation === 'HAPUS') {
       setIsDeleting(true);
       await deleteAllUserData();
       logout();
       setIsDeleting(false);
-      alert('Akun dan seluruh data Anda telah berhasil dihapus secara permanen.');
+      showToast('Akun dan seluruh data Anda telah berhasil dihapus.', 'info');
       navigate('/');
     }
   };

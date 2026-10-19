@@ -14,18 +14,23 @@ import {
   Coins,
 } from 'lucide-react';
 import confetti from 'canvas-confetti';
+import { useNotification } from '../context/NotificationContext';
 
 export const GoalsPage: React.FC = () => {
   const { goals, updateGoal } = useData();
+  const { showPrompt, showToast } = useNotification();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [goalToEdit, setGoalToEdit] = useState<SavingsGoal | null>(null);
 
   const handleDeposit = async (goal: SavingsGoal) => {
-    const depositPrompt = window.prompt(
-      `Setor tabungan ke "${goal.name}". Masukkan nominal Rupiah (contoh: 500000):`,
-      '500000'
-    );
+    const depositPrompt = await showPrompt({
+      title: `Setor ke: ${goal.name}`,
+      message: `Masukkan nominal Rupiah yang ingin kamu tabung hari ini:`,
+      defaultValue: '100000',
+      placeholder: 'Contoh: 100000',
+      confirmText: 'Setor Tabungan',
+    });
     if (!depositPrompt) return;
 
     const amount = parseInt(depositPrompt.replace(/[^0-9]/g, ''), 10);
@@ -40,12 +45,15 @@ export const GoalsPage: React.FC = () => {
     });
 
     if (isCompleted) {
+      showToast(`Selamat! Target "${goal.name}" telah 100% tercapai! 🎉`, 'success');
       confetti({
         particleCount: 100,
         spread: 80,
         origin: { y: 0.6 },
         colors: ['#FAAE2B', '#10B981', '#FF7A59'],
       });
+    } else {
+      showToast(`Berhasil menabung ${formatIDR(amount)} ke "${goal.name}"`, 'success');
     }
   };
 

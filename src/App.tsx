@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { NotificationProvider } from './context/NotificationContext';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { AppShell } from './components/layout/AppShell';
@@ -28,9 +29,10 @@ export function App() {
   return (
     <ErrorBoundary>
       <BrowserRouter>
-        <AuthProvider>
-          <DataProvider>
-            <Routes>
+        <NotificationProvider>
+          <AuthProvider>
+            <DataProvider>
+              <Routes>
               {/* Public Routes */}
               <Route path="/" element={<LandingPage />} />
               <Route path="/welcome" element={<WelcomePage />} />
@@ -60,8 +62,9 @@ export function App() {
           </Routes>
         </DataProvider>
       </AuthProvider>
-    </BrowserRouter>
-  </ErrorBoundary>
+    </NotificationProvider>
+  </BrowserRouter>
+</ErrorBoundary>
   );
 }
 

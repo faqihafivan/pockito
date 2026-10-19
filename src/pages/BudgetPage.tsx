@@ -17,6 +17,8 @@ import {
   Star,
 } from 'lucide-react';
 
+import { useNotification } from '../context/NotificationContext';
+
 export const BudgetPage: React.FC = () => {
   const { user } = useAuth();
   const {
@@ -25,6 +27,7 @@ export const BudgetPage: React.FC = () => {
     updatePocket,
     deletePocket,
   } = useData();
+  const { showConfirm, showToast } = useNotification();
 
   const [isPocketModalOpen, setIsPocketModalOpen] = useState(false);
   const [pocketToEdit, setPocketToEdit] = useState<Pocket | null>(null);
@@ -47,8 +50,15 @@ export const BudgetPage: React.FC = () => {
   };
 
   const handleDelete = async (id: string, name: string) => {
-    if (window.confirm(`Yakin ingin menghapus kantong "${name}"? Transaksi yang sudah tercatat tidak akan terhapus.`)) {
+    const confirmed = await showConfirm({
+      title: 'Hapus Kantong?',
+      message: `Yakin ingin menghapus kantong "${name}"?\nTransaksi yang sudah tercatat pada kantong ini tidak akan terhapus.`,
+      confirmText: 'Ya, Hapus',
+      isDanger: true,
+    });
+    if (confirmed) {
       await deletePocket(id);
+      showToast(`Kantong "${name}" berhasil dihapus`, 'info');
     }
   };
 

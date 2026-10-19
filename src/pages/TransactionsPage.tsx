@@ -12,9 +12,11 @@ import {
   ArrowLeftRight,
   Trash2,
 } from 'lucide-react';
+import { useNotification } from '../context/NotificationContext';
 
 export const TransactionsPage: React.FC = () => {
   const { transactions, pockets, accounts, deleteTransaction } = useData();
+  const { showConfirm, showToast } = useNotification();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -56,8 +58,15 @@ export const TransactionsPage: React.FC = () => {
   }, [transactions, searchQuery, filterType, filterPocket, filterAccount]);
 
   const handleDelete = async (id: string, description: string) => {
-    if (window.confirm(`Hapus transaksi "${description}"? Saldo akun akan dikembalikan secara otomatis.`)) {
+    const confirmed = await showConfirm({
+      title: 'Hapus Transaksi?',
+      message: `Hapus transaksi "${description}"?\nSaldo akun akan otomatis disesuaikan kembali.`,
+      confirmText: 'Ya, Hapus',
+      isDanger: true,
+    });
+    if (confirmed) {
       await deleteTransaction(id);
+      showToast('Transaksi berhasil dihapus', 'info');
     }
   };
 
