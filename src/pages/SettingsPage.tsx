@@ -16,12 +16,13 @@ import {
   Shield,
   Trash2,
   ExternalLink,
+  RotateCcw,
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser, isCloudMode, logout } = useAuth();
-  const { resetToDefaults, deleteAllUserData } = useData();
+  const { resetToDefaults, clearTransactionsAndResetBalance, deleteAllUserData } = useData();
 
   const [fullName, setFullName] = useState(user?.full_name || '');
   const [email, setEmail] = useState(user?.email || '');
@@ -51,6 +52,19 @@ export const SettingsPage: React.FC = () => {
       await resetToDefaults();
       setIsResetting(false);
       alert('Data berhasil direset ke kondisi awal.');
+    }
+  };
+
+  const handleClearTransactions = async () => {
+    if (
+      window.confirm(
+        'Kosongkan semua riwayat transaksi dan kembalikan Saldo Riil ke Rp 0?\n(Kantong anggaran dan profil akunmu tetap tersimpan aman).'
+      )
+    ) {
+      setIsResetting(true);
+      await clearTransactionsAndResetBalance();
+      setIsResetting(false);
+      alert('Semua riwayat transaksi berhasil dikosongkan. Saldo riil sekarang Rp 0.');
     }
   };
 
@@ -201,6 +215,24 @@ export const SettingsPage: React.FC = () => {
             leftIcon={<RefreshCw className="w-3.5 h-3.5" />}
           >
             Reset Data Bawaan
+          </Button>
+        </div>
+
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-red-200">
+          <div>
+            <p className="text-xs font-black text-brand-dark">Mulai Saldo dari Nol (Bersihkan Transaksi)</p>
+            <p className="text-[11px] text-brand-darkMuted">
+              Kosongkan transaksi simulasi lama dan kembalikan Saldo Riil menjadi Rp 0 untuk mulai pencatatan akunmu dari awal.
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleClearTransactions}
+            isLoading={isResetting}
+            leftIcon={<RotateCcw className="w-3.5 h-3.5 text-brand-primary" />}
+          >
+            Mulai Saldo Rp 0
           </Button>
         </div>
 

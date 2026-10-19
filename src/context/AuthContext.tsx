@@ -86,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             onboarding_completed: false,
           };
           await DataService.updateProfile(newProfile);
+          DataService.initializeCleanUserData(newProfile.id);
           setUser(newProfile);
         }
       } else {
@@ -100,6 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           onboarding_completed: false,
         };
         await DataService.updateProfile(newProfile);
+        DataService.initializeCleanUserData(newProfile.id);
         setUser(newProfile);
       }
       return {};

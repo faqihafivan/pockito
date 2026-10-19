@@ -318,6 +318,25 @@ export class DataService {
   }
 
   // ===================== RESET & BACKUP =====================
+  static initializeCleanUserData(userId: string): void {
+    const defaultAccount: Account = {
+      id: 'acc-' + Math.random().toString(36).substring(2, 9),
+      user_id: userId,
+      name: 'Rekening Utama',
+      type: 'bank',
+      opening_balance: 0,
+      currency: 'IDR',
+      color: '#00529C',
+      is_archived: false,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+    setLocalItem(STORAGE_KEYS.ACCOUNTS, [defaultAccount]);
+    setLocalItem(STORAGE_KEYS.TRANSACTIONS, []);
+    setLocalItem(STORAGE_KEYS.GOALS, []);
+    setLocalItem(STORAGE_KEYS.TASKS, []);
+  }
+
   static resetToDefaults(): void {
     setLocalItem(STORAGE_KEYS.PROFILE, INITIAL_PROFILE);
     setLocalItem(STORAGE_KEYS.ACCOUNTS, INITIAL_ACCOUNTS);

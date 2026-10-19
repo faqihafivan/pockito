@@ -52,6 +52,7 @@ interface DataContextType {
   toggleTask: (id: string) => Promise<void>;
 
   resetToDefaults: () => Promise<void>;
+  clearTransactionsAndResetBalance: () => Promise<void>;
   deleteAllUserData: () => Promise<void>;
 }
 
@@ -199,6 +200,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     await loadAllData();
   };
 
+  const clearTransactionsAndResetBalance = async () => {
+    DataService.initializeCleanUserData(user?.id || 'user-1');
+    await loadAllData();
+  };
+
   const deleteAllUserData = async () => {
     await DataService.deleteAllUserData();
     setAccounts([]);
@@ -236,6 +242,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         deleteTask,
         toggleTask,
         resetToDefaults,
+        clearTransactionsAndResetBalance,
         deleteAllUserData,
       }}
     >
