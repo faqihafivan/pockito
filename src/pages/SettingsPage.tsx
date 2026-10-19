@@ -18,6 +18,7 @@ import {
   ExternalLink,
   RotateCcw,
 } from 'lucide-react';
+import { formatIDR } from '../domain/finance/financialEngine';
 
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
@@ -56,15 +57,16 @@ export const SettingsPage: React.FC = () => {
   };
 
   const handleClearTransactions = async () => {
+    const targetAmount = income > 0 ? income : 0;
     if (
       window.confirm(
-        'Kosongkan semua riwayat transaksi dan kembalikan Saldo Riil ke Rp 0?\n(Kantong anggaran dan profil akunmu tetap tersimpan aman).'
+        `Bersihkan transaksi simulasi lama dan setel Saldo Riil menjadi ${formatIDR(targetAmount)} sesuai gaji pokok?\n(Kantong anggaran dan profil akunmu tetap tersimpan aman).`
       )
     ) {
       setIsResetting(true);
       await clearTransactionsAndResetBalance();
       setIsResetting(false);
-      alert('Semua riwayat transaksi berhasil dikosongkan. Saldo riil sekarang Rp 0.');
+      alert(`Berhasil! Saldo riil akunmu sekarang ${formatIDR(targetAmount)} dan riwayat transaksi simulasi lama telah dibersihkan.`);
     }
   };
 
@@ -220,9 +222,9 @@ export const SettingsPage: React.FC = () => {
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-4 border-t border-red-200">
           <div>
-            <p className="text-xs font-black text-brand-dark">Mulai Saldo dari Nol (Bersihkan Transaksi)</p>
+            <p className="text-xs font-black text-brand-dark">Setel Saldo Awal Sesuai Gaji ({formatIDR(income)})</p>
             <p className="text-[11px] text-brand-darkMuted">
-              Kosongkan transaksi simulasi lama dan kembalikan Saldo Riil menjadi Rp 0 untuk mulai pencatatan akunmu dari awal.
+              Kosongkan riwayat transaksi simulasi lama dan setel Saldo Riil menjadi {formatIDR(income)} sesuai gaji bulananmu.
             </p>
           </div>
           <Button
@@ -232,7 +234,7 @@ export const SettingsPage: React.FC = () => {
             isLoading={isResetting}
             leftIcon={<RotateCcw className="w-3.5 h-3.5 text-brand-primary" />}
           >
-            Mulai Saldo Rp 0
+            Setel Saldo {formatIDR(income)}
           </Button>
         </div>
 

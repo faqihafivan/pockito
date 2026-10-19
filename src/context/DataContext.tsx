@@ -201,7 +201,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const clearTransactionsAndResetBalance = async () => {
-    DataService.initializeCleanUserData(user?.id || 'user-1');
+    const userId = user?.id || 'user-1';
+    DataService.initializeCleanUserData(userId);
+    const userIncome = user?.monthly_income || 0;
+    if (userIncome > 0) {
+      const accounts = await DataService.getAccounts();
+      const primaryAccount = accounts[0];
+      if (primaryAccount) {
+        await DataService.createTransaction({
+          user_id: userId,
+          account_id: primaryAccount.id,
+          amount: userIncome,
+          type: 'income',
+          description: 'Pemasukan Gaji Awal',
+          date: new Date().toISOString().split('T')[0],
+        });
+      }
+    }
     await loadAllData();
   };
 

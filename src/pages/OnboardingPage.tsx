@@ -6,13 +6,14 @@ import { CurrencyInput } from '../components/ui/CurrencyInput';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { BUDGET_TEMPLATES, formatIDR } from '../domain/finance/financialEngine';
+import { DataService } from '../services/dataService';
 import confetti from 'canvas-confetti';
 import { Sparkles, ArrowRight, Check } from 'lucide-react';
 
 export const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const { savePockets } = useData();
+  const { savePockets, accounts, addTransaction } = useData();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [monthlyIncome, setMonthlyIncome] = useState<number>(user?.monthly_income || 6000000);
@@ -46,6 +47,23 @@ export const OnboardingPage: React.FC = () => {
       }));
 
       await savePockets(initialPockets);
+
+      // 3. Record initial income transaction so Saldo Riil matches entered income
+      if (monthlyIncome > 0) {
+        const availableAccounts = accounts.length > 0 ? accounts : await DataService.getAccounts();
+        const primaryAccount = availableAccounts[0];
+        if (primaryAccount) {
+          const today = new Date().toISOString().split('T')[0];
+          await addTransaction({
+            user_id: user?.id || 'user-demo-1',
+            account_id: primaryAccount.id,
+            amount: monthlyIncome,
+            type: 'income',
+            description: 'Pemasukan Gaji Awal',
+            date: today,
+          });
+        }
+      }
 
       // Trigger celebratory confetti!
       confetti({
