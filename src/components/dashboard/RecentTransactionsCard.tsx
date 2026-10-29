@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Transaction, Pocket } from '../../types';
-import { formatIDR } from '../../domain/finance/financialEngine';
+import { useData } from '../../context/DataContext';
 import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight, ChevronRight } from 'lucide-react';
 
 interface RecentTransactionsCardProps {
@@ -14,6 +14,7 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
   transactions,
   pockets,
 }) => {
+  const { formatMoney } = useData();
   const pocketMap = new Map(pockets.map((p) => [p.id, p]));
   const recent = transactions.slice(0, 5);
 
@@ -87,7 +88,7 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
                     isIncome ? 'text-[#047857]' : isExpense ? 'text-red-600' : 'text-brand-dark'
                   }`}
                 >
-                  {isIncome ? `+${formatIDR(tx.amount)}` : isExpense ? `-${formatIDR(tx.amount)}` : formatIDR(tx.amount)}
+                  {isIncome ? `+${formatMoney(tx.amount)}` : isExpense ? `-${formatMoney(tx.amount)}` : formatMoney(tx.amount)}
                 </div>
               </div>
             );

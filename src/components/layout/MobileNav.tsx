@@ -71,7 +71,12 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onOpenNewTransaction }) =>
   const getActiveIndex = () => {
     if (location.pathname === '/app/dashboard') return 0;
     if (location.pathname.startsWith('/app/budget')) return 1;
-    if (location.pathname === '/app/transactions') return 2;
+    if (
+      location.pathname === '/app/transactions' ||
+      location.pathname === '/app/subscriptions' ||
+      location.pathname === '/app/debts'
+    )
+      return 2;
     if (location.pathname === '/app/planner') return 3;
     if (location.pathname === '/app/reports' || location.pathname === '/app/goals') return 4;
     return 0;

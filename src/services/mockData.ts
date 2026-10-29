@@ -1,4 +1,13 @@
-import { Account, Pocket, SavingsGoal, Task, Transaction, UserProfile } from '../types';
+import {
+  Account,
+  Debt,
+  Pocket,
+  SavingsGoal,
+  Subscription,
+  Task,
+  Transaction,
+  UserProfile,
+} from '../types';
 
 export const INITIAL_PROFILE: UserProfile = {
   id: 'user-demo-1',
@@ -232,5 +241,78 @@ export const INITIAL_TASKS: Task[] = [
     priority: 'low',
     is_completed: true,
     completed_at: '2026-10-02T15:00:00Z',
+  },
+];
+
+export const INITIAL_SUBSCRIPTIONS: Subscription[] = [
+  {
+    id: 'sub-1',
+    user_id: 'user-demo-1',
+    name: 'Sewa Kos Bulanan',
+    amount: 1500000,
+    billing_cycle: 'monthly',
+    due_day: 1,
+    category_pocket_id: 'pocket-bills',
+    account_id: 'acc-bca',
+    is_active: true,
+    last_paid_period: '2026-10',
+    notes: 'Transfer ke Rekening Ibu Kos (BCA)',
+  },
+  {
+    id: 'sub-2',
+    user_id: 'user-demo-1',
+    name: 'Internet & WiFi IndiHome',
+    amount: 350000,
+    billing_cycle: 'monthly',
+    due_day: 15,
+    category_pocket_id: 'pocket-bills',
+    account_id: 'acc-bca',
+    is_active: true,
+    last_paid_period: '2026-10',
+    notes: 'No Pelanggan: 1234567890',
+  },
+  {
+    id: 'sub-3',
+    user_id: 'user-demo-1',
+    name: 'Spotify & Netflix Premium',
+    amount: 186000,
+    billing_cycle: 'monthly',
+    due_day: 28,
+    category_pocket_id: 'pocket-fun',
+    account_id: 'acc-gopay',
+    is_active: true,
+    notes: 'Paket langganan hiburan bulanan',
+  },
+];
+
+export const INITIAL_DEBTS: Debt[] = [
+  {
+    id: 'debt-1',
+    user_id: 'user-demo-1',
+    type: 'receivable',
+    person_name: 'Dimas Kurniawan',
+    amount: 250000,
+    paid_amount: 0,
+    due_date: '2026-10-30',
+    description: 'Talangan beli tiket nonton & makan bersama',
+    account_id: 'acc-gopay',
+    pocket_id: 'pocket-fun',
+    is_settled: false,
+    notes: 'Janji transfer setelah gajian tgl 28-30',
+    created_at: '2026-10-15T10:00:00Z',
+  },
+  {
+    id: 'debt-2',
+    user_id: 'user-demo-1',
+    type: 'payable',
+    person_name: 'Cicilan 0% Laptop Tokopedia',
+    amount: 1200000,
+    paid_amount: 600000,
+    due_date: '2026-11-05',
+    description: 'Cicilan 3 bulan (sisa 1 bulan lagi)',
+    account_id: 'acc-bca',
+    is_settled: false,
+    notes: 'Jatuh tempo tanggal 5 tiap bulan',
+    created_at: '2026-09-05T12:00:00Z',
   },
 ];

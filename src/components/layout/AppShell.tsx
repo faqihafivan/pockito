@@ -1,18 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
 import { TransactionModal } from '../transactions/TransactionModal';
 import { TaskModal } from '../planner/TaskModal';
+import { DailyBriefingModal } from '../common/DailyBriefingModal';
 import { useAuth } from '../../context/AuthContext';
+import { useData } from '../../context/DataContext';
 
 export const AppShell: React.FC = () => {
   const { user, isLoading } = useAuth();
+  const { dailyBriefing, isBriefingOpen, openBriefing, closeBriefing } = useData();
   const location = useLocation();
 
   const [isTransactionOpen, setIsTransactionOpen] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
+
+  // Auto-show Daily Briefing once per day on entry if there are items to review
+  useEffect(() => {
+    if (user && user.onboarding_completed) {
+      const todayISO = new Date().toISOString().split('T')[0];
+      try {
+        const hasSeenToday = localStorage.getItem(`pockito_daily_briefing_seen_${todayISO}`);
+        if (!hasSeenToday && dailyBriefing.items.length > 0) {
+          openBriefing();
+        }
+      } catch {
+        // ignore storage errors
+      }
+    }
+  }, [user?.onboarding_completed, dailyBriefing.items.length]);
 
   if (isLoading) {
     return (
@@ -70,6 +88,15 @@ export const AppShell: React.FC = () => {
       <TaskModal
         isOpen={isTaskOpen}
         onClose={() => setIsTaskOpen(false)}
+      />
+
+      {/* Unified Daily Financial Briefing & Actionable Agenda Modal */}
+      <DailyBriefingModal
+        isOpen={isBriefingOpen}
+        onClose={closeBriefing}
+        briefing={dailyBriefing}
+        onOpenTransaction={() => setIsTransactionOpen(true)}
+        onOpenTask={() => setIsTaskOpen(true)}
       />
     </div>
   );

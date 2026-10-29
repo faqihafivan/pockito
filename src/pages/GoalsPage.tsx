@@ -17,7 +17,7 @@ import confetti from 'canvas-confetti';
 import { useNotification } from '../context/NotificationContext';
 
 export const GoalsPage: React.FC = () => {
-  const { goals, updateGoal } = useData();
+  const { goals, updateGoal, formatMoney } = useData();
   const { showPrompt, showToast } = useNotification();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -135,7 +135,7 @@ export const GoalsPage: React.FC = () => {
                       Terkumpul
                     </span>
                     <div className="text-base font-black text-brand-dark tabular-nums">
-                      {formatIDR(goal.current_amount)}
+                      {formatMoney(goal.current_amount)}
                     </div>
                   </div>
                   <div className="text-right">
@@ -143,7 +143,7 @@ export const GoalsPage: React.FC = () => {
                       Target
                     </span>
                     <div className="text-base font-black text-brand-dark tabular-nums">
-                      {formatIDR(goal.target_amount)}
+                      {formatMoney(goal.target_amount)}
                     </div>
                   </div>
                 </div>
@@ -156,7 +156,7 @@ export const GoalsPage: React.FC = () => {
               {/* Actions Footer */}
               <div className="pt-3 border-t border-brand-border flex items-center justify-between">
                 <span className="text-[11px] font-bold text-brand-darkMuted">
-                  {isDone ? '🎉 Target Tercapai!' : `Kurang ${formatIDR(remaining)}`}
+                  {isDone ? '🎉 Target Tercapai!' : `Kurang ${formatMoney(remaining)}`}
                 </span>
 
                 <Button

@@ -2,24 +2,28 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { StatCards } from '../components/dashboard/StatCards';
+import { SafeDailyLimitCard } from '../components/dashboard/SafeDailyLimitCard';
+import { EmergencyRunwayCard } from '../components/dashboard/EmergencyRunwayCard';
 import { BudgetDonut } from '../components/dashboard/BudgetDonut';
 import { PocketCard } from '../components/pockets/PocketCard';
 import { RecentTransactionsCard } from '../components/dashboard/RecentTransactionsCard';
 import { TodayTasksCard } from '../components/dashboard/TodayTasksCard';
-import { PocketModal } from '../components/pockets/PocketModal';
 import { TaskModal } from '../components/planner/TaskModal';
-import { BudgetRecommendationModal } from '../components/pockets/BudgetRecommendationModal';
 import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import {
   Sparkles,
-  Plus,
   ArrowRight,
   Target,
-  SlidersHorizontal,
+  CalendarClock,
+  HandCoins,
+  CheckCircle2,
+  Wallet,
+  Eye,
+  EyeOff,
+  Bell,
 } from 'lucide-react';
-import { formatIDR, formatPeriod } from '../domain/finance/financialEngine';
+import { formatPeriod } from '../domain/finance/financialEngine';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -30,13 +34,18 @@ export const DashboardPage: React.FC = () => {
     pockets,
     tasks,
     goals,
+    subscriptions,
+    debts,
+    dailySafeLimit,
     selectedPeriod,
+    formatMoney,
+    isPrivacyMode,
+    togglePrivacyMode,
+    dailyBriefing,
+    openBriefing,
   } = useData();
 
-  const [isPocketModalOpen, setIsPocketModalOpen] = useState(false);
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [isRecommendationOpen, setIsRecommendationOpen] = useState(false);
-
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
 
   // Duplicate items for continuous 100% seamless marquee loop on mobile
@@ -58,45 +67,89 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* 1. Greeting Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 bg-white p-4 sm:p-6 rounded-3xl border-2 border-brand-dark shadow-saweria">
-        <div>
-          <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-primary/20 text-xs font-black text-brand-dark border border-brand-primary/40 mb-1.5 sm:mb-2">
-            <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
-            <span>Workspace Periode {periodLabel}</span>
+      {/* 1. Space-Saving Unified Hero: Greeting + Saldo Riil */}
+      <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border-2 border-brand-dark shadow-saweria flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+        {/* Left: Compact Greeting & Workspace Period */}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1 sm:mb-1.5">
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-primary/20 text-[10px] sm:text-xs font-black text-brand-dark border border-brand-dark/20">
+              <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
+              <span>Workspace Periode {periodLabel}</span>
+            </div>
+
+            {/* Clickable Daily Briefing Trigger Chip */}
+            <button
+              type="button"
+              onClick={openBriefing}
+              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black border-2 border-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer ${
+                dailyBriefing.hasUrgentItems
+                  ? 'bg-red-500 text-white animate-pulse'
+                  : 'bg-brand-primary text-brand-dark hover:bg-brand-primaryHover'
+              }`}
+              title="Buka Ringkasan Briefing Finansial Hari Ini"
+            >
+              <Bell className="w-3 h-3 fill-current" />
+              <span>
+                {dailyBriefing.hasUrgentItems
+                  ? `${dailyBriefing.urgentCount} Agenda Mendesak`
+                  : `${dailyBriefing.items.length} Briefing Hari Ini`}
+              </span>
+            </button>
           </div>
-          <h2 className="text-xl sm:text-3xl font-black text-brand-dark tracking-tight">
-            {getGreeting()}, {user?.full_name?.split(' ')[0] || 'Teman'}! 👋
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark tracking-tight truncate">
+            {getGreeting()}, {user?.full_name?.split(' ')[0] || 'Kawan'}! 👋
           </h2>
-          <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-0.5 sm:mt-1">
-            Pantau arus kas, alokasi kantong, dan agenda produktivitas harianmu di sini.
+          <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-0.5">
+            Pantau arus kas, alokasi kantong, dan pagu harianmu di sini.
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
-          <Button
-            variant="secondary"
-            size="sm"
-            onClick={() => setIsRecommendationOpen(true)}
-            leftIcon={<SlidersHorizontal className="w-4 h-4" />}
-          >
-            Rekomendasi
-          </Button>
-          <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setIsPocketModalOpen(true)}
-            leftIcon={<Plus className="w-4 h-4" />}
-          >
-            Kantong
-          </Button>
+        {/* Right: Saldo Riil Box (Prominent & Space-saving) */}
+        <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 bg-brand-bg/60 p-3 sm:px-5 sm:py-3.5 rounded-xl sm:rounded-2xl border-2 border-brand-dark shadow-saweria-sm shrink-0">
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider">
+                Total Saldo Riil
+              </span>
+              <button
+                type="button"
+                onClick={togglePrivacyMode}
+                className="text-brand-darkMuted hover:text-brand-dark transition-colors p-0.5"
+                title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor saldo'}
+              >
+                {isPrivacyMode ? (
+                  <EyeOff className="w-3.5 h-3.5 text-amber-600" />
+                ) : (
+                  <Eye className="w-3.5 h-3.5" />
+                )}
+              </button>
+            </div>
+            <div className="text-xl sm:text-2xl lg:text-3xl font-black text-brand-dark tabular-nums tracking-tight truncate mt-0.5">
+              {formatMoney(overview.totalRecordedBalance)}
+            </div>
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <p className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted truncate">
+                Kas & rekening aktif
+              </p>
+            </div>
+          </div>
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-primary border-2 border-brand-dark flex items-center justify-center text-brand-dark shrink-0 shadow-saweria-sm">
+            <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
+          </div>
         </div>
       </div>
 
-      {/* 2. Headline Stat Cards */}
+      {/* 2. Headline Stat Cards: Pemasukan, Pengeluaran, Sisa Pagu */}
       <StatCards overview={overview} />
 
-      {/* 3. Middle Section: Donut Allocation Breakdown + Pocket Summary Cards */}
+      {/* 3. Financial Guardrails: Safe Daily Spend Limit & Emergency Runway */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
+        <SafeDailyLimitCard safeLimit={dailySafeLimit} />
+        <EmergencyRunwayCard />
+      </div>
+
+      {/* 4. Middle Section: Donut Allocation Breakdown + Pocket Summary Cards */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         {/* Left: Donut Chart Card */}
         <Card variant="saweria" className="bg-white">
@@ -210,30 +263,134 @@ export const DashboardPage: React.FC = () => {
                     </div>
                   </div>
                   <div className="flex items-center justify-between text-[11px] font-bold text-brand-darkMuted pt-1 border-t border-brand-border/40">
-                    <span className="text-brand-dark font-black">{formatIDR(goal.current_amount)}</span>
-                    <span className="text-[10px]">Target {formatIDR(goal.target_amount)}</span>
+                    <span className="text-brand-dark font-black">{formatMoney(goal.current_amount)}</span>
+                    <span className="text-[10px]">Target {formatMoney(goal.target_amount)}</span>
                   </div>
                 </div>
               );
             })}
           </div>
         </Card>
+
+        {/* Row 3: Tagihan Rutin & Hutang Piutang Mini Widgets */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Subscriptions Widget */}
+          <Card variant="saweria" className="bg-white">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
+              <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
+                <CalendarClock className="w-4 h-4 text-brand-primary" />
+                <span>Tagihan Rutin ({periodLabel})</span>
+              </h3>
+              <Link
+                to="/app/subscriptions"
+                className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+              >
+                <span>Kelola Semua</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="pt-3.5 space-y-2.5">
+              {subscriptions.slice(0, 3).map((sub) => {
+                const isPaid = sub.last_paid_period === selectedPeriod;
+                return (
+                  <div
+                    key={sub.id}
+                    className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                  >
+                    <div>
+                      <div className="text-xs font-black text-brand-dark">{sub.name}</div>
+                      <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
+                        Tgl {sub.due_day} • {formatMoney(sub.amount)}
+                      </div>
+                    </div>
+                    {isPaid ? (
+                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>Lunas</span>
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-brand-dark border border-brand-border">
+                        Belum Bayar
+                      </span>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+
+          {/* Debts & Receivables Widget */}
+          <Card variant="saweria" className="bg-white">
+            <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
+              <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
+                <HandCoins className="w-4 h-4 text-brand-primary" />
+                <span>Hutang & Piutang Aktif</span>
+              </h3>
+              <Link
+                to="/app/debts"
+                className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+              >
+                <span>Buka Buku Hutang</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </Link>
+            </div>
+
+            <div className="pt-3.5 space-y-2.5">
+              {debts.filter((d) => !d.is_settled).length === 0 ? (
+                <div className="text-center py-6 text-xs font-bold text-brand-darkMuted">
+                  Tidak ada catatan hutang atau piutang aktif saat ini.
+                </div>
+              ) : (
+                debts
+                  .filter((d) => !d.is_settled)
+                  .slice(0, 3)
+                  .map((debt) => {
+                    const isRec = debt.type === 'receivable';
+                    const remaining = Math.max(0, debt.amount - debt.paid_amount);
+                    return (
+                      <div
+                        key={debt.id}
+                        className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                      >
+                        <div>
+                          <div className="flex items-center gap-1.5">
+                            <span
+                              className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
+                                isRec
+                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                  : 'bg-rose-100 text-rose-800 border-rose-300'
+                              }`}
+                            >
+                              {isRec ? 'Piutang' : 'Hutang'}
+                            </span>
+                            <span className="text-xs font-black text-brand-dark">{debt.person_name}</span>
+                          </div>
+                          <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
+                            {debt.description}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xs font-black text-brand-dark tabular-nums">
+                            {formatMoney(remaining)}
+                          </div>
+                          <div className="text-[10px] font-bold text-brand-darkMuted">
+                            {debt.due_date ? `Target ${debt.due_date}` : 'Belum lunas'}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+          </Card>
+        </div>
       </div>
 
       {/* Modals */}
-      <PocketModal
-        isOpen={isPocketModalOpen}
-        onClose={() => setIsPocketModalOpen(false)}
-      />
-
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
-      />
-
-      <BudgetRecommendationModal
-        isOpen={isRecommendationOpen}
-        onClose={() => setIsRecommendationOpen(false)}
       />
     </div>
   );

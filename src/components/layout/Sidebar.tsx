@@ -4,25 +4,29 @@ import {
   LayoutGrid,
   WalletCards,
   ReceiptText,
+  CalendarClock,
+  HandCoins,
   CalendarCheck2,
   PieChart,
   PiggyBank,
   Settings2,
   LogOut,
-  Sparkles,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
-import { formatIDR } from '../../domain/finance/financialEngine';
 import { useData } from '../../context/DataContext';
 
 export const Sidebar: React.FC = () => {
   const { user, logout } = useAuth();
-  const { overview } = useData();
+  const { overview, formatMoney, isPrivacyMode, togglePrivacyMode } = useData();
 
   const navItems = [
     { to: '/app/dashboard', label: 'Dashboard', icon: LayoutGrid },
     { to: '/app/budget', label: 'Kantong / Pockets', icon: WalletCards },
     { to: '/app/transactions', label: 'Transaksi', icon: ReceiptText },
+    { to: '/app/subscriptions', label: 'Tagihan Rutin', icon: CalendarClock },
+    { to: '/app/debts', label: 'Hutang & Piutang', icon: HandCoins },
     { to: '/app/planner', label: 'Planner & Tugas', icon: CalendarCheck2 },
     { to: '/app/reports', label: 'Laporan Keuangan', icon: PieChart },
     { to: '/app/goals', label: 'Target Tabungan', icon: PiggyBank },
@@ -54,10 +58,21 @@ export const Sidebar: React.FC = () => {
         <div className="bg-brand-cream/80 rounded-xl p-3 border border-brand-border">
           <div className="flex items-center justify-between text-[11px] font-bold text-brand-darkMuted uppercase">
             <span>Saldo Riil</span>
-            <Sparkles className="w-3.5 h-3.5 text-brand-primary" />
+            <button
+              type="button"
+              onClick={togglePrivacyMode}
+              className="text-brand-dark hover:text-brand-primary transition-colors p-0.5 rounded"
+              title={isPrivacyMode ? 'Buka Sensor Saldo (Mode Privasi Aktif)' : 'Sensor Saldo (Mode Privasi)'}
+            >
+              {isPrivacyMode ? (
+                <EyeOff className="w-3.5 h-3.5 text-amber-600" />
+              ) : (
+                <Eye className="w-3.5 h-3.5 text-brand-darkMuted" />
+              )}
+            </button>
           </div>
           <div className="text-base font-black text-brand-dark tabular-nums mt-0.5">
-            {formatIDR(overview.totalRecordedBalance)}
+            {formatMoney(overview.totalRecordedBalance)}
           </div>
         </div>
       </div>

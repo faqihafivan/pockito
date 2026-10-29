@@ -23,6 +23,8 @@ import { TransactionsPage } from './pages/TransactionsPage';
 import { PlannerPage } from './pages/PlannerPage';
 import { ReportsPage } from './pages/ReportsPage';
 import { GoalsPage } from './pages/GoalsPage';
+import { SubscriptionsPage } from './pages/SubscriptionsPage';
+import { DebtsPage } from './pages/DebtsPage';
 import { SettingsPage } from './pages/SettingsPage';
 
 export function App() {
@@ -51,6 +53,8 @@ export function App() {
               <Route path="budget/:id" element={<PocketDetailPage />} />
               <Route path="transactions" element={<TransactionsPage />} />
               <Route path="transactions/new" element={<Navigate to="/app/transactions" replace />} />
+              <Route path="subscriptions" element={<SubscriptionsPage />} />
+              <Route path="debts" element={<DebtsPage />} />
               <Route path="planner" element={<PlannerPage />} />
               <Route path="reports" element={<ReportsPage />} />
               <Route path="goals" element={<GoalsPage />} />

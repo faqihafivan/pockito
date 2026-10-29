@@ -26,3 +26,15 @@ dist-ssr
 # Environment variables
 .env
 .env.production
+
+# Test artifacts & temporary inspection files
+.playwright-mcp/
+*.png
+!public/*.png
+!public/*.jpg
+!public/*.ico
+!public/*.svg
+!src/assets/**/*.png
+!src/assets/**/*.jpg
+!src/assets/**/*.svg
+

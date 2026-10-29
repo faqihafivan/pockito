@@ -1,16 +1,20 @@
 import {
   Account,
+  Debt,
   Pocket,
   SavingsGoal,
+  Subscription,
   Task,
   Transaction,
   UserProfile,
 } from '../types';
 import {
   INITIAL_ACCOUNTS,
+  INITIAL_DEBTS,
   INITIAL_GOALS,
   INITIAL_POCKETS,
   INITIAL_PROFILE,
+  INITIAL_SUBSCRIPTIONS,
   INITIAL_TASKS,
   INITIAL_TRANSACTIONS,
 } from './mockData';
@@ -23,6 +27,8 @@ const STORAGE_KEYS = {
   TRANSACTIONS: 'pockito_transactions_v1',
   GOALS: 'pockito_goals_v1',
   TASKS: 'pockito_tasks_v1',
+  SUBSCRIPTIONS: 'pockito_subscriptions_v1',
+  DEBTS: 'pockito_debts_v1',
 };
 
 // Helper to read and write from localStorage safely
@@ -212,6 +218,13 @@ export class DataService {
     setLocalItem(STORAGE_KEYS.TRANSACTIONS, updated);
   }
 
+  static async saveTransactions(transactions: Transaction[]): Promise<void> {
+    if (this.isCloud() && supabase) {
+      await supabase.from('transactions').upsert(transactions);
+    }
+    setLocalItem(STORAGE_KEYS.TRANSACTIONS, transactions);
+  }
+
   // ===================== SAVINGS GOALS =====================
   static async getGoals(): Promise<SavingsGoal[]> {
     if (this.isCloud() && supabase) {
@@ -317,6 +330,136 @@ export class DataService {
     setLocalItem(STORAGE_KEYS.TASKS, updated);
   }
 
+  // ===================== SUBSCRIPTIONS =====================
+  static async getSubscriptions(): Promise<Subscription[]> {
+    if (this.isCloud() && supabase) {
+      const { data, error } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .order('due_day', { ascending: true });
+      if (!error && data) return data;
+    }
+    return getLocalItem<Subscription[]>(STORAGE_KEYS.SUBSCRIPTIONS, INITIAL_SUBSCRIPTIONS);
+  }
+
+  static async createSubscription(
+    subscription: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Subscription> {
+    const newSub: Subscription = {
+      ...subscription,
+      id: 'sub-' + Math.random().toString(36).substring(2, 9),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (this.isCloud() && supabase) {
+      const { data, error } = await supabase.from('subscriptions').insert(newSub).select().single();
+      if (!error && data) return data;
+    }
+
+    const current = await this.getSubscriptions();
+    current.push(newSub);
+    setLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, current);
+    return newSub;
+  }
+
+  static async updateSubscription(
+    id: string,
+    updates: Partial<Subscription>
+  ): Promise<Subscription> {
+    const current = await this.getSubscriptions();
+    const index = current.findIndex((s) => s.id === id);
+    if (index === -1) throw new Error('Subscription not found');
+
+    const updatedSub: Subscription = {
+      ...current[index],
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (this.isCloud() && supabase) {
+      await supabase.from('subscriptions').update(updatedSub).eq('id', id);
+    }
+
+    current[index] = updatedSub;
+    setLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, current);
+    return updatedSub;
+  }
+
+  static async deleteSubscription(id: string): Promise<void> {
+    if (this.isCloud() && supabase) {
+      await supabase.from('subscriptions').delete().eq('id', id);
+    }
+    const current = await this.getSubscriptions();
+    const updated = current.filter((s) => s.id !== id);
+    setLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, updated);
+  }
+
+  // ===================== DEBTS & RECEIVABLES =====================
+  static async getDebts(): Promise<Debt[]> {
+    if (this.isCloud() && supabase) {
+      const { data, error } = await supabase
+        .from('debts')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (!error && data) return data;
+    }
+    return getLocalItem<Debt[]>(STORAGE_KEYS.DEBTS, INITIAL_DEBTS);
+  }
+
+  static async createDebt(
+    debt: Omit<Debt, 'id' | 'created_at' | 'updated_at'>
+  ): Promise<Debt> {
+    const newDebt: Debt = {
+      ...debt,
+      id: 'debt-' + Math.random().toString(36).substring(2, 9),
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+    };
+
+    if (this.isCloud() && supabase) {
+      const { data, error } = await supabase.from('debts').insert(newDebt).select().single();
+      if (!error && data) return data;
+    }
+
+    const current = await this.getDebts();
+    current.push(newDebt);
+    setLocalItem(STORAGE_KEYS.DEBTS, current);
+    return newDebt;
+  }
+
+  static async updateDebt(
+    id: string,
+    updates: Partial<Debt>
+  ): Promise<Debt> {
+    const current = await this.getDebts();
+    const index = current.findIndex((d) => d.id === id);
+    if (index === -1) throw new Error('Debt record not found');
+
+    const updatedDebt: Debt = {
+      ...current[index],
+      ...updates,
+      updated_at: new Date().toISOString(),
+    };
+
+    if (this.isCloud() && supabase) {
+      await supabase.from('debts').update(updatedDebt).eq('id', id);
+    }
+
+    current[index] = updatedDebt;
+    setLocalItem(STORAGE_KEYS.DEBTS, current);
+    return updatedDebt;
+  }
+
+  static async deleteDebt(id: string): Promise<void> {
+    if (this.isCloud() && supabase) {
+      await supabase.from('debts').delete().eq('id', id);
+    }
+    const current = await this.getDebts();
+    const updated = current.filter((d) => d.id !== id);
+    setLocalItem(STORAGE_KEYS.DEBTS, updated);
+  }
+
   // ===================== RESET & BACKUP =====================
   static initializeCleanUserData(userId: string): void {
     const defaultAccount: Account = {
@@ -335,6 +478,50 @@ export class DataService {
     setLocalItem(STORAGE_KEYS.TRANSACTIONS, []);
     setLocalItem(STORAGE_KEYS.GOALS, []);
     setLocalItem(STORAGE_KEYS.TASKS, []);
+    setLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, []);
+    setLocalItem(STORAGE_KEYS.DEBTS, []);
+  }
+
+  static exportFullBackup(): string {
+    const backup = {
+      app: 'Pockito',
+      version: '1.0.0',
+      exported_at: new Date().toISOString(),
+      profile: getLocalItem(STORAGE_KEYS.PROFILE, null),
+      accounts: getLocalItem(STORAGE_KEYS.ACCOUNTS, []),
+      pockets: getLocalItem(STORAGE_KEYS.POCKETS, []),
+      transactions: getLocalItem(STORAGE_KEYS.TRANSACTIONS, []),
+      goals: getLocalItem(STORAGE_KEYS.GOALS, []),
+      tasks: getLocalItem(STORAGE_KEYS.TASKS, []),
+      subscriptions: getLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, []),
+      debts: getLocalItem(STORAGE_KEYS.DEBTS, []),
+    };
+    return JSON.stringify(backup, null, 2);
+  }
+
+  static importFullBackup(jsonString: string): { success: boolean; message: string } {
+    try {
+      const data = JSON.parse(jsonString);
+      if (!data || typeof data !== 'object') {
+        throw new Error('Format file tidak valid.');
+      }
+      if (data.app && data.app !== 'Pockito') {
+        throw new Error('File ini bukan file cadangan resmi Pockito.');
+      }
+
+      if (data.profile) setLocalItem(STORAGE_KEYS.PROFILE, data.profile);
+      if (Array.isArray(data.accounts)) setLocalItem(STORAGE_KEYS.ACCOUNTS, data.accounts);
+      if (Array.isArray(data.pockets)) setLocalItem(STORAGE_KEYS.POCKETS, data.pockets);
+      if (Array.isArray(data.transactions)) setLocalItem(STORAGE_KEYS.TRANSACTIONS, data.transactions);
+      if (Array.isArray(data.goals)) setLocalItem(STORAGE_KEYS.GOALS, data.goals);
+      if (Array.isArray(data.tasks)) setLocalItem(STORAGE_KEYS.TASKS, data.tasks);
+      if (Array.isArray(data.subscriptions)) setLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, data.subscriptions);
+      if (Array.isArray(data.debts)) setLocalItem(STORAGE_KEYS.DEBTS, data.debts);
+
+      return { success: true, message: 'Cadangan data berhasil dipulihkan!' };
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Gagal membaca file cadangan.' };
+    }
   }
 
   static resetToDefaults(): void {
@@ -344,6 +531,8 @@ export class DataService {
     setLocalItem(STORAGE_KEYS.TRANSACTIONS, INITIAL_TRANSACTIONS);
     setLocalItem(STORAGE_KEYS.GOALS, INITIAL_GOALS);
     setLocalItem(STORAGE_KEYS.TASKS, INITIAL_TASKS);
+    setLocalItem(STORAGE_KEYS.SUBSCRIPTIONS, INITIAL_SUBSCRIPTIONS);
+    setLocalItem(STORAGE_KEYS.DEBTS, INITIAL_DEBTS);
   }
 
   static async deleteAllUserData(): Promise<void> {
@@ -355,6 +544,8 @@ export class DataService {
         await supabase.from('accounts').delete().eq('user_id', user.id);
         await supabase.from('goals').delete().eq('user_id', user.id);
         await supabase.from('tasks').delete().eq('user_id', user.id);
+        await supabase.from('subscriptions').delete().eq('user_id', user.id);
+        await supabase.from('debts').delete().eq('user_id', user.id);
         await supabase.from('profiles').delete().eq('id', user.id);
         await supabase.auth.signOut();
       }

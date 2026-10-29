@@ -6,7 +6,6 @@ import { Button } from '../components/ui/Button';
 import { ProgressBar } from '../components/ui/ProgressBar';
 import { TransactionModal } from '../components/transactions/TransactionModal';
 import { PocketModal } from '../components/pockets/PocketModal';
-import { formatIDR } from '../domain/finance/financialEngine';
 import {
   ArrowLeft,
   Plus,
@@ -21,7 +20,7 @@ import { useNotification } from '../context/NotificationContext';
 export const PocketDetailPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { pocketSummaries, transactions, deletePocket } = useData();
+  const { pocketSummaries, transactions, deletePocket, formatMoney } = useData();
   const { showConfirm, showToast } = useNotification();
 
   const [isTxModalOpen, setIsTxModalOpen] = useState(false);
@@ -137,7 +136,7 @@ export const PocketDetailPage: React.FC = () => {
               Rencana Pagu Bulanan
             </span>
             <div className="text-lg font-black text-brand-dark tabular-nums mt-0.5">
-              {formatIDR(pocket.plannedAmount)}
+              {formatMoney(pocket.plannedAmount)}
             </div>
           </div>
 
@@ -149,7 +148,7 @@ export const PocketDetailPage: React.FC = () => {
               className={`text-lg font-black tabular-nums mt-0.5 ${isOverBudget ? 'text-red-600' : 'text-brand-dark'
                 }`}
             >
-              {formatIDR(pocket.spentAmount)}
+              {formatMoney(pocket.spentAmount)}
             </div>
           </div>
 
@@ -162,8 +161,8 @@ export const PocketDetailPage: React.FC = () => {
                 }`}
             >
               {isOverBudget
-                ? `Melebihi ${formatIDR(Math.abs(pocket.remainingAmount))}`
-                : formatIDR(pocket.remainingAmount)}
+                ? `Melebihi ${formatMoney(Math.abs(pocket.remainingAmount))}`
+                : formatMoney(pocket.remainingAmount)}
             </div>
           </div>
         </div>
@@ -211,7 +210,7 @@ export const PocketDetailPage: React.FC = () => {
                 </div>
 
                 <div className="text-xs font-black text-red-600 tabular-nums">
-                  -{formatIDR(tx.amount)}
+                  -{formatMoney(tx.amount)}
                 </div>
               </div>
             ))

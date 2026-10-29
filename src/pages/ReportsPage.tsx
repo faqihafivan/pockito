@@ -24,10 +24,13 @@ import {
   Download,
   PieChart as PieIcon,
   BarChart3,
+  Printer,
 } from 'lucide-react';
+import { MonthlyStatementModal } from '../components/reports/MonthlyStatementModal';
 
 export const ReportsPage: React.FC = () => {
-  const { pocketSummaries, transactions, overview, selectedPeriod } = useData();
+  const { pocketSummaries, transactions, overview, selectedPeriod, formatMoney } = useData();
+  const [isStatementOpen, setIsStatementOpen] = useState(false);
 
   // Income vs Expense Data
   const incomeVsExpenseData = [
@@ -148,14 +151,24 @@ export const ReportsPage: React.FC = () => {
           </p>
         </div>
 
-        <Button
-          variant="secondary"
-          size="sm"
-          onClick={handleExportCSV}
-          leftIcon={<Download className="w-4 h-4" />}
-        >
-          Ekspor CSV Transaksi
-        </Button>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={handleExportCSV}
+            leftIcon={<Download className="w-4 h-4" />}
+          >
+            Ekspor CSV
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setIsStatementOpen(true)}
+            leftIcon={<Printer className="w-4 h-4" />}
+          >
+            Cetak Laporan PDF
+          </Button>
+        </div>
       </div>
 
       {/* Top 3 Summary Cards */}
@@ -166,7 +179,7 @@ export const ReportsPage: React.FC = () => {
             <TrendingUp className="w-4 h-4 text-[#047857]" />
           </div>
           <div className="text-xl font-black text-brand-dark tabular-nums mt-1">
-            {formatIDR(overview.monthlyIncome)}
+            {formatMoney(overview.monthlyIncome)}
           </div>
         </Card>
 
@@ -176,7 +189,7 @@ export const ReportsPage: React.FC = () => {
             <TrendingDown className="w-4 h-4 text-red-600" />
           </div>
           <div className="text-xl font-black text-brand-dark tabular-nums mt-1">
-            {formatIDR(overview.totalMonthlyExpense)}
+            {formatMoney(overview.totalMonthlyExpense)}
           </div>
         </Card>
 
@@ -190,7 +203,7 @@ export const ReportsPage: React.FC = () => {
               netSavings >= 0 ? 'text-[#047857]' : 'text-red-600'
             }`}
           >
-            {formatIDR(netSavings)}
+            {formatMoney(netSavings)}
           </div>
         </Card>
       </div>
@@ -348,7 +361,7 @@ export const ReportsPage: React.FC = () => {
                     Total Keluar
                   </span>
                   <span className="text-xs sm:text-sm font-black text-brand-dark mt-0.5">
-                    {formatIDR(overview.totalMonthlyExpense)}
+                    {formatMoney(overview.totalMonthlyExpense)}
                   </span>
                 </div>
               </div>
@@ -380,7 +393,7 @@ export const ReportsPage: React.FC = () => {
                           {percent}%
                         </span>
                         <span className="text-[10px] font-bold text-brand-darkMuted">
-                          {formatIDR(item.value)}
+                          {formatMoney(item.value)}
                         </span>
                       </div>
                     </div>
@@ -423,10 +436,10 @@ export const ReportsPage: React.FC = () => {
                       {pocket.is_starred && <span>⭐</span>}
                     </td>
                     <td className="p-3.5 tabular-nums">{pocket.allocation_percentage}%</td>
-                    <td className="p-3.5 tabular-nums">{formatIDR(pocket.plannedAmount)}</td>
-                    <td className="p-3.5 tabular-nums">{formatIDR(pocket.spentAmount)}</td>
+                    <td className="p-3.5 tabular-nums">{formatMoney(pocket.plannedAmount)}</td>
+                    <td className="p-3.5 tabular-nums">{formatMoney(pocket.spentAmount)}</td>
                     <td className={`p-3.5 tabular-nums ${isOver ? 'text-red-600' : 'text-[#047857]'}`}>
-                      {formatIDR(pocket.remainingAmount)}
+                      {formatMoney(pocket.remainingAmount)}
                     </td>
                     <td className="p-3.5">
                       <span
@@ -446,6 +459,11 @@ export const ReportsPage: React.FC = () => {
           </table>
         </div>
       </Card>
+
+      <MonthlyStatementModal
+        isOpen={isStatementOpen}
+        onClose={() => setIsStatementOpen(false)}
+      />
     </div>
   );
 };

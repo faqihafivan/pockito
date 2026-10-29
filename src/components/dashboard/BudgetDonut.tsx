@@ -1,7 +1,7 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { PocketSummary } from '../../types';
-import { formatIDR } from '../../domain/finance/financialEngine';
+import { useData } from '../../context/DataContext';
 import { isColorLight } from '../../domain/finance/pocketIcons';
 
 interface BudgetDonutProps {
@@ -17,6 +17,7 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
   unallocatedPercentage,
   unallocatedIncome,
 }) => {
+  const { formatMoney } = useData();
   const [hoveredIndex, setHoveredIndex] = React.useState<number | null>(null);
   const [isTooltipActive, setIsTooltipActive] = React.useState(false);
 
@@ -63,7 +64,7 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
             {data.name}
           </p>
           <p className="text-sm font-black tabular-nums mt-0.5 drop-shadow-sm" style={{ color: textColor }}>
-            {formatIDR(data.value)}
+            {formatMoney(data.value)}
           </p>
           <p className="text-[10px] font-extrabold uppercase mt-0.5" style={{ color: subTextColor }}>
             Porsi: {data.percentage}%
@@ -123,7 +124,7 @@ export const BudgetDonut: React.FC<BudgetDonutProps> = ({
           Total Gaji
         </span>
         <span className="text-sm font-black text-brand-dark tabular-nums">
-          {formatIDR(monthlyIncome)}
+          {formatMoney(monthlyIncome)}
         </span>
       </div>
     </div>

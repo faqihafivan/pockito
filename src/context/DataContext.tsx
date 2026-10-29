@@ -1,17 +1,27 @@
 import React, { createContext, useContext, useEffect, useState, useMemo } from 'react';
 import {
   Account,
+  DailyBriefingResult,
+  DailySafeLimitResult,
+  Debt,
+  EmergencyRunwayResult,
   FinancialOverview,
   Pocket,
   PocketSummary,
   SavingsGoal,
+  Subscription,
   Task,
   Transaction,
 } from '../types';
 import { DataService } from '../services/dataService';
 import {
+  calculateDailySafeLimit,
+  calculateEmergencyRunway,
   calculateFinancialOverview,
   calculatePocketSummaries,
+  formatIDRPrivacy,
+  formatPeriod,
+  generateDailyBriefing,
 } from '../domain/finance/financialEngine';
 import { useAuth } from './AuthContext';
 
@@ -21,10 +31,21 @@ interface DataContextType {
   transactions: Transaction[];
   goals: SavingsGoal[];
   tasks: Task[];
+  subscriptions: Subscription[];
+  debts: Debt[];
   selectedPeriod: string;
   setSelectedPeriod: (period: string) => void;
   pocketSummaries: PocketSummary[];
   overview: FinancialOverview;
+  dailySafeLimit: DailySafeLimitResult;
+  emergencyRunway: EmergencyRunwayResult;
+  dailyBriefing: DailyBriefingResult;
+  isBriefingOpen: boolean;
+  openBriefing: () => void;
+  closeBriefing: () => void;
+  isPrivacyMode: boolean;
+  togglePrivacyMode: () => void;
+  formatMoney: (amount: number, prefix?: boolean) => string;
   isLoading: boolean;
   refreshData: () => Promise<void>;
 
@@ -37,6 +58,7 @@ interface DataContextType {
   // Transactions CRUD
   addTransaction: (tx: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>) => Promise<Transaction>;
   deleteTransaction: (id: string) => Promise<void>;
+  saveTransactions: (txs: Transaction[]) => Promise<void>;
 
   // Accounts CRUD
   addAccount: (account: Omit<Account, 'id' | 'created_at' | 'updated_at'>) => Promise<Account>;
@@ -51,9 +73,28 @@ interface DataContextType {
   deleteTask: (id: string) => Promise<void>;
   toggleTask: (id: string) => Promise<void>;
 
+  // Subscriptions CRUD & Actions
+  addSubscription: (sub: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) => Promise<Subscription>;
+  updateSubscription: (id: string, updates: Partial<Subscription>) => Promise<Subscription>;
+  deleteSubscription: (id: string) => Promise<void>;
+  paySubscription: (id: string, period: string, accountId?: string) => Promise<Transaction>;
+
+  // Debts CRUD & Actions
+  addDebt: (debt: Omit<Debt, 'id' | 'created_at' | 'updated_at'>) => Promise<Debt>;
+  updateDebt: (id: string, updates: Partial<Debt>) => Promise<Debt>;
+  deleteDebt: (id: string) => Promise<void>;
+  recordDebtPayment: (
+    id: string,
+    paymentAmount: number,
+    accountId?: string,
+    createTransactionRecord?: boolean
+  ) => Promise<Debt>;
+
   resetToDefaults: () => Promise<void>;
   clearTransactionsAndResetBalance: () => Promise<void>;
   deleteAllUserData: () => Promise<void>;
+  exportBackup: () => string;
+  importBackup: (jsonString: string) => Promise<{ success: boolean; message: string }>;
 }
 
 const DataContext = createContext<DataContextType | undefined>(undefined);
@@ -65,6 +106,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [debts, setDebts] = useState<Debt[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Default to current year-month (e.g. '2026-10')
@@ -78,18 +121,22 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadAllData = async () => {
     setIsLoading(true);
     try {
-      const [accs, pocks, txs, gls, tsks] = await Promise.all([
+      const [accs, pocks, txs, gls, tsks, subs, dbts] = await Promise.all([
         DataService.getAccounts(),
         DataService.getPockets(),
         DataService.getTransactions(),
         DataService.getGoals(),
         DataService.getTasks(),
+        DataService.getSubscriptions(),
+        DataService.getDebts(),
       ]);
       setAccounts(accs);
       setPockets(pocks);
       setTransactions(txs);
       setGoals(gls);
       setTasks(tsks);
+      setSubscriptions(subs);
+      setDebts(dbts);
     } catch (err) {
       console.error('Failed to load application data:', err);
     } finally {
@@ -111,6 +158,82 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const overview = useMemo(() => {
     return calculateFinancialOverview(accounts, pockets, monthlyIncome, transactions, selectedPeriod);
   }, [accounts, pockets, monthlyIncome, transactions, selectedPeriod]);
+
+  const dailySafeLimit = useMemo(() => {
+    return calculateDailySafeLimit(pocketSummaries, transactions, selectedPeriod);
+  }, [pocketSummaries, transactions, selectedPeriod]);
+
+  // Privacy Mode State (Masking sensitive balance numbers)
+  const [isPrivacyMode, setIsPrivacyMode] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('pockito_privacy_mode') === 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  const togglePrivacyMode = () => {
+    setIsPrivacyMode((prev) => {
+      const next = !prev;
+      try {
+        localStorage.setItem('pockito_privacy_mode', String(next));
+      } catch {
+        // ignore
+      }
+      return next;
+    });
+  };
+
+  const formatMoney = (amount: number, prefix: boolean = true) => {
+    return formatIDRPrivacy(amount, isPrivacyMode, prefix);
+  };
+
+  // Emergency Fund Runway (Ketahanan Dana Darurat)
+  const emergencyRunway = useMemo(() => {
+    return calculateEmergencyRunway(accounts, pockets, overview, monthlyIncome);
+  }, [accounts, pockets, overview, monthlyIncome]);
+
+  // Daily Consolidated Briefing Modal & Metrics
+  const [isBriefingOpen, setIsBriefingOpen] = useState<boolean>(false);
+  const openBriefing = () => setIsBriefingOpen(true);
+  const closeBriefing = () => setIsBriefingOpen(false);
+
+  const dailyBriefing = useMemo(() => {
+    return generateDailyBriefing({
+      userName: user?.full_name || 'Kawan',
+      selectedPeriod,
+      subscriptions,
+      transactions,
+      goals,
+      tasks,
+      debts,
+      dailySafeLimit,
+      formatMoney,
+    });
+  }, [
+    user?.full_name,
+    selectedPeriod,
+    subscriptions,
+    transactions,
+    goals,
+    tasks,
+    debts,
+    dailySafeLimit,
+    formatMoney,
+  ]);
+
+  // Full Backup & Restore
+  const exportBackup = () => {
+    return DataService.exportFullBackup();
+  };
+
+  const importBackup = async (jsonString: string) => {
+    const result = DataService.importFullBackup(jsonString);
+    if (result.success) {
+      await loadAllData();
+    }
+    return result;
+  };
 
   // Pocket Mutations
   const addPocket = async (pocketData: Omit<Pocket, 'id' | 'created_at' | 'updated_at'>) => {
@@ -145,6 +268,11 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const deleteTransaction = async (id: string) => {
     await DataService.deleteTransaction(id);
     setTransactions((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  const saveTransactions = async (newTransactions: Transaction[]) => {
+    await DataService.saveTransactions(newTransactions);
+    setTransactions(newTransactions);
   };
 
   // Account Mutations
@@ -195,6 +323,110 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
   };
 
+  // Subscriptions Mutations & Actions
+  const addSubscription = async (subData: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) => {
+    const created = await DataService.createSubscription(subData);
+    setSubscriptions((prev) => [...prev, created]);
+    return created;
+  };
+
+  const updateSubscription = async (id: string, updates: Partial<Subscription>) => {
+    const updated = await DataService.updateSubscription(id, updates);
+    setSubscriptions((prev) => prev.map((s) => (s.id === id ? updated : s)));
+    return updated;
+  };
+
+  const deleteSubscription = async (id: string) => {
+    await DataService.deleteSubscription(id);
+    setSubscriptions((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const paySubscription = async (id: string, period: string, accountId?: string) => {
+    const sub = subscriptions.find((s) => s.id === id);
+    if (!sub) throw new Error('Subscription not found');
+
+    const targetAccount = accountId || sub.account_id || accounts[0]?.id;
+    if (!targetAccount) throw new Error('Pilih rekening untuk pembayaran');
+
+    const createdTx = await addTransaction({
+      user_id: user?.id || 'user-1',
+      account_id: targetAccount,
+      pocket_id: sub.category_pocket_id,
+      type: 'expense',
+      amount: sub.amount,
+      date: new Date().toISOString(),
+      description: `Tagihan Rutin: ${sub.name} (${formatPeriod(period, true)})`,
+      notes: sub.notes,
+    });
+
+    await updateSubscription(id, { last_paid_period: period });
+    return createdTx;
+  };
+
+  // Debts Mutations & Actions
+  const addDebt = async (debtData: Omit<Debt, 'id' | 'created_at' | 'updated_at'>) => {
+    const created = await DataService.createDebt(debtData);
+    setDebts((prev) => [created, ...prev]);
+    return created;
+  };
+
+  const updateDebt = async (id: string, updates: Partial<Debt>) => {
+    const updated = await DataService.updateDebt(id, updates);
+    setDebts((prev) => prev.map((d) => (d.id === id ? updated : d)));
+    return updated;
+  };
+
+  const deleteDebt = async (id: string) => {
+    await DataService.deleteDebt(id);
+    setDebts((prev) => prev.filter((d) => d.id !== id));
+  };
+
+  const recordDebtPayment = async (
+    id: string,
+    paymentAmount: number,
+    accountId?: string,
+    createTransactionRecord: boolean = true
+  ) => {
+    const debt = debts.find((d) => d.id === id);
+    if (!debt) throw new Error('Debt record not found');
+
+    const newPaidAmount = debt.paid_amount + paymentAmount;
+    const isSettled = newPaidAmount >= debt.amount;
+
+    const updated = await updateDebt(id, {
+      paid_amount: newPaidAmount,
+      is_settled: isSettled,
+    });
+
+    if (createTransactionRecord && accountId && paymentAmount > 0) {
+      if (debt.type === 'receivable') {
+        // Someone paid back money to us -> income
+        await addTransaction({
+          user_id: user?.id || 'user-1',
+          account_id: accountId,
+          pocket_id: debt.pocket_id,
+          type: 'income',
+          amount: paymentAmount,
+          date: new Date().toISOString(),
+          description: `Pelunasan Piutang: ${debt.person_name} (${debt.description})`,
+        });
+      } else {
+        // We paid our debt/installment -> expense
+        await addTransaction({
+          user_id: user?.id || 'user-1',
+          account_id: accountId,
+          pocket_id: debt.pocket_id,
+          type: 'expense',
+          amount: paymentAmount,
+          date: new Date().toISOString(),
+          description: `Bayar Hutang/Cicilan: ${debt.person_name} (${debt.description})`,
+        });
+      }
+    }
+
+    return updated;
+  };
+
   const resetToDefaults = async () => {
     DataService.resetToDefaults();
     await loadAllData();
@@ -228,6 +460,8 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setTransactions([]);
     setGoals([]);
     setTasks([]);
+    setSubscriptions([]);
+    setDebts([]);
   };
 
   return (
@@ -238,10 +472,23 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         transactions,
         goals,
         tasks,
+        subscriptions,
+        debts,
         selectedPeriod,
         setSelectedPeriod,
         pocketSummaries,
         overview,
+        dailySafeLimit,
+        emergencyRunway,
+        dailyBriefing,
+        isBriefingOpen,
+        openBriefing,
+        closeBriefing,
+        isPrivacyMode,
+        togglePrivacyMode,
+        formatMoney,
+        exportBackup,
+        importBackup,
         isLoading,
         refreshData: loadAllData,
         addPocket,
@@ -250,6 +497,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         savePockets,
         addTransaction,
         deleteTransaction,
+        saveTransactions,
         addAccount,
         addGoal,
         updateGoal,
@@ -257,6 +505,14 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         updateTask,
         deleteTask,
         toggleTask,
+        addSubscription,
+        updateSubscription,
+        deleteSubscription,
+        paySubscription,
+        addDebt,
+        updateDebt,
+        deleteDebt,
+        recordDebtPayment,
         resetToDefaults,
         clearTransactionsAndResetBalance,
         deleteAllUserData,

@@ -140,3 +140,90 @@ export interface FinancialOverview {
   isOverallocated: boolean;
   totalAllocationPercentage: number;
 }
+
+export type SubscriptionCycle = 'monthly' | 'weekly' | 'yearly';
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  name: string;
+  amount: number; // Integer IDR
+  billing_cycle: SubscriptionCycle;
+  due_day: number; // 1 - 31
+  category_pocket_id?: string;
+  account_id?: string;
+  is_active: boolean;
+  last_paid_period?: string; // 'YYYY-MM'
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export type DebtType = 'receivable' | 'payable';
+
+export interface Debt {
+  id: string;
+  user_id: string;
+  type: DebtType; // 'receivable' (piutang / orang pinjam uang ke kita) | 'payable' (hutang / kita pinjam ke orang lain)
+  person_name: string;
+  amount: number; // Total pokok (Integer IDR)
+  paid_amount: number; // Total dicicil/dibayar (Integer IDR)
+  due_date?: string; // 'YYYY-MM-DD'
+  description: string;
+  account_id?: string;
+  pocket_id?: string;
+  is_settled: boolean;
+  notes?: string;
+  created_at: string;
+  updated_at?: string;
+}
+
+export interface DailyBriefingItem {
+  id: string;
+  type: 'bill' | 'daily_log' | 'goal' | 'safe_limit' | 'task' | 'debt';
+  title: string;
+  message: string;
+  urgency: 'high' | 'medium' | 'info';
+  badge: string;
+  actionText?: string;
+  actionType?: 'open_transaction' | 'open_task' | 'navigate';
+  actionRoute?: string;
+}
+
+export interface DailyBriefingResult {
+  greeting: string;
+  dateLabel: string;
+  items: DailyBriefingItem[];
+  hasUrgentItems: boolean;
+  urgentCount: number;
+  summaryHeadline: string;
+}
+
+export interface DailySafeLimitResult {
+
+  dailySafeLimit: number; // Batas aman belanja per hari (Integer IDR)
+  totalRemainingBudget: number; // Sisa pagu anggaran bulan ini
+  remainingDays: number; // Sisa hari dalam bulan (termasuk hari ini)
+  currentDay: number; // Tanggal hari ini
+  totalDaysInMonth: number; // Total hari dalam bulan ini
+  todaySpent: number; // Total pengeluaran tercatat hari ini
+  remainingToday: number; // dailySafeLimit - todaySpent (bisa negatif jika hari ini over)
+  burnRateStatus: 'frugal' | 'normal' | 'fast'; // 'frugal' (hemat), 'normal' (aman), 'fast' (boros)
+  pacePercentage: number; // Persentase varians laju pengeluaran vs laju hari kalender
+  adviceMessage: string; // Rekomendasi/insight aksi harian
+}
+
+export type RunwayStatus = 'critical' | 'warning' | 'safe' | 'resilient';
+
+export interface EmergencyRunwayResult {
+  totalLiquidCash: number; // Total saldo kas riil aktif (Integer IDR)
+  monthlyEssentialExpense: number; // Pengeluaran pokok bulanan dari kantong ⭐ (Integer IDR)
+  runwayMonths: number; // Berapa bulan bisa bertahan tanpa pemasukan (1 desimal)
+  status: RunwayStatus; // 'critical' (<1 bln) | 'warning' (1-3 bln) | 'safe' (3-6 bln) | 'resilient' (>6 bln)
+  statusLabel: string; // "Kritis ⚠️", "Waspada 🟡", "Ideal & Sehat 🟢", "Sangat Tangguh 🛡️"
+  badgeColor: string;
+  adviceMessage: string; // Rekomendasi praktis finansial
+  targetMonths: number; // Standar perencana keuangan (6 bulan)
+  targetAmount: number; // monthlyEssentialExpense * 6
+  progressPercentage: number; // Persentase menuju target 6 bulan
+}

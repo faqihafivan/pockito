@@ -6,7 +6,6 @@ import { Button } from '../components/ui/Button';
 import { PocketModal } from '../components/pockets/PocketModal';
 import { BudgetRecommendationModal } from '../components/pockets/BudgetRecommendationModal';
 import { Pocket } from '../types';
-import { formatIDR } from '../domain/finance/financialEngine';
 import {
   Plus,
   SlidersHorizontal,
@@ -26,6 +25,7 @@ export const BudgetPage: React.FC = () => {
     overview,
     updatePocket,
     deletePocket,
+    formatMoney,
   } = useData();
   const { showConfirm, showToast } = useNotification();
 
@@ -118,11 +118,11 @@ export const BudgetPage: React.FC = () => {
               {overview.isOverallocated
                 ? `Alokasi Melebihi 100% (${overview.totalAllocationPercentage}% terpakai)! Mohon kurangi persentase kantong.`
                 : overview.unallocatedPercentage > 0
-                  ? `Ada sisa ${overview.unallocatedPercentage}% (${formatIDR(overview.unallocatedIncome)}) yang belum dialokasikan.`
+                  ? `Ada sisa ${overview.unallocatedPercentage}% (${formatMoney(overview.unallocatedIncome)}) yang belum dialokasikan.`
                   : 'Alokasi Seimbang Sempurna (100% Gaji Terbagi)!'}
             </p>
             <p className="text-[11px] opacity-80 mt-0.5">
-              Dasar perhitungan: Gaji bulanan {formatIDR(monthlyIncome)}
+              Dasar perhitungan: Gaji bulanan {formatMoney(monthlyIncome)}
             </p>
           </div>
         </div>
@@ -163,7 +163,7 @@ export const BudgetPage: React.FC = () => {
                       </button>
                     </div>
                     <p className="text-[11px] text-brand-darkMuted font-bold">
-                      Pagu Rencana: {formatIDR(pocket.plannedAmount)} / bulan
+                      Pagu Rencana: {formatMoney(pocket.plannedAmount)} / bulan
                     </p>
                   </div>
                 </div>
@@ -221,7 +221,7 @@ export const BudgetPage: React.FC = () => {
               <div className="flex items-center justify-between text-xs font-bold pt-1 border-t border-brand-border">
                 <span className="text-brand-darkMuted">Terpakai bulan ini:</span>
                 <span className="font-black text-brand-dark tabular-nums">
-                  {formatIDR(pocket.spentAmount)} ({pocket.spentPercentage}%)
+                  {formatMoney(pocket.spentAmount)} ({pocket.spentPercentage}%)
                 </span>
               </div>
             </Card>

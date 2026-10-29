@@ -16,7 +16,7 @@ interface SlideData {
 const SLIDES: SlideData[] = [
   {
     id: 1,
-    image: '/slide1.jpg',
+    image: '/slide1.jpg?v=2',
     title: 'Bagi Gajimu Tanpa Pusing Akuntansi',
     subtitle:
       'Alokasikan penghasilan ke kantong Makanan, Kos, hingga Ngopi dengan persentase fleksibel dan perhitungan Rupiah bulat yang presisi.',
@@ -26,7 +26,7 @@ const SLIDES: SlideData[] = [
   },
   {
     id: 2,
-    image: '/slide2.jpg',
+    image: '/slide2.jpg?v=2',
     title: 'Tak Ada Lagi Tagihan yang Terlewat',
     subtitle:
       'Satukan to-do list harian dengan jadwal bayar tagihan listrik, air, dan internet. Tak perlu lagi khawatir denda keterlambatan.',
@@ -36,7 +36,7 @@ const SLIDES: SlideData[] = [
   },
   {
     id: 3,
-    image: '/slide3.jpg',
+    image: '/slide3.jpg?v=2',
     title: 'Kumpulkan Impian Langkah demi Langkah',
     subtitle:
       'Pantau progres tabungan beli laptop baru, liburan impian, hingga dana darurat dengan dorongan positif dan selebrasi.',

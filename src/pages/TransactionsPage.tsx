@@ -1,24 +1,30 @@
 import React, { useState, useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { TransactionModal } from '../components/transactions/TransactionModal';
-import { formatIDR } from '../domain/finance/financialEngine';
 import {
   Plus,
   Search,
+  Camera,
   ArrowDownLeft,
   ArrowUpRight,
   ArrowLeftRight,
+  CalendarClock,
+  HandCoins,
   Trash2,
 } from 'lucide-react';
 import { useNotification } from '../context/NotificationContext';
 
 export const TransactionsPage: React.FC = () => {
-  const { transactions, pockets, accounts, deleteTransaction } = useData();
+  const { transactions, pockets, accounts, deleteTransaction, formatMoney } = useData();
   const { showConfirm, showToast } = useNotification();
 
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [transactionModal, setTransactionModal] = useState<{
+    isOpen: boolean;
+    method: 'manual' | 'scan';
+  }>({ isOpen: false, method: 'manual' });
   const [searchQuery, setSearchQuery] = useState('');
   const [filterType, setFilterType] = useState<string>('all');
   const [filterPocket, setFilterPocket] = useState<string>('all');
@@ -83,14 +89,42 @@ export const TransactionsPage: React.FC = () => {
           </p>
         </div>
 
-        <Button
-          variant="primary"
-          size="md"
-          onClick={() => setIsModalOpen(true)}
-          leftIcon={<Plus className="w-4 h-4" />}
-        >
-          Catat Transaksi Baru
-        </Button>
+        <div className="flex flex-wrap items-center gap-2">
+          <Button
+            variant="secondary"
+            size="md"
+            onClick={() => setTransactionModal({ isOpen: true, method: 'scan' })}
+            leftIcon={<Camera className="w-4 h-4 text-brand-dark" />}
+          >
+            Scan Struk / Catat
+          </Button>
+          <Link to="/app/subscriptions">
+            <Button
+              variant="secondary"
+              size="md"
+              leftIcon={<CalendarClock className="w-4 h-4 text-brand-dark" />}
+            >
+              Tagihan Rutin
+            </Button>
+          </Link>
+          <Link to="/app/debts">
+            <Button
+              variant="secondary"
+              size="md"
+              leftIcon={<HandCoins className="w-4 h-4 text-brand-dark" />}
+            >
+              Hutang & Piutang
+            </Button>
+          </Link>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={() => setTransactionModal({ isOpen: true, method: 'manual' })}
+            leftIcon={<Plus className="w-4 h-4" />}
+          >
+            Catat Baru
+          </Button>
+        </div>
       </div>
 
       {/* Filter & Search Bar */}
@@ -246,10 +280,10 @@ export const TransactionsPage: React.FC = () => {
                         }`}
                     >
                       {isIncome
-                        ? `+${formatIDR(tx.amount)}`
+                        ? `+${formatMoney(tx.amount)}`
                         : isExpense
-                          ? `-${formatIDR(tx.amount)}`
-                          : formatIDR(tx.amount)}
+                          ? `-${formatMoney(tx.amount)}`
+                          : formatMoney(tx.amount)}
                     </div>
                     <button
                       onClick={() => handleDelete(tx.id, tx.description)}
@@ -267,8 +301,9 @@ export const TransactionsPage: React.FC = () => {
       </Card>
 
       <TransactionModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={transactionModal.isOpen}
+        onClose={() => setTransactionModal((prev) => ({ ...prev, isOpen: false }))}
+        defaultMethod={transactionModal.method}
       />
     </div>
   );

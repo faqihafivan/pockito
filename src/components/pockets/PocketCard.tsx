@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { ProgressBar } from '../ui/ProgressBar';
 import { PocketSummary } from '../../types';
-import { formatIDR } from '../../domain/finance/financialEngine';
+import { useData } from '../../context/DataContext';
 import { Star, ChevronRight } from 'lucide-react';
 import { getPocketIcon } from '../../domain/finance/pocketIcons';
 
@@ -14,6 +14,7 @@ interface PocketCardProps {
 
 export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
   const navigate = useNavigate();
+  const { formatMoney } = useData();
   const IconComponent = getPocketIcon(pocket.icon);
   const isOverBudget = pocket.spentAmount > pocket.plannedAmount;
 
@@ -59,7 +60,7 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
               Rencana Pagu
             </span>
             <div className="text-sm font-black text-brand-dark tabular-nums">
-              {formatIDR(pocket.plannedAmount)}
+              {formatMoney(pocket.plannedAmount)}
             </div>
           </div>
           <div className="text-right">
@@ -71,7 +72,7 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
                 isOverBudget ? 'text-red-600' : 'text-brand-dark'
               }`}
             >
-              {formatIDR(pocket.spentAmount)}
+              {formatMoney(pocket.spentAmount)}
             </div>
           </div>
         </div>
@@ -95,8 +96,8 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
           }`}
         >
           {isOverBudget
-            ? `Melebihi ${formatIDR(Math.abs(pocket.remainingAmount))}`
-            : formatIDR(pocket.remainingAmount)}
+            ? `Melebihi ${formatMoney(Math.abs(pocket.remainingAmount))}`
+            : formatMoney(pocket.remainingAmount)}
         </span>
       </div>
     </Card>
