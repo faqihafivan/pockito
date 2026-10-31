@@ -1,9 +1,6 @@
-﻿-- ============================================================================
+-- ============================================================================
 -- POCKITO DATABASE SCHEMA (PostgreSQL / Supabase)
--- Master Migration: 20261018000001_pockito_schema.sql
--- Description: Complete schema with profiles, budgets, pockets, accounts,
---              transactions, savings goals, tasks, reminders, and activity logs.
--- Security: Full Row Level Security (RLS) enabled on all user-owned tables.
+-- Master Consolidated Schema (Safe to run multiple times / Idempotent)
 -- ============================================================================
 
 -- 0. Enable UUID Extension
@@ -24,14 +21,17 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can view their own profile" ON public.profiles;
 CREATE POLICY "Users can view their own profile"
     ON public.profiles FOR SELECT
     USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can update their own profile" ON public.profiles;
 CREATE POLICY "Users can update their own profile"
     ON public.profiles FOR UPDATE
     USING (auth.uid() = id);
 
+DROP POLICY IF EXISTS "Users can insert their own profile" ON public.profiles;
 CREATE POLICY "Users can insert their own profile"
     ON public.profiles FOR INSERT
     WITH CHECK (auth.uid() = id);
@@ -49,6 +49,7 @@ CREATE TABLE IF NOT EXISTS public.budgets (
 
 ALTER TABLE public.budgets ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own budgets" ON public.budgets;
 CREATE POLICY "Users can access their own budgets"
     ON public.budgets FOR ALL
     USING (auth.uid() = user_id)
@@ -71,6 +72,7 @@ CREATE TABLE IF NOT EXISTS public.pockets (
 
 ALTER TABLE public.pockets ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own pockets" ON public.pockets;
 CREATE POLICY "Users can access their own pockets"
     ON public.pockets FOR ALL
     USING (auth.uid() = user_id)
@@ -92,6 +94,7 @@ CREATE TABLE IF NOT EXISTS public.accounts (
 
 ALTER TABLE public.accounts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own accounts" ON public.accounts;
 CREATE POLICY "Users can access their own accounts"
     ON public.accounts FOR ALL
     USING (auth.uid() = user_id)
@@ -119,6 +122,7 @@ CREATE TABLE IF NOT EXISTS public.transactions (
 
 ALTER TABLE public.transactions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own transactions" ON public.transactions;
 CREATE POLICY "Users can access their own transactions"
     ON public.transactions FOR ALL
     USING (auth.uid() = user_id)
@@ -145,6 +149,7 @@ CREATE TABLE IF NOT EXISTS public.savings_goals (
 
 ALTER TABLE public.savings_goals ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own goals" ON public.savings_goals;
 CREATE POLICY "Users can access their own goals"
     ON public.savings_goals FOR ALL
     USING (auth.uid() = user_id)
@@ -167,6 +172,7 @@ CREATE TABLE IF NOT EXISTS public.tasks (
 
 ALTER TABLE public.tasks ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own tasks" ON public.tasks;
 CREATE POLICY "Users can access their own tasks"
     ON public.tasks FOR ALL
     USING (auth.uid() = user_id)
@@ -189,6 +195,7 @@ CREATE TABLE IF NOT EXISTS public.reminders (
 
 ALTER TABLE public.reminders ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own reminders" ON public.reminders;
 CREATE POLICY "Users can access their own reminders"
     ON public.reminders FOR ALL
     USING (auth.uid() = user_id)
@@ -207,12 +214,13 @@ CREATE TABLE IF NOT EXISTS public.activity_logs (
 
 ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can access their own activity logs" ON public.activity_logs;
 CREATE POLICY "Users can access their own activity logs"
     ON public.activity_logs FOR ALL
     USING (auth.uid() = user_id)
     WITH CHECK (auth.uid() = user_id);
 
--- Triggers for automatic updated_at timestamp
+-- 10. Triggers for automatic updated_at timestamp
 CREATE OR REPLACE FUNCTION public.handle_updated_at()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -244,13 +252,8 @@ CREATE TRIGGER tr_tasks_updated BEFORE UPDATE ON public.tasks FOR EACH ROW EXECU
 
 DROP TRIGGER IF EXISTS tr_reminders_updated ON public.reminders;
 CREATE TRIGGER tr_reminders_updated BEFORE UPDATE ON public.reminders FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
--- Migration: 20261027000002_subscriptions_and_debts.sql
--- Adds Subscriptions (Tagihan Rutin), Debts (Hutang & Piutang),
--- Subscription Payments (Riwayat Pembayaran Tagihan), and Debt Payments (Riwayat Cicilan)
--- Security: Full Row Level Security (RLS) enabled on all user-owned tables.
--- ID Consistency: UUID types aligned with 20261018000001_pockito_schema.sql
 
--- 1. Subscriptions Table
+-- 11. SUBSCRIPTIONS TABLE (Tagihan Rutin)
 CREATE TABLE IF NOT EXISTS public.subscriptions (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -267,16 +270,16 @@ CREATE TABLE IF NOT EXISTS public.subscriptions (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- RLS for Subscriptions
 ALTER TABLE public.subscriptions ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own subscriptions" ON public.subscriptions;
 CREATE POLICY "Users can manage their own subscriptions"
 ON public.subscriptions
 FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
--- 2. Debts Table (Hutang & Piutang)
+-- 12. DEBTS TABLE (Hutang & Piutang)
 CREATE TABLE IF NOT EXISTS public.debts (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -294,16 +297,16 @@ CREATE TABLE IF NOT EXISTS public.debts (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- RLS for Debts
 ALTER TABLE public.debts ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own debts" ON public.debts;
 CREATE POLICY "Users can manage their own debts"
 ON public.debts
 FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
--- 3. Subscription Payments Table (Riwayat Pembayaran Tagihan)
+-- 13. SUBSCRIPTION PAYMENTS TABLE (Riwayat Pembayaran Tagihan)
 CREATE TABLE IF NOT EXISTS public.subscription_payments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     subscription_id UUID NOT NULL REFERENCES public.subscriptions(id) ON DELETE CASCADE,
@@ -322,16 +325,16 @@ CREATE TABLE IF NOT EXISTS public.subscription_payments (
     CONSTRAINT uq_subscription_period UNIQUE (subscription_id, period)
 );
 
--- RLS for Subscription Payments
 ALTER TABLE public.subscription_payments ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own subscription payments" ON public.subscription_payments;
 CREATE POLICY "Users can manage their own subscription payments"
 ON public.subscription_payments
 FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
--- 4. Debt Payments Table (Riwayat Cicilan Hutang & Piutang)
+-- 14. DEBT PAYMENTS TABLE (Riwayat Cicilan Hutang & Piutang)
 CREATE TABLE IF NOT EXISTS public.debt_payments (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
     debt_id UUID NOT NULL REFERENCES public.debts(id) ON DELETE CASCADE,
@@ -345,16 +348,16 @@ CREATE TABLE IF NOT EXISTS public.debt_payments (
     updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- RLS for Debt Payments
 ALTER TABLE public.debt_payments ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Users can manage their own debt payments" ON public.debt_payments;
 CREATE POLICY "Users can manage their own debt payments"
 ON public.debt_payments
 FOR ALL
 USING (auth.uid() = user_id)
 WITH CHECK (auth.uid() = user_id);
 
--- Updated_at triggers
+-- Updated_at triggers for subscriptions & debts
 DROP TRIGGER IF EXISTS tr_subscriptions_updated ON public.subscriptions;
 CREATE TRIGGER tr_subscriptions_updated BEFORE UPDATE ON public.subscriptions FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
 

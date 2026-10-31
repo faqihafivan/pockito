@@ -221,15 +221,17 @@ export class DataService {
 
   static async updateProfile(updates: Partial<UserProfile>): Promise<UserProfile> {
     if (this.isCloud() && supabase) {
-      const { data: { user }, error: authErr } = await supabase.auth.getUser();
-      if (authErr || !user) {
-        throw new Error('Sesi cloud tidak aktif');
+      const { data: { session } } = await supabase.auth.getSession();
+      const user = session?.user || (await supabase.auth.getUser()).data?.user;
+      const targetId = user?.id || updates.id;
+      if (!targetId) {
+        throw new Error('Sesi cloud tidak aktif. Silakan masuk kembali.');
       }
       const updated: UserProfile = {
         ...updates,
-        id: user.id,
+        id: targetId,
         full_name: updates.full_name || 'Pengguna',
-        email: user.email || updates.email || '',
+        email: user?.email || updates.email || '',
         currency: updates.currency || 'IDR',
         timezone: updates.timezone || 'Asia/Jakarta',
         monthly_income: updates.monthly_income ?? 0,

@@ -210,6 +210,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           options: { data: { full_name: fullName } },
         });
         if (error) return { error: error.message };
+
+        // If email confirmation is enabled in Supabase, data.session will be null
+        let activeSession = data.session;
+        if (data.user && !activeSession) {
+          // Attempt automatic sign in
+          const signInAttempt = await supabase.auth.signInWithPassword({ email, password });
+          if (signInAttempt.data?.session) {
+            activeSession = signInAttempt.data.session;
+          } else {
+            return {
+              error: 'Pendaftaran berhasil di Supabase! Namun konfirmasi email sedang aktif. Silakan matikan opsi "Confirm email" di Dashboard Supabase (Authentication > Providers > Email) atau cek tautan verifikasi di inbox email Anda.',
+            };
+          }
+        }
+
         if (data.user) {
           DataService.setMode('cloud', data.user.id);
           const newProfile: UserProfile = {
