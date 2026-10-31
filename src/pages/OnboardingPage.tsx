@@ -6,7 +6,7 @@ import { CurrencyInput } from '../components/ui/CurrencyInput';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
 import { BUDGET_TEMPLATES, formatIDR } from '../domain/finance/financialEngine';
-import { DataService } from '../services/dataService';
+import { DataService, generateUUID } from '../services/dataService';
 import confetti from 'canvas-confetti';
 import { Sparkles, ArrowRight, Check } from 'lucide-react';
 
@@ -36,7 +36,7 @@ export const OnboardingPage: React.FC = () => {
 
       // 2. Generate initial pockets from selected template
       const initialPockets = selectedTemplate.pockets.map((p, idx) => ({
-        id: 'pocket-onboard-' + idx + '-' + Math.random().toString(36).substring(2, 6),
+        id: generateUUID(),
         user_id: user?.id || 'user-demo-1',
         name: p.name,
         icon: p.icon,

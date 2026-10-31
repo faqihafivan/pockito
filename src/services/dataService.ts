@@ -129,6 +129,63 @@ export class DataService {
     }
   }
 
+  /**
+   * Scans localStorage for previous data created with matching email (e.g. from random UUID register)
+   * and migrates it into the deterministic user namespace so the user never loses data across sessions.
+   */
+  public static migrateLegacyUserNamespace(deterministicUserId: string, email: string): void {
+    if (typeof localStorage === 'undefined' || !email) return;
+    const cleanEmail = email.toLowerCase().trim();
+    const entities = [
+      'profile',
+      'accounts',
+      'pockets',
+      'transactions',
+      'goals',
+      'tasks',
+      'subscriptions',
+      'debts',
+      'subscription_payments',
+      'debt_payments',
+    ];
+
+    try {
+      let oldUserId: string | null = null;
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('pockito:user:') && k.endsWith(':profile:v2')) {
+          const parts = k.split(':');
+          const candidateId = parts[2];
+          if (candidateId && candidateId !== deterministicUserId) {
+            try {
+              const prof = JSON.parse(localStorage.getItem(k) || '{}');
+              if (prof && prof.email && prof.email.toLowerCase().trim() === cleanEmail) {
+                oldUserId = candidateId;
+                break;
+              }
+            } catch {
+              // ignore
+            }
+          }
+        }
+      }
+
+      if (oldUserId) {
+        entities.forEach((entity) => {
+          const oldKey = `pockito:user:${oldUserId}:${entity}:v2`;
+          const newKey = `pockito:user:${deterministicUserId}:${entity}:v2`;
+          const oldVal = localStorage.getItem(oldKey);
+          const newVal = localStorage.getItem(newKey);
+          if (oldVal && (!newVal || newVal === '[]' || newVal === '{}')) {
+            localStorage.setItem(newKey, oldVal);
+          }
+        });
+      }
+    } catch (err) {
+      console.warn('Migration check failed:', err);
+    }
+  }
+
   // ===================== PROFILE =====================
   static async getProfile(): Promise<UserProfile> {
     if (this.isCloud() && supabase) {
@@ -959,6 +1016,7 @@ export class DataService {
       updated_at: new Date().toISOString(),
     };
     this.writeStorage('accounts', [defaultAccount]);
+    this.writeStorage('pockets', []);
     this.writeStorage('transactions', []);
     this.writeStorage('goals', []);
     this.writeStorage('tasks', []);

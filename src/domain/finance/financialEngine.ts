@@ -10,6 +10,7 @@ import {
   PocketSummary,
   SavingsGoal,
   Subscription,
+  SubscriptionDueDateInfo,
   Task,
   Transaction,
 } from '../../types';
@@ -367,6 +368,100 @@ export function offsetPeriod(periodStr: string, deltaMonths: number): string {
   const newYear = date.getFullYear();
   const newMonth = String(date.getMonth() + 1).padStart(2, '0');
   return `${newYear}-${newMonth}`;
+}
+
+/**
+ * Calculates precise due date information, status, and days remaining for a subscription bill
+ * relative to the selected period and reference date (defaulting to today).
+ *
+ * Prevents false "Lewat Tempo" (overdue) flags when viewing future periods (e.g. today is 31 Oct,
+ * viewing 10 Nov), while strictly enforcing overdue status when the due date has actually passed.
+ */
+export function getSubscriptionDueDateInfo(
+  dueDay: number,
+  selectedPeriod: string,
+  isPaid: boolean = false,
+  todayDate: Date = new Date()
+): SubscriptionDueDateInfo {
+  const parts = (selectedPeriod || getCurrentRealtimePeriod()).split('-');
+  const selYear = parseInt(parts[0], 10) || todayDate.getFullYear();
+  const selMonth = parseInt(parts[1], 10) || (todayDate.getMonth() + 1);
+
+  // Cap dueDay to the max days in the selected month (e.g. Feb 28/29, April 30)
+  const maxDaysInMonth = new Date(selYear, selMonth, 0).getDate();
+  const safeDueDay = Math.min(Math.max(1, dueDay || 1), maxDaysInMonth);
+
+  const dueDate = new Date(selYear, selMonth - 1, safeDueDay, 23, 59, 59, 999);
+  const dueDateISO = `${selYear}-${String(selMonth).padStart(2, '0')}-${String(safeDueDay).padStart(2, '0')}`;
+
+  if (isPaid) {
+    return {
+      status: 'paid',
+      diffDays: 0,
+      dueDate,
+      dueDateISO,
+      badgeLabel: 'Lunas',
+      badgeVariant: 'success',
+    };
+  }
+
+  // Calculate day difference relative to start of today (local time)
+  const todayStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime();
+  const dueDayStart = new Date(selYear, selMonth - 1, safeDueDay).getTime();
+  const diffDays = Math.round((dueDayStart - todayStart) / (1000 * 60 * 60 * 24));
+
+  if (diffDays < 0) {
+    return {
+      status: 'overdue',
+      diffDays,
+      dueDate,
+      dueDateISO,
+      badgeLabel: 'Lewat Tempo',
+      badgeVariant: 'danger',
+    };
+  }
+
+  if (diffDays === 0) {
+    return {
+      status: 'due_today',
+      diffDays: 0,
+      dueDate,
+      dueDateISO,
+      badgeLabel: 'Hari Ini!',
+      badgeVariant: 'warning',
+    };
+  }
+
+  if (diffDays === 1) {
+    return {
+      status: 'upcoming',
+      diffDays: 1,
+      dueDate,
+      dueDateISO,
+      badgeLabel: 'Besok!',
+      badgeVariant: 'warning',
+    };
+  }
+
+  if (diffDays <= 3) {
+    return {
+      status: 'upcoming',
+      diffDays,
+      dueDate,
+      dueDateISO,
+      badgeLabel: `${diffDays} Hari Lagi`,
+      badgeVariant: 'warning',
+    };
+  }
+
+  return {
+    status: 'upcoming',
+    diffDays,
+    dueDate,
+    dueDateISO,
+    badgeLabel: 'Belum Bayar',
+    badgeVariant: 'neutral',
+  };
 }
 
 /**
@@ -926,7 +1021,6 @@ export function generateDailyBriefing({
   formatMoney = (amt) => formatIDR(amt),
   todayDate = new Date(),
 }: GenerateDailyBriefingParams): DailyBriefingResult {
-  const currentDay = todayDate.getDate();
   const todayISO = todayDate.toISOString().split('T')[0];
   const items: DailyBriefingItem[] = [];
 
@@ -947,8 +1041,9 @@ export function generateDailyBriefing({
   );
 
   unpaidSubs.forEach((sub) => {
-    const diff = sub.due_day - currentDay;
-    if (diff === 0) {
+    const dueInfo = getSubscriptionDueDateInfo(sub.due_day, selectedPeriod, false, todayDate);
+
+    if (dueInfo.status === 'due_today') {
       items.push({
         id: `sub-${sub.id}`,
         type: 'bill',
@@ -960,24 +1055,24 @@ export function generateDailyBriefing({
         actionType: 'navigate',
         actionRoute: '/app/subscriptions',
       });
-    } else if (diff > 0 && diff <= 3) {
+    } else if (dueInfo.status === 'upcoming' && dueInfo.diffDays <= 3) {
       items.push({
         id: `sub-${sub.id}`,
         type: 'bill',
-        title: `Tagihan ${sub.name} Jatuh Tempo ${diff} Hari Lagi`,
-        message: `Nominal: ${formatMoney(sub.amount)} pada tanggal ${sub.due_day}. Pastikan saldo rekeningmu mencukupi.`,
-        urgency: diff === 1 ? 'high' : 'medium',
-        badge: `${diff} Hari Lagi`,
+        title: `Tagihan ${sub.name} Jatuh Tempo ${dueInfo.diffDays === 1 ? 'Besok' : `${dueInfo.diffDays} Hari Lagi`}`,
+        message: `Nominal: ${formatMoney(sub.amount)} pada tanggal ${dueInfo.dueDate.getDate()}. Pastikan saldo rekeningmu mencukupi.`,
+        urgency: dueInfo.diffDays === 1 ? 'high' : 'medium',
+        badge: dueInfo.badgeLabel,
         actionText: 'Cek Tagihan',
         actionType: 'navigate',
         actionRoute: '/app/subscriptions',
       });
-    } else if (diff < 0) {
+    } else if (dueInfo.status === 'overdue') {
       items.push({
         id: `sub-${sub.id}`,
         type: 'bill',
         title: `Tagihan ${sub.name} Sudah Lewat Tempo!`,
-        message: `Nominal: ${formatMoney(sub.amount)} (Jatuh tempo tgl ${sub.due_day}). Belum tercatat lunas untuk periode ${formatPeriod(selectedPeriod, true)}.`,
+        message: `Nominal: ${formatMoney(sub.amount)} (Jatuh tempo tgl ${dueInfo.dueDate.getDate()} ${formatPeriod(selectedPeriod, true)}). Segera lakukan pembayaran.`,
         urgency: 'high',
         badge: 'Lewat Tempo',
         actionText: 'Bayar Sekarang',

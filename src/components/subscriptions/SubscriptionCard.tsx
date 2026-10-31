@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Subscription } from '../../types';
-import { formatIDR, formatPeriod } from '../../domain/finance/financialEngine';
+import { formatIDR, formatPeriod, getSubscriptionDueDateInfo } from '../../domain/finance/financialEngine';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 import { useData } from '../../context/DataContext';
@@ -33,11 +33,7 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
   const account = accounts.find((a) => a.id === subscription.account_id);
 
   const isPaidThisMonth = subscription.last_paid_period === selectedPeriod;
-
-  // Calculate day difference for urgency
-  const today = new Date().getDate();
-  const isDueToday = today === subscription.due_day;
-  const isPastDue = today > subscription.due_day && !isPaidThisMonth;
+  const dueInfo = getSubscriptionDueDateInfo(subscription.due_day, selectedPeriod, isPaidThisMonth);
 
   const handlePay = async () => {
     const periodLabel = formatPeriod(selectedPeriod);
@@ -116,20 +112,25 @@ export const SubscriptionCard: React.FC<SubscriptionCardProps> = ({
         </div>
 
         {/* Status Badge */}
-        {isPaidThisMonth ? (
+        {dueInfo.status === 'paid' ? (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
             <CheckCircle2 className="w-3.5 h-3.5" />
             <span>Lunas</span>
           </span>
-        ) : isPastDue ? (
+        ) : dueInfo.status === 'overdue' ? (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-rose-100 text-rose-800 border border-rose-300 animate-pulse">
             <AlertCircle className="w-3.5 h-3.5" />
             <span>Lewat Tempo</span>
           </span>
-        ) : isDueToday ? (
+        ) : dueInfo.status === 'due_today' ? (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-100 text-amber-900 border border-amber-300">
             <AlertCircle className="w-3.5 h-3.5" />
             <span>Hari Ini!</span>
+          </span>
+        ) : dueInfo.diffDays <= 3 ? (
+          <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-black bg-amber-50 text-amber-800 border border-amber-300">
+            <CalendarClock className="w-3.5 h-3.5" />
+            <span>{dueInfo.badgeLabel}</span>
           </span>
         ) : (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-bold bg-brand-cream text-brand-dark border border-brand-border">

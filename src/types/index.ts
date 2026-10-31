@@ -177,6 +177,17 @@ export interface SubscriptionPayment {
   updated_at?: string;
 }
 
+export type SubscriptionDueStatus = 'paid' | 'overdue' | 'due_today' | 'upcoming';
+
+export interface SubscriptionDueDateInfo {
+  status: SubscriptionDueStatus;
+  diffDays: number; // positive = days until due, negative = days past due, 0 = due today
+  dueDate: Date;
+  dueDateISO: string; // 'YYYY-MM-DD'
+  badgeLabel: string; // 'Lunas' | 'Lewat Tempo' | 'Hari Ini!' | 'Besok!' | 'X Hari Lagi' | 'Belum Bayar'
+  badgeVariant: 'success' | 'danger' | 'warning' | 'neutral';
+}
+
 export type DebtType = 'receivable' | 'payable';
 
 export interface Debt {

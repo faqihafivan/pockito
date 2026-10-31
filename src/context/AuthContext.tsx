@@ -1,7 +1,12 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AuthStatus, UserProfile } from '../types';
-import { DataService, generateUUID } from '../services/dataService';
+import { DataService } from '../services/dataService';
 import { isSupabaseConfigured, supabase } from '../services/supabaseClient';
+
+export function getDeterministicLocalUserId(email: string): string {
+  const cleanEmail = (email || '').toLowerCase().trim();
+  return 'user-local-' + cleanEmail.replace(/[^a-zA-Z0-9]/g, '_');
+}
 
 interface AuthContextType {
   user: UserProfile | null;
@@ -99,6 +104,30 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         // 3. Pure Local Offline Mode (Supabase not configured)
+        let activeUserId: string | null = null;
+        let activeUserEmail: string | null = null;
+        try {
+          activeUserId = localStorage.getItem('pockito_active_local_user_id');
+          activeUserEmail = localStorage.getItem('pockito_active_local_user_email');
+        } catch {
+          // ignore
+        }
+
+        if (activeUserId) {
+          if (activeUserEmail) {
+            DataService.migrateLegacyUserNamespace(activeUserId, activeUserEmail);
+          }
+          DataService.setMode('local', activeUserId);
+          const localProfile = await DataService.getProfile();
+          const localAccounts = await DataService.getAccounts();
+          if (localProfile && (localAccounts.length > 0 || localProfile.email)) {
+            setUser(localProfile);
+            setIsDemo(false);
+            setAuthStatus('authenticated');
+            return;
+          }
+        }
+
         DataService.setMode('local', null);
         const localAccounts = await DataService.getAccounts();
         if (localAccounts.length > 0) {
@@ -145,10 +174,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Local offline mode login
-      const userId = 'user-local-' + email.replace(/[^a-zA-Z0-9]/g, '_');
+      const cleanEmail = email.toLowerCase().trim();
+      const userId = getDeterministicLocalUserId(cleanEmail);
+      DataService.migrateLegacyUserNamespace(userId, cleanEmail);
       DataService.setMode('local', userId);
-      const profile = await DataService.getProfile();
-      setUser({ ...profile, email });
+      let profile = await DataService.getProfile();
+      if (!profile.email || profile.email === 'user@pockito.app') {
+        profile = await DataService.updateProfile({ email: cleanEmail });
+      }
+      try {
+        localStorage.setItem('pockito_active_local_user_id', userId);
+        localStorage.setItem('pockito_active_local_user_email', cleanEmail);
+        sessionStorage.removeItem('pockito_active_mode');
+      } catch {
+        // ignore
+      }
+      setUser(profile);
       setIsDemo(false);
       setAuthStatus('authenticated');
       return {};
@@ -190,12 +231,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Local mode register
-      const newId = generateUUID();
-      DataService.setMode('local', newId);
+      const cleanEmail = email.toLowerCase().trim();
+      const localUserId = getDeterministicLocalUserId(cleanEmail);
+      DataService.setMode('local', localUserId);
       const newProfile: UserProfile = {
-        id: newId,
-        full_name: fullName,
-        email,
+        id: localUserId,
+        full_name: fullName.trim(),
+        email: cleanEmail,
         currency: 'IDR',
         timezone: 'Asia/Jakarta',
         monthly_income: 0,
@@ -203,6 +245,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       };
       await DataService.updateProfile(newProfile);
       DataService.initializeCleanUserData(newProfile.id);
+      try {
+        localStorage.setItem('pockito_active_local_user_id', localUserId);
+        localStorage.setItem('pockito_active_local_user_email', cleanEmail);
+        sessionStorage.removeItem('pockito_active_mode');
+      } catch {
+        // ignore
+      }
       setUser(newProfile);
       setIsDemo(false);
       setAuthStatus('authenticated');
@@ -222,6 +271,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       try {
         sessionStorage.removeItem('pockito_active_mode');
+        localStorage.removeItem('pockito_active_local_user_id');
+        localStorage.removeItem('pockito_active_local_user_email');
       } catch {
         // ignore
       }
