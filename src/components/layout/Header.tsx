@@ -90,7 +90,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           leftIcon={<Check className="w-3.5 h-3.5" />}
           className="hidden sm:inline-flex"
         >
-          Tugas
+          <span>Tugas</span>
+          <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/10 rounded text-[9px] font-mono">T</kbd>
         </Button>
 
         {/* Quick Add Transaction (Primary) */}
@@ -102,6 +103,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
         >
           <span className="hidden xs:inline">Catat Transaksi</span>
           <span className="xs:hidden">Catat</span>
+          <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/15 rounded text-[9px] font-mono">N</kbd>
         </Button>
       </div>
     </header>

@@ -48,7 +48,7 @@ const SLIDES: SlideData[] = [
 
 export const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { enterDemoMode } = useAuth();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
@@ -103,7 +103,7 @@ export const WelcomePage: React.FC = () => {
   };
 
   const handleGuestDemo = async () => {
-    await login('faqih@pockito.app');
+    await enterDemoMode();
     navigate('/app/dashboard');
   };
 

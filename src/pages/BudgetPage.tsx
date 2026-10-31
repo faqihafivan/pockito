@@ -14,6 +14,8 @@ import {
   Trash2,
   Edit2,
   Star,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 
 import { useNotification } from '../context/NotificationContext';
@@ -32,6 +34,7 @@ export const BudgetPage: React.FC = () => {
   const [isPocketModalOpen, setIsPocketModalOpen] = useState(false);
   const [pocketToEdit, setPocketToEdit] = useState<Pocket | null>(null);
   const [isRecommendationOpen, setIsRecommendationOpen] = useState(false);
+  const [isSlidersLocked, setIsSlidersLocked] = useState(true);
 
   const monthlyIncome = user?.monthly_income || 0;
 
@@ -75,7 +78,26 @@ export const BudgetPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
+          {/* Slider Lock / Unlock Toggle Button (P1-05 & P2-04) */}
+          <Button
+            variant={isSlidersLocked ? 'secondary' : 'primary'}
+            size="sm"
+            onClick={() => {
+              const next = !isSlidersLocked;
+              setIsSlidersLocked(next);
+              showToast(
+                next
+                  ? 'Slider Terkunci 🔒: Aman dari sentuhan scroll pada mobile.'
+                  : 'Slider Terbuka 🔓: Mode ubah alokasi cepat aktif.',
+                'info'
+              );
+            }}
+            leftIcon={isSlidersLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+          >
+            {isSlidersLocked ? 'Kunci Slider (Aktif)' : 'Buka Slider (Edit)'}
+          </Button>
+
           <Button
             variant="secondary"
             size="sm"
@@ -100,12 +122,13 @@ export const BudgetPage: React.FC = () => {
 
       {/* Allocation Status Alert Banner */}
       <div
-        className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-4 ${overview.isOverallocated
+        className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-4 ${
+          overview.isOverallocated
             ? 'bg-red-50 border-red-500 text-red-800'
             : overview.unallocatedPercentage > 0
-              ? 'bg-brand-primary/20 border-brand-dark text-brand-dark'
-              : 'bg-[#10B981]/20 border-brand-dark text-[#047857]'
-          }`}
+            ? 'bg-brand-primary/20 border-brand-dark text-brand-dark'
+            : 'bg-[#10B981]/20 border-brand-dark text-[#047857]'
+        }`}
       >
         <div className="flex items-center gap-3">
           {overview.isOverallocated ? (
@@ -118,8 +141,8 @@ export const BudgetPage: React.FC = () => {
               {overview.isOverallocated
                 ? `Alokasi Melebihi 100% (${overview.totalAllocationPercentage}% terpakai)! Mohon kurangi persentase kantong.`
                 : overview.unallocatedPercentage > 0
-                  ? `Ada sisa ${overview.unallocatedPercentage}% (${formatMoney(overview.unallocatedIncome)}) yang belum dialokasikan.`
-                  : 'Alokasi Seimbang Sempurna (100% Gaji Terbagi)!'}
+                ? `Ada sisa ${overview.unallocatedPercentage}% (${formatMoney(overview.unallocatedIncome)}) yang belum dialokasikan.`
+                : 'Alokasi Seimbang Sempurna (100% Gaji Terbagi)!'}
             </p>
             <p className="text-[11px] opacity-80 mt-0.5">
               Dasar perhitungan: Gaji bulanan {formatMoney(monthlyIncome)}
@@ -135,7 +158,20 @@ export const BudgetPage: React.FC = () => {
 
       {/* Detailed Pocket Control List */}
       <div className="space-y-4">
-        <h3 className="text-base font-black text-brand-dark">Daftar Kantong Aktif</h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-base font-black text-brand-dark">Daftar Kantong Aktif</h3>
+          <span className="text-xs font-bold text-brand-darkMuted">
+            {isSlidersLocked ? (
+              <span className="flex items-center gap-1 text-emerald-700">
+                <Lock className="w-3.5 h-3.5" /> Slider dikunci untuk kenyamanan scrolling
+              </span>
+            ) : (
+              <span className="flex items-center gap-1 text-amber-700">
+                <Unlock className="w-3.5 h-3.5" /> Mode ubah slider aktif
+              </span>
+            )}
+          </span>
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {pocketSummaries.map((pocket) => (
@@ -157,8 +193,9 @@ export const BudgetPage: React.FC = () => {
                         className="p-1 hover:scale-110 transition-transform"
                       >
                         <Star
-                          className={`w-4 h-4 ${pocket.is_starred ? 'fill-brand-primary text-brand-dark' : 'text-gray-300'
-                            }`}
+                          className={`w-4 h-4 ${
+                            pocket.is_starred ? 'fill-brand-primary text-brand-dark' : 'text-gray-300'
+                          }`}
                         />
                       </button>
                     </div>
@@ -189,18 +226,23 @@ export const BudgetPage: React.FC = () => {
               {/* Live Percentage Adjuster */}
               <div className="p-3 bg-brand-cream rounded-xl border border-brand-border space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
-                  <span>Atur Alokasi:</span>
+                  <span className="flex items-center gap-1">
+                    {isSlidersLocked && <Lock className="w-3 h-3 text-brand-darkMuted" />}
+                    Atur Alokasi:
+                  </span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage - 1)}
-                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary"
+                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform"
+                      title="Kurangi 1%"
                     >
                       -
                     </button>
                     <span className="w-12 text-center font-black tabular-nums">{pocket.allocation_percentage}%</span>
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage + 1)}
-                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary"
+                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform"
+                      title="Tambah 1%"
                     >
                       +
                     </button>
@@ -211,10 +253,18 @@ export const BudgetPage: React.FC = () => {
                   type="range"
                   min="0"
                   max="100"
+                  disabled={isSlidersLocked}
                   value={pocket.allocation_percentage}
                   onChange={(e) => handlePercentageChange(pocket.id, Number(e.target.value))}
-                  className="w-full accent-brand-primary cursor-pointer h-2 bg-white rounded-lg border border-brand-dark/20"
+                  className={`w-full accent-brand-primary h-2 bg-white rounded-lg border border-brand-dark/20 transition-opacity ${
+                    isSlidersLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 />
+                {isSlidersLocked && (
+                  <p className="text-[10px] text-brand-darkMuted font-medium">
+                    Sentuhan slider dinonaktifkan agar scroll lancar. Gunakan tombol +/- atau klik "Buka Slider".
+                  </p>
+                )}
               </div>
 
               {/* Spending progress indicator */}

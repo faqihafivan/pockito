@@ -10,7 +10,7 @@ import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 
 export const AppShell: React.FC = () => {
-  const { user, isLoading } = useAuth();
+  const { user, isLoading, authStatus, isDemo, logout } = useAuth();
   const { dailyBriefing, isBriefingOpen, openBriefing, closeBriefing } = useData();
   const location = useLocation();
 
@@ -32,6 +32,37 @@ export const AppShell: React.FC = () => {
     }
   }, [user?.onboarding_completed, dailyBriefing.items.length]);
 
+  // Desktop Global Keyboard Shortcuts (N = New Tx, T = New Task, B = Briefing)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      const target = e.target as HTMLElement | null;
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.isContentEditable)
+      ) {
+        return;
+      }
+
+      if (e.key === 'n' || e.key === 'N') {
+        e.preventDefault();
+        setIsTransactionOpen(true);
+      } else if (e.key === 't' || e.key === 'T') {
+        e.preventDefault();
+        setIsTaskOpen(true);
+      } else if (e.key === 'b' || e.key === 'B') {
+        e.preventDefault();
+        openBriefing();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-brand-cream flex items-center justify-center">
@@ -50,12 +81,12 @@ export const AppShell: React.FC = () => {
   }
 
   // Route Guard: Unauthenticated users are redirected to login
-  if (!user) {
+  if (authStatus === 'unauthenticated' || (!user && authStatus !== 'demo')) {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   // Redirect to onboarding if not completed and not already on onboarding page
-  if (!user.onboarding_completed && location.pathname !== '/app/onboarding') {
+  if (user && !user.onboarding_completed && location.pathname !== '/app/onboarding' && !isDemo) {
     return <Navigate to="/app/onboarding" replace />;
   }
 
@@ -66,6 +97,24 @@ export const AppShell: React.FC = () => {
 
       {/* Main Content Column */}
       <div className="flex-1 flex flex-col min-w-0">
+        {/* Demo Mode Top Indicator Ribbon */}
+        {isDemo && (
+          <div className="bg-amber-100 border-b-2 border-brand-dark px-4 py-2 flex items-center justify-between text-xs font-bold text-brand-dark z-30">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 rounded-full bg-brand-primary text-[10px] font-black uppercase border border-brand-dark shadow-saweria-sm">
+                Mode Demo
+              </span>
+              <span>Anda sedang menjelajahi simulasi data demo terisolasi. Perubahan tidak tersimpan ke cloud.</span>
+            </div>
+            <button
+              onClick={() => logout()}
+              className="px-2 py-0.5 rounded-lg border border-brand-dark bg-white hover:bg-red-50 text-red-700 font-black text-xs transition-colors"
+            >
+              Keluar Demo
+            </button>
+          </div>
+        )}
+
         <Header
           onOpenNewTransaction={() => setIsTransactionOpen(true)}
           onOpenNewTask={() => setIsTaskOpen(true)}

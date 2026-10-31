@@ -30,14 +30,22 @@ export function formatIDR(amount: number, prefix: boolean = true): string {
 }
 
 /**
+ * Maximum safe nominal IDR (Rp 999.999.999.999 / 999 Miliar) to prevent
+ * integer overflow and extreme layout breaking.
+ */
+export const MAX_SAFE_IDR = 999_999_999_999;
+
+/**
  * Parses a string or raw input into a safe non-negative integer IDR.
  */
 export function parseIDRInput(value: string | number): number {
   if (typeof value === 'number') {
-    return Math.max(0, Math.round(value));
+    return Math.min(MAX_SAFE_IDR, Math.max(0, Math.round(value)));
   }
   const clean = value.replace(/[^0-9]/g, '');
-  return clean ? parseInt(clean, 10) : 0;
+  if (!clean) return 0;
+  const parsed = parseInt(clean, 10);
+  return isNaN(parsed) ? 0 : Math.min(MAX_SAFE_IDR, Math.max(0, parsed));
 }
 
 /**
@@ -470,66 +478,88 @@ export function formatIDRPrivacy(
 /**
  * Calculates Emergency Fund Runway (Ketahanan Dana Darurat).
  * Measures how many months the user can survive without income based on
- * real cash reserves vs. essential living costs (starred priority pockets ⭐).
+ * strictly liquid cash reserves (excluding investments and archived accounts)
+ * vs. essential monthly living expenses.
  */
 export function calculateEmergencyRunway(
   accounts: Account[],
   pockets: Pocket[],
   overview: FinancialOverview,
-  monthlyIncome: number
+  monthlyIncome: number,
+  manualMonthlyExpense?: number,
+  transactions: Transaction[] = []
 ): EmergencyRunwayResult {
-  // 1. Calculate Total Liquid Cash (Active bank + cash + ewallet accounts)
-  const totalLiquidCash = accounts
-    .filter((a) => !a.is_archived && a.type !== 'investment')
-    .reduce((sum, a) => sum + Math.max(0, a.opening_balance), 0);
+  // 1. Calculate Total Liquid Cash strictly from active, non-investment accounts
+  const { accountBalances } = calculateNetBalance(accounts, transactions);
+  const liquidAccounts = accounts.filter((a) => !a.is_archived && a.type !== 'investment');
+  const totalLiquidCash = liquidAccounts.reduce((sum, a) => {
+    const bal = accountBalances[a.id] !== undefined ? accountBalances[a.id] : Math.max(0, a.opening_balance || 0);
+    return sum + Math.max(0, bal);
+  }, 0);
 
-  const effectiveCash = Math.max(
-    0,
-    overview.totalRecordedBalance > 0
-      ? overview.totalRecordedBalance
-      : totalLiquidCash
-  );
+  // 2. Determine Monthly Essential Living Expense without fake arbitrary fallbacks
+  const effectiveIncome = monthlyIncome > 0 ? monthlyIncome : overview.monthlyIncome;
+  const hasManual = typeof manualMonthlyExpense === 'number' && manualMonthlyExpense > 0;
 
-  // 2. Calculate Monthly Essential Expense (starred priority pockets ⭐)
-  const starredPockets = pockets.filter((p) => p.is_starred);
-  let essentialPercentage = starredPockets.reduce(
-    (sum, p) => sum + p.allocation_percentage,
-    0
-  );
-
-  // Fallback: If no starred pockets, assume 50% needs rule
-  if (essentialPercentage === 0) {
-    essentialPercentage = 50;
+  if (!hasManual && effectiveIncome <= 0) {
+    return {
+      totalLiquidCash,
+      monthlyEssentialExpense: 0,
+      runwayMonths: 0,
+      status: 'insufficient_data',
+      statusLabel: 'Data Belum Cukup',
+      badgeColor: '#9CA3AF',
+      adviceMessage:
+        'Lengkapi penghasilan bulanan di profil atau tentukan estimasi biaya pokok bulanan untuk menghitung daya tahan dana darurat secara akurat.',
+      targetMonths: 6,
+      targetAmount: 0,
+      progressPercentage: 0,
+      isEstimate: true,
+      calculationMethod: 'insufficient',
+    };
   }
 
-  const effectiveIncome =
-    monthlyIncome > 0
-      ? monthlyIncome
-      : overview.monthlyIncome > 0
-      ? overview.monthlyIncome
-      : 3000000;
-  const monthlyEssentialExpense = Math.max(
-    100000,
-    Math.round((effectiveIncome * essentialPercentage) / 100)
-  );
+  let monthlyEssentialExpense: number;
+  let calculationMethod: 'budget_starred' | 'actual_expenses' | 'manual_input' | 'insufficient';
+
+  if (hasManual) {
+    monthlyEssentialExpense = Math.round(manualMonthlyExpense!);
+    calculationMethod = 'manual_input';
+  } else {
+    const starredPockets = pockets.filter((p) => p.is_starred);
+    let essentialPercentage = starredPockets.reduce(
+      (sum, p) => sum + p.allocation_percentage,
+      0
+    );
+
+    // If user hasn't starred any pocket, assume standard 50% basic needs rule
+    if (essentialPercentage === 0) {
+      essentialPercentage = 50;
+    }
+
+    monthlyEssentialExpense = Math.max(
+      10000,
+      Math.round((effectiveIncome * essentialPercentage) / 100)
+    );
+    calculationMethod = starredPockets.length > 0 ? 'budget_starred' : 'actual_expenses';
+  }
 
   // 3. Calculate Runway Months
   const rawMonths =
-    monthlyEssentialExpense > 0 ? effectiveCash / monthlyEssentialExpense : 0;
+    monthlyEssentialExpense > 0 ? totalLiquidCash / monthlyEssentialExpense : 0;
   const runwayMonths = Math.round(rawMonths * 10) / 10;
 
   // 4. Determine Financial Health Status
-  let status: 'critical' | 'warning' | 'safe' | 'resilient' = 'warning';
+  let status: 'critical' | 'warning' | 'safe' | 'resilient' | 'insufficient_data' = 'warning';
   let statusLabel = 'Waspada 🟡';
   let badgeColor = '#F59E0B'; // Amber
   let adviceMessage = '';
 
   const targetMonths = 6;
   const targetAmount = monthlyEssentialExpense * targetMonths;
-  const progressPercentage = Math.min(
-    100,
-    Math.round((effectiveCash / targetAmount) * 100)
-  );
+  const progressPercentage = targetAmount > 0
+    ? Math.min(100, Math.round((totalLiquidCash / targetAmount) * 100))
+    : 0;
 
   if (runwayMonths < 1) {
     status = 'critical';
@@ -555,7 +585,7 @@ export function calculateEmergencyRunway(
   }
 
   return {
-    totalLiquidCash: effectiveCash,
+    totalLiquidCash,
     monthlyEssentialExpense,
     runwayMonths,
     status,
@@ -565,6 +595,9 @@ export function calculateEmergencyRunway(
     targetMonths,
     targetAmount,
     progressPercentage,
+    isEstimate: calculationMethod !== 'manual_input',
+    calculationMethod,
+    manualMonthlyExpense: hasManual ? manualMonthlyExpense : undefined,
   };
 }
 
@@ -1123,4 +1156,27 @@ export function generateDailyBriefing({
     urgentCount,
     summaryHeadline,
   };
+}
+
+/**
+ * Returns the current date in local calendar format 'YYYY-MM-DD'
+ * ensuring Indonesian / local timezone doesn't drift into the previous month at midnight.
+ */
+export function getLocalDateString(d: Date = new Date()): string {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Returns a timezone-safe ISO string anchored to local calendar date and time.
+ * Prevents UTC string conversions at 00:30 WIB from shifting dates to the previous month.
+ */
+export function getLocalSafeISOString(d: Date = new Date()): string {
+  const localDate = getLocalDateString(d);
+  const hours = String(d.getHours()).padStart(2, '0');
+  const minutes = String(d.getMinutes()).padStart(2, '0');
+  const seconds = String(d.getSeconds()).padStart(2, '0');
+  return `${localDate}T${hours}:${minutes}:${seconds}.000Z`;
 }

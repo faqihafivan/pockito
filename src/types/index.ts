@@ -2,6 +2,7 @@ export type AccountType = 'bank' | 'cash' | 'ewallet' | 'investment';
 export type TransactionType = 'income' | 'expense' | 'transfer';
 export type TaskPriority = 'low' | 'medium' | 'high';
 export type ReminderRecurrence = 'none' | 'daily' | 'weekly' | 'monthly';
+export type AuthStatus = 'initializing' | 'authenticated' | 'demo' | 'unauthenticated' | 'error';
 
 export interface UserProfile {
   id: string;
@@ -159,6 +160,23 @@ export interface Subscription {
   updated_at?: string;
 }
 
+export interface SubscriptionPayment {
+  id: string;
+  subscription_id: string;
+  user_id: string;
+  period: string; // 'YYYY-MM'
+  due_date: string; // 'YYYY-MM-DD'
+  paid_at: string; // ISO string 'YYYY-MM-DDTHH:mm:ssZ' or 'YYYY-MM-DD'
+  recorded_at: string; // ISO string
+  amount: number; // Integer IDR
+  account_id: string;
+  transaction_id?: string | null;
+  status: 'paid' | 'pending' | 'overdue' | 'cancelled';
+  notes?: string;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export type DebtType = 'receivable' | 'payable';
 
 export interface Debt {
@@ -175,6 +193,19 @@ export interface Debt {
   is_settled: boolean;
   notes?: string;
   created_at: string;
+  updated_at?: string;
+}
+
+export interface DebtPayment {
+  id: string;
+  debt_id: string;
+  user_id: string;
+  amount: number; // Integer IDR
+  paid_at: string; // ISO string 'YYYY-MM-DDTHH:mm:ssZ' or 'YYYY-MM-DD'
+  account_id?: string | null;
+  transaction_id?: string | null;
+  notes?: string;
+  created_at?: string;
   updated_at?: string;
 }
 
@@ -213,17 +244,20 @@ export interface DailySafeLimitResult {
   adviceMessage: string; // Rekomendasi/insight aksi harian
 }
 
-export type RunwayStatus = 'critical' | 'warning' | 'safe' | 'resilient';
+export type RunwayStatus = 'critical' | 'warning' | 'safe' | 'resilient' | 'insufficient_data';
 
 export interface EmergencyRunwayResult {
-  totalLiquidCash: number; // Total saldo kas riil aktif (Integer IDR)
-  monthlyEssentialExpense: number; // Pengeluaran pokok bulanan dari kantong ⭐ (Integer IDR)
+  totalLiquidCash: number; // Total saldo kas riil aktif (hanya akun likuid non-investasi, non-arsip)
+  monthlyEssentialExpense: number; // Pengeluaran pokok bulanan
   runwayMonths: number; // Berapa bulan bisa bertahan tanpa pemasukan (1 desimal)
-  status: RunwayStatus; // 'critical' (<1 bln) | 'warning' (1-3 bln) | 'safe' (3-6 bln) | 'resilient' (>6 bln)
-  statusLabel: string; // "Kritis ⚠️", "Waspada 🟡", "Ideal & Sehat 🟢", "Sangat Tangguh 🛡️"
+  status: RunwayStatus; // 'critical' (<1 bln) | 'warning' (1-3 bln) | 'safe' (3-6 bln) | 'resilient' (>6 bln) | 'insufficient_data'
+  statusLabel: string; // "Kritis ⚠️", "Waspada 🟡", "Ideal & Sehat 🟢", "Sangat Tangguh 🛡️", "Data Belum Cukup"
   badgeColor: string;
   adviceMessage: string; // Rekomendasi praktis finansial
   targetMonths: number; // Standar perencana keuangan (6 bulan)
   targetAmount: number; // monthlyEssentialExpense * 6
   progressPercentage: number; // Persentase menuju target 6 bulan
+  isEstimate: boolean; // Menandakan apakah perhitungan bersifat estimasi alokasi
+  calculationMethod: 'budget_starred' | 'actual_expenses' | 'manual_input' | 'insufficient';
+  manualMonthlyExpense?: number;
 }

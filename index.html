@@ -3,13 +3,33 @@
 
 <head>
   <meta charset="UTF-8" />
-  <link rel="icon" type="image/jpg" href="/pockito.jpg" />
+  <link rel="icon" type="image/png" href="/pockito.png" />
+  <link rel="apple-touch-icon" href="/pockito.png" />
   <link rel="manifest" href="/manifest.json" />
+  
+  <!-- Primary Meta Tags -->
+  <title>Pockito — Workspace Keuangan & Produktivitas Pribadi</title>
+  <meta name="title" content="Pockito — Workspace Keuangan & Produktivitas Pribadi" />
+  <meta name="description" content="Alokasikan gajimu tanpa pusing akuntansi dengan sistem kantong anggaran pintar, bebas denda tagihan rutin, dan pantau tabungan impianmu." />
   <meta name="theme-color" content="#FAAE2B" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no" />
-  <title>Pockito — Workspace Keuangan & Produktivitas Pribadi</title>
+
+  <!-- Open Graph / Facebook / WhatsApp / Telegram -->
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://pockito.vercel.app/" />
+  <meta property="og:title" content="Pockito — Workspace Keuangan & Produktivitas Pribadi" />
+  <meta property="og:description" content="Kelola gaji bulanan dengan metode kantong cerdas, pelacak tagihan rutin, target tabungan, dan agenda produktivitas harian." />
+  <meta property="og:image" content="https://pockito.vercel.app/pockito.png" />
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:url" content="https://pockito.vercel.app/" />
+  <meta name="twitter:title" content="Pockito — Workspace Keuangan & Produktivitas Pribadi" />
+  <meta name="twitter:description" content="Alokasikan gajimu tanpa pusing akuntansi dengan sistem kantong anggaran pintar dan dana darurat." />
+  <meta name="twitter:image" content="https://pockito.vercel.app/pockito.png" />
+
   <!-- Google Fonts: Plus Jakarta Sans -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -20,7 +40,28 @@
 
 <body
   class="bg-brand-cream text-brand-dark antialiased min-h-screen selection:bg-brand-primary selection:text-brand-dark">
-  <div id="root"></div>
+  <!-- Root Container with Instant Zero-JS Preload Splash Screen -->
+  <div id="root">
+    <div id="pockito-splash" style="position:fixed;inset:0;background:#FFFDF8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:'Plus Jakarta Sans',sans-serif;z-index:99999;">
+      <div style="background:#ffffff;border:2px solid #18181B;border-radius:24px;padding:24px 32px;box-shadow:4px 4px 0px #18181B;display:flex;flex-direction:column;align-items:center;gap:12px;max-width:320px;text-align:center;">
+        <img src="/pockito.png" alt="Pockito Logo" style="width:64px;height:64px;border-radius:18px;border:2px solid #18181B;box-shadow:2px 2px 0px #18181B;object-fit:contain;background:#ffffff;" />
+        <div>
+          <h2 style="margin:0;font-size:18px;font-weight:900;color:#18181B;letter-spacing:-0.5px;">Pockito<span style="color:#FAAE2B;">.</span></h2>
+          <p style="margin:4px 0 0 0;font-size:10px;font-weight:800;color:#71717A;text-transform:uppercase;letter-spacing:1px;">Fintech Workspace</p>
+        </div>
+        <div style="width:140px;height:6px;background:#F4F4F5;border-radius:99px;border:1.5px solid #18181B;overflow:hidden;margin-top:6px;">
+          <div style="width:45%;height:100%;background:#FAAE2B;border-radius:99px;animation:pockitoPulse 1.2s ease-in-out infinite alternate;"></div>
+        </div>
+        <p style="margin:2px 0 0 0;font-size:10px;font-weight:800;color:#18181B;text-transform:uppercase;letter-spacing:0.5px;">Memuat Ruang Keuangan...</p>
+      </div>
+      <style>
+        @keyframes pockitoPulse {
+          0% { width: 15%; margin-left: 0; }
+          100% { width: 75%; margin-left: 25%; }
+        }
+      </style>
+    </div>
+  </div>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

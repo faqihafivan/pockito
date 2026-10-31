@@ -9,7 +9,7 @@ import { Sparkles, ArrowRight, ShieldCheck, Coins, Coffee } from 'lucide-react';
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { login } = useAuth();
+  const { login, enterDemoMode } = useAuth();
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -40,7 +40,7 @@ export const LoginPage: React.FC = () => {
 
   const handleQuickDemo = async () => {
     setIsLoading(true);
-    await login('faqih@pockito.app');
+    await enterDemoMode();
     setIsLoading(false);
     navigate('/app/dashboard', { replace: true });
   };

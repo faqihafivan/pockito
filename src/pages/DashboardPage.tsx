@@ -195,26 +195,47 @@ export const DashboardPage: React.FC = () => {
             </Link>
           </div>
 
-          {/* Continuous Infinite Marquee Loop (Mobile, Tablet & Desktop) */}
-          <div className="relative w-full overflow-hidden rounded-2xl py-1">
-            {/* Edge fade gradients for polished fintech aesthetics */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FFFDF8] to-transparent z-10" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FFFDF8] to-transparent z-10" />
-
-            <div
-              className={`animate-marquee flex gap-3.5 ${isMarqueePaused ? 'animation-paused' : ''}`}
-              onTouchStart={() => setIsMarqueePaused(true)}
-              onTouchEnd={() => setTimeout(() => setIsMarqueePaused(false), 800)}
-              onMouseEnter={() => setIsMarqueePaused(true)}
-              onMouseLeave={() => setIsMarqueePaused(false)}
-            >
-              {marqueePockets.map((pocket, idx) => (
-                <div key={`marquee-pocket-${pocket.id}-${idx}`} className="w-[280px] sm:w-[310px] shrink-0">
-                  <PocketCard pocket={pocket} />
-                </div>
-              ))}
+          {/* Continuous Infinite Marquee Loop (Mobile, Tablet & Desktop) or Empty State */}
+          {pocketSummaries.length === 0 ? (
+            <div className="bg-white rounded-2xl border-2 border-brand-dark p-6 text-center space-y-3 shadow-saweria">
+              <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 border-2 border-brand-dark flex items-center justify-center mx-auto text-brand-dark shadow-saweria-sm">
+                <Wallet className="w-6 h-6 stroke-[2.2]" />
+              </div>
+              <div className="space-y-1">
+                <h4 className="text-sm font-black text-brand-dark">Belum Ada Kantong Anggaran</h4>
+                <p className="text-xs text-brand-darkMuted max-w-sm mx-auto font-medium">
+                  Alokasikan gajimu ke pos-pos penting (Makanan, Kos, Tabungan) agar arus kas terarah rapi dan terkontrol.
+                </p>
+              </div>
+              <Link
+                to="/app/budget"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-primary border-2 border-brand-dark text-xs font-black shadow-saweria-sm hover:bg-brand-primaryHover transition-all active:translate-x-0.5 active:translate-y-0.5"
+              >
+                <span>Mulai Buat Kantong Pertamamu</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
             </div>
-          </div>
+          ) : (
+            <div className="relative w-full overflow-hidden rounded-2xl py-1">
+              {/* Edge fade gradients for polished fintech aesthetics */}
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FFFDF8] to-transparent z-10" />
+              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FFFDF8] to-transparent z-10" />
+
+              <div
+                className={`animate-marquee flex gap-3.5 ${isMarqueePaused ? 'animation-paused' : ''}`}
+                onTouchStart={() => setIsMarqueePaused(true)}
+                onTouchEnd={() => setTimeout(() => setIsMarqueePaused(false), 800)}
+                onMouseEnter={() => setIsMarqueePaused(true)}
+                onMouseLeave={() => setIsMarqueePaused(false)}
+              >
+                {marqueePockets.map((pocket, idx) => (
+                  <div key={`marquee-pocket-${pocket.id}-${idx}`} className="w-[280px] sm:w-[310px] shrink-0">
+                    <PocketCard pocket={pocket} />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -4,12 +4,14 @@ import {
   DailyBriefingResult,
   DailySafeLimitResult,
   Debt,
+  DebtPayment,
   EmergencyRunwayResult,
   FinancialOverview,
   Pocket,
   PocketSummary,
   SavingsGoal,
   Subscription,
+  SubscriptionPayment,
   Task,
   Transaction,
 } from '../types';
@@ -22,6 +24,8 @@ import {
   formatIDRPrivacy,
   formatPeriod,
   generateDailyBriefing,
+  getLocalDateString,
+  getLocalSafeISOString,
 } from '../domain/finance/financialEngine';
 import { useAuth } from './AuthContext';
 
@@ -32,7 +36,9 @@ interface DataContextType {
   goals: SavingsGoal[];
   tasks: Task[];
   subscriptions: Subscription[];
+  subscriptionPayments: SubscriptionPayment[];
   debts: Debt[];
+  debtPayments: DebtPayment[];
   selectedPeriod: string;
   setSelectedPeriod: (period: string) => void;
   pocketSummaries: PocketSummary[];
@@ -77,7 +83,7 @@ interface DataContextType {
   addSubscription: (sub: Omit<Subscription, 'id' | 'created_at' | 'updated_at'>) => Promise<Subscription>;
   updateSubscription: (id: string, updates: Partial<Subscription>) => Promise<Subscription>;
   deleteSubscription: (id: string) => Promise<void>;
-  paySubscription: (id: string, period: string, accountId?: string) => Promise<Transaction>;
+  paySubscription: (id: string, period: string, accountId?: string, paidAtDate?: string) => Promise<Transaction>;
 
   // Debts CRUD & Actions
   addDebt: (debt: Omit<Debt, 'id' | 'created_at' | 'updated_at'>) => Promise<Debt>;
@@ -87,7 +93,8 @@ interface DataContextType {
     id: string,
     paymentAmount: number,
     accountId?: string,
-    createTransactionRecord?: boolean
+    createTransactionRecord?: boolean,
+    paidAtDate?: string
   ) => Promise<Debt>;
 
   resetToDefaults: () => Promise<void>;
@@ -107,7 +114,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [goals, setGoals] = useState<SavingsGoal[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [subscriptionPayments, setSubscriptionPayments] = useState<SubscriptionPayment[]>([]);
   const [debts, setDebts] = useState<Debt[]>([]);
+  const [debtPayments, setDebtPayments] = useState<DebtPayment[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Default to current year-month (e.g. '2026-10')
@@ -121,14 +130,16 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const loadAllData = async () => {
     setIsLoading(true);
     try {
-      const [accs, pocks, txs, gls, tsks, subs, dbts] = await Promise.all([
+      const [accs, pocks, txs, gls, tsks, subs, subPmts, dbts, dbtPmts] = await Promise.all([
         DataService.getAccounts(),
         DataService.getPockets(),
         DataService.getTransactions(),
         DataService.getGoals(),
         DataService.getTasks(),
         DataService.getSubscriptions(),
+        DataService.getSubscriptionPayments(),
         DataService.getDebts(),
+        DataService.getDebtPayments(),
       ]);
       setAccounts(accs);
       setPockets(pocks);
@@ -136,7 +147,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setGoals(gls);
       setTasks(tsks);
       setSubscriptions(subs);
+      setSubscriptionPayments(subPmts);
       setDebts(dbts);
+      setDebtPayments(dbtPmts);
     } catch (err) {
       console.error('Failed to load application data:', err);
     } finally {
@@ -188,10 +201,10 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return formatIDRPrivacy(amount, isPrivacyMode, prefix);
   };
 
-  // Emergency Fund Runway (Ketahanan Dana Darurat)
+  // Emergency Fund Runway (Ketahanan Dana Darurat - strictly liquid cash vs essential budget)
   const emergencyRunway = useMemo(() => {
-    return calculateEmergencyRunway(accounts, pockets, overview, monthlyIncome);
-  }, [accounts, pockets, overview, monthlyIncome]);
+    return calculateEmergencyRunway(accounts, pockets, overview, monthlyIncome, undefined, transactions);
+  }, [accounts, pockets, overview, monthlyIncome, transactions]);
 
   // Daily Consolidated Briefing Modal & Metrics
   const [isBriefingOpen, setIsBriefingOpen] = useState<boolean>(false);
@@ -341,25 +354,61 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setSubscriptions((prev) => prev.filter((s) => s.id !== id));
   };
 
-  const paySubscription = async (id: string, period: string, accountId?: string) => {
+  const paySubscription = async (
+    id: string,
+    period: string,
+    accountId?: string,
+    paidAtDate?: string
+  ): Promise<Transaction> => {
     const sub = subscriptions.find((s) => s.id === id);
-    if (!sub) throw new Error('Subscription not found');
+    if (!sub) throw new Error('Tagihan rutin tidak ditemukan');
+
+    // Anti-duplicate check (P1-02)
+    const existingPayments = await DataService.getSubscriptionPayments(id);
+    const alreadyPaid = existingPayments.some(
+      (p) => p.period === period && p.status === 'paid'
+    );
+    if (alreadyPaid) {
+      throw new Error(`Tagihan "${sub.name}" sudah dibayar untuk periode ${formatPeriod(period, true)}.`);
+    }
 
     const targetAccount = accountId || sub.account_id || accounts[0]?.id;
     if (!targetAccount) throw new Error('Pilih rekening untuk pembayaran');
 
+    const paymentDate = paidAtDate || getLocalSafeISOString();
+
+    // 1. Create Ledger expense transaction
     const createdTx = await addTransaction({
       user_id: user?.id || 'user-1',
       account_id: targetAccount,
       pocket_id: sub.category_pocket_id,
       type: 'expense',
       amount: sub.amount,
-      date: new Date().toISOString(),
+      date: paymentDate,
       description: `Tagihan Rutin: ${sub.name} (${formatPeriod(period, true)})`,
       notes: sub.notes,
     });
 
+    // 2. Create explicit SubscriptionPayment record
+    const paymentRecord = await DataService.createSubscriptionPayment({
+      subscription_id: sub.id,
+      user_id: user?.id || 'user-1',
+      period,
+      due_date: `${period}-${String(sub.due_day).padStart(2, '0')}`,
+      paid_at: paymentDate,
+      recorded_at: new Date().toISOString(),
+      amount: sub.amount,
+      account_id: targetAccount,
+      transaction_id: createdTx.id,
+      status: 'paid',
+      notes: sub.notes,
+    });
+
+    setSubscriptionPayments((prev) => [paymentRecord, ...prev]);
+
+    // 3. Update subscription last_paid_period
     await updateSubscription(id, { last_paid_period: period });
+
     return createdTx;
   };
 
@@ -385,46 +434,73 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     id: string,
     paymentAmount: number,
     accountId?: string,
-    createTransactionRecord: boolean = true
-  ) => {
+    createTransactionRecord: boolean = true,
+    paidAtDate?: string
+  ): Promise<Debt> => {
     const debt = debts.find((d) => d.id === id);
-    if (!debt) throw new Error('Debt record not found');
+    if (!debt) throw new Error('Catatan hutang/piutang tidak ditemukan');
+
+    if (paymentAmount <= 0) {
+      throw new Error('Nominal pembayaran harus lebih besar dari Rp 0');
+    }
+
+    const remaining = Math.max(0, debt.amount - debt.paid_amount);
+    if (paymentAmount > remaining) {
+      throw new Error(`Nominal pembayaran (${formatMoney(paymentAmount)}) melebihi sisa (${formatMoney(remaining)})`);
+    }
 
     const newPaidAmount = debt.paid_amount + paymentAmount;
     const isSettled = newPaidAmount >= debt.amount;
+    const paymentDate = paidAtDate || getLocalSafeISOString();
 
-    const updated = await updateDebt(id, {
+    // 1. Update debt record
+    const updatedDebt = await updateDebt(id, {
       paid_amount: newPaidAmount,
       is_settled: isSettled,
     });
 
+    // 2. Create ledger transaction if linked to an account
+    let createdTx: Transaction | undefined;
     if (createTransactionRecord && accountId && paymentAmount > 0) {
       if (debt.type === 'receivable') {
         // Someone paid back money to us -> income
-        await addTransaction({
+        createdTx = await addTransaction({
           user_id: user?.id || 'user-1',
           account_id: accountId,
           pocket_id: debt.pocket_id,
           type: 'income',
           amount: paymentAmount,
-          date: new Date().toISOString(),
+          date: paymentDate,
           description: `Pelunasan Piutang: ${debt.person_name} (${debt.description})`,
         });
       } else {
         // We paid our debt/installment -> expense
-        await addTransaction({
+        createdTx = await addTransaction({
           user_id: user?.id || 'user-1',
           account_id: accountId,
           pocket_id: debt.pocket_id,
           type: 'expense',
           amount: paymentAmount,
-          date: new Date().toISOString(),
+          date: paymentDate,
           description: `Bayar Hutang/Cicilan: ${debt.person_name} (${debt.description})`,
         });
       }
     }
 
-    return updated;
+    // 3. Create DebtPayment record
+    const paymentRecord = await DataService.createDebtPayment({
+      debt_id: debt.id,
+      user_id: user?.id || 'user-1',
+      amount: paymentAmount,
+      paid_at: paymentDate,
+      account_id: accountId || null,
+      transaction_id: createdTx?.id || null,
+      notes: `Pembayaran cicilan untuk ${debt.person_name}`,
+    });
+
+    setDebtPayments((prev) => [paymentRecord, ...prev]);
+
+    return updatedDebt;
   };
 
   const resetToDefaults = async () => {
@@ -446,7 +522,7 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
           amount: userIncome,
           type: 'income',
           description: 'Pemasukan Gaji Awal',
-          date: new Date().toISOString().split('T')[0],
+          date: getLocalDateString(),
         });
       }
     }
@@ -461,7 +537,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setGoals([]);
     setTasks([]);
     setSubscriptions([]);
+    setSubscriptionPayments([]);
     setDebts([]);
+    setDebtPayments([]);
   };
 
   return (
@@ -473,7 +551,9 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
         goals,
         tasks,
         subscriptions,
+        subscriptionPayments,
         debts,
+        debtPayments,
         selectedPeriod,
         setSelectedPeriod,
         pocketSummaries,
