@@ -6,6 +6,11 @@ import { MobileNav } from './MobileNav';
 import { TransactionModal } from '../transactions/TransactionModal';
 import { TaskModal } from '../planner/TaskModal';
 import { DailyBriefingModal } from '../common/DailyBriefingModal';
+import { QuickCreateModal } from './QuickCreateModal';
+import { MobileMenuDrawer } from './MobileMenuDrawer';
+import { SubscriptionModal } from '../subscriptions/SubscriptionModal';
+import { DebtModal } from '../debts/DebtModal';
+import { GoalModal } from '../goals/GoalModal';
 import { useAuth } from '../../context/AuthContext';
 import { useData } from '../../context/DataContext';
 
@@ -16,6 +21,11 @@ export const AppShell: React.FC = () => {
 
   const [isTransactionOpen, setIsTransactionOpen] = useState(false);
   const [isTaskOpen, setIsTaskOpen] = useState(false);
+  const [isSubscriptionOpen, setIsSubscriptionOpen] = useState(false);
+  const [isDebtOpen, setIsDebtOpen] = useState(false);
+  const [isGoalOpen, setIsGoalOpen] = useState(false);
+  const [isQuickCreateOpen, setIsQuickCreateOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Auto-show Daily Briefing once per day on entry if there are items to review
   useEffect(() => {
@@ -124,14 +134,49 @@ export const AppShell: React.FC = () => {
           <Outlet />
         </main>
 
-        {/* Mobile Thumb Navigation */}
-        <MobileNav onOpenNewTransaction={() => setIsTransactionOpen(true)} />
+        {/* Mobile Thumb Navigation with 1-Tap Quick Create and Feature Menu */}
+        <MobileNav
+          onOpenQuickCreate={() => setIsQuickCreateOpen(true)}
+          onOpenMobileMenu={() => setIsMobileMenuOpen(true)}
+        />
       </div>
+
+      {/* Center Quick Create Action Sheet (Mobile 1-Tap Center Button) */}
+      <QuickCreateModal
+        isOpen={isQuickCreateOpen}
+        onClose={() => setIsQuickCreateOpen(false)}
+        onSelectTransaction={() => setIsTransactionOpen(true)}
+        onSelectSubscription={() => setIsSubscriptionOpen(true)}
+        onSelectDebt={() => setIsDebtOpen(true)}
+        onSelectGoal={() => setIsGoalOpen(true)}
+        onSelectTask={() => setIsTaskOpen(true)}
+      />
+
+      {/* Full Feature Drawer for Mobile (Tagihan, Hutang, Target, Laporan, dsb) */}
+      <MobileMenuDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+      />
 
       {/* Global Quick Add Modals */}
       <TransactionModal
         isOpen={isTransactionOpen}
         onClose={() => setIsTransactionOpen(false)}
+      />
+
+      <SubscriptionModal
+        isOpen={isSubscriptionOpen}
+        onClose={() => setIsSubscriptionOpen(false)}
+      />
+
+      <DebtModal
+        isOpen={isDebtOpen}
+        onClose={() => setIsDebtOpen(false)}
+      />
+
+      <GoalModal
+        isOpen={isGoalOpen}
+        onClose={() => setIsGoalOpen(false)}
       />
 
       <TaskModal

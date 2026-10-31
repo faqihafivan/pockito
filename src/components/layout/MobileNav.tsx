@@ -5,14 +5,18 @@ import {
   WalletCards,
   Plus,
   CalendarCheck2,
-  PieChart,
+  Compass,
 } from 'lucide-react';
 
 interface MobileNavProps {
-  onOpenNewTransaction: () => void;
+  onOpenQuickCreate: () => void;
+  onOpenMobileMenu: () => void;
 }
 
-export const MobileNav: React.FC<MobileNavProps> = ({ onOpenNewTransaction }) => {
+export const MobileNav: React.FC<MobileNavProps> = ({
+  onOpenQuickCreate,
+  onOpenMobileMenu,
+}) => {
   const location = useLocation();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -48,10 +52,9 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onOpenNewTransaction }) =>
       icon: WalletCards,
     },
     {
-      id: 'catat',
-      label: 'Catat',
-      action: onOpenNewTransaction,
-      to: '/app/transactions',
+      id: 'buat',
+      label: 'Buat',
+      action: onOpenQuickCreate,
       icon: Plus,
     },
     {
@@ -61,24 +64,26 @@ export const MobileNav: React.FC<MobileNavProps> = ({ onOpenNewTransaction }) =>
       icon: CalendarCheck2,
     },
     {
-      id: 'laporan',
-      label: 'Laporan',
-      to: '/app/reports',
-      icon: PieChart,
+      id: 'fitur',
+      label: 'Fitur',
+      action: onOpenMobileMenu,
+      icon: Compass,
     },
   ];
 
   const getActiveIndex = () => {
     if (location.pathname === '/app/dashboard') return 0;
     if (location.pathname.startsWith('/app/budget')) return 1;
-    if (
-      location.pathname === '/app/transactions' ||
-      location.pathname === '/app/subscriptions' ||
-      location.pathname === '/app/debts'
-    )
-      return 2;
     if (location.pathname === '/app/planner') return 3;
-    if (location.pathname === '/app/reports' || location.pathname === '/app/goals') return 4;
+    if (
+      location.pathname === '/app/subscriptions' ||
+      location.pathname === '/app/debts' ||
+      location.pathname === '/app/goals' ||
+      location.pathname === '/app/reports' ||
+      location.pathname === '/app/transactions' ||
+      location.pathname === '/app/settings'
+    )
+      return 4;
     return 0;
   };
 

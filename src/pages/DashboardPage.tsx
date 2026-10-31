@@ -22,6 +22,9 @@ import {
   Eye,
   EyeOff,
   Bell,
+  PiggyBank,
+  PieChart,
+  ChevronRight,
 } from 'lucide-react';
 import { formatPeriod } from '../domain/finance/financialEngine';
 
@@ -142,6 +145,81 @@ export const DashboardPage: React.FC = () => {
 
       {/* 2. Headline Stat Cards: Pemasukan, Pengeluaran, Sisa Pagu */}
       <StatCards overview={overview} />
+
+      {/* 2.5 Quick Feature Shortcuts: 1-Tap Direct Access to Subscriptions, Debts, Goals, & Reports */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <Link
+          to="/app/subscriptions"
+          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+              <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-black text-brand-dark block truncate">Tagihan Rutin</span>
+              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                {subscriptions.length} tagihan aktif
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+        </Link>
+
+        <Link
+          to="/app/debts"
+          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+              <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-black text-brand-dark block truncate">Hutang Piutang</span>
+              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                {debts.filter((d) => !d.is_settled).length} transaksi aktif
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+        </Link>
+
+        <Link
+          to="/app/goals"
+          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+              <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-black text-brand-dark block truncate">Target Tabungan</span>
+              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                {goals.length} target impian
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+        </Link>
+
+        <Link
+          to="/app/reports"
+          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+              <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
+            </div>
+            <div className="min-w-0">
+              <span className="text-xs font-black text-brand-dark block truncate">Laporan Keuangan</span>
+              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                Analisis & arus kas
+              </span>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+        </Link>
+      </div>
 
       {/* 3. Financial Guardrails: Safe Daily Spend Limit & Emergency Runway */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
