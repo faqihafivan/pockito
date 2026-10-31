@@ -100,6 +100,15 @@ export const AppShell: React.FC = () => {
     return <Navigate to="/app/onboarding" replace />;
   }
 
+  // Standalone isolated layout for Onboarding (clean wizard without Header, Sidebar, or MobileNav)
+  if (location.pathname === '/app/onboarding') {
+    return (
+      <main className="min-h-screen bg-brand-cream text-brand-dark">
+        <Outlet />
+      </main>
+    );
+  }
+
   return (
     <div className="flex min-h-screen bg-brand-cream text-brand-dark">
       {/* Desktop Sidebar */}

@@ -156,6 +156,8 @@ export const SubscriptionModal: React.FC<SubscriptionModalProps> = ({
             </label>
             <input
               type="number"
+              inputMode="numeric"
+              pattern="[0-9]*"
               min={1}
               max={31}
               value={dueDay}

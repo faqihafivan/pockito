@@ -41,6 +41,11 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
         <input
           type="text"
           inputMode="numeric"
+          pattern="[0-9]*"
+          autoComplete="off"
+          autoCorrect="off"
+          autoCapitalize="none"
+          spellCheck={false}
           value={displayValue}
           onChange={handleChange}
           placeholder={placeholder}
