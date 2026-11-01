@@ -1,10 +1,11 @@
-import React, { createContext, useContext, useState, useRef } from 'react';
+import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import {
   AlertTriangle,
   CheckCircle2,
   Info,
+  WifiOff,
   X,
 } from 'lucide-react';
 
@@ -45,6 +46,7 @@ interface NotificationContextType {
   showConfirm: (options: ConfirmOptions) => Promise<boolean>;
   showPrompt: (options: PromptOptions) => Promise<string | null>;
   showToast: (message: string, type?: 'success' | 'info' | 'warning' | 'error') => void;
+  isOnline: boolean;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -82,6 +84,34 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
   // Toast Notifications State
   const [toasts, setToasts] = useState<ToastItem[]>([]);
+
+  // Network Offline / Online State & Listeners
+  const [isOnline, setIsOnline] = useState<boolean>(() => {
+    if (typeof navigator !== 'undefined' && typeof navigator.onLine === 'boolean') {
+      return navigator.onLine;
+    }
+    return true;
+  });
+
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      showToast('Koneksi internet terhubung kembali!', 'success');
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      showToast('Koneksi terputus. Mode offline aktif.', 'warning');
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, []);
 
   // 1. Show Alert (Replacement for window.alert)
   const showAlert = (options: AlertOptions | string): Promise<void> => {
@@ -202,6 +232,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         showConfirm,
         showPrompt,
         showToast,
+        isOnline,
       }}
     >
       {children}
@@ -274,6 +305,18 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
               </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ================= OFFLINE STATUS BANNER ================= */}
+      {!isOnline && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-0 inset-x-0 z-[60] bg-amber-400 border-b-2 border-brand-dark px-4 py-1.5 text-center text-xs font-black text-brand-dark shadow-saweria flex items-center justify-center gap-2"
+        >
+          <WifiOff className="w-4 h-4 shrink-0 stroke-[2.5]" />
+          <span>Mode Offline Aktif — Periksa koneksi internet Anda. Data lokal tetap tersimpan aman.</span>
         </div>
       )}
 

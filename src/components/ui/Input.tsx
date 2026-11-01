@@ -10,12 +10,17 @@ export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> 
 
 export const Input = forwardRef<HTMLInputElement, InputProps>(
   ({ label, error, helperText, leftIcon, rightIcon, className = '', id, ...props }, ref) => {
-    const inputId = id || (label ? label.toLowerCase().replace(/\s+/g, '-') : undefined);
+    const inputId = id || (label ? `input-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : undefined);
+    const errorId = inputId ? `${inputId}-error` : undefined;
+    const helperId = inputId ? `${inputId}-helper` : undefined;
 
     return (
       <div className="w-full text-left">
         {label && (
-          <label htmlFor={inputId} className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider">
+          <label 
+            htmlFor={inputId} 
+            className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider"
+          >
             {label}
           </label>
         )}
@@ -28,7 +33,9 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
           <input
             id={inputId}
             ref={ref}
-            className={`w-full bg-white text-brand-dark placeholder:text-gray-400 font-medium text-sm rounded-xl border-2 transition-all duration-150 outline-none ${
+            aria-invalid={!!error}
+            aria-describedby={error ? errorId : helperText ? helperId : undefined}
+            className={`w-full bg-white text-brand-dark placeholder:text-gray-400 font-medium text-sm rounded-xl border-2 transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
               leftIcon ? 'pl-10' : 'pl-3.5'
             } ${rightIcon ? 'pr-10' : 'pr-3.5'} py-2.5 ${
               error
@@ -43,8 +50,16 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             </div>
           )}
         </div>
-        {error && <p className="mt-1 text-xs font-semibold text-red-600">{error}</p>}
-        {!error && helperText && <p className="mt-1 text-xs text-brand-darkMuted">{helperText}</p>}
+        {error && (
+          <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-red-600">
+            {error}
+          </p>
+        )}
+        {!error && helperText && (
+          <p id={helperId} className="mt-1 text-xs text-brand-darkMuted">
+            {helperText}
+          </p>
+        )}
       </div>
     );
   }
