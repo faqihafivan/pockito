@@ -369,3 +369,28 @@ CREATE TRIGGER tr_subscription_payments_updated BEFORE UPDATE ON public.subscrip
 
 DROP TRIGGER IF EXISTS tr_debt_payments_updated ON public.debt_payments;
 CREATE TRIGGER tr_debt_payments_updated BEFORE UPDATE ON public.debt_payments FOR EACH ROW EXECUTE PROCEDURE public.handle_updated_at();
+
+-- 15. PERFORMANCE INDEXES (Foreign Keys & Frequent Query Filters)
+CREATE INDEX IF NOT EXISTS idx_budgets_user_period ON public.budgets(user_id, period);
+CREATE INDEX IF NOT EXISTS idx_pockets_user ON public.pockets(user_id);
+CREATE INDEX IF NOT EXISTS idx_pockets_budget ON public.pockets(budget_id);
+CREATE INDEX IF NOT EXISTS idx_accounts_user ON public.accounts(user_id);
+CREATE INDEX IF NOT EXISTS idx_savings_goals_user ON public.savings_goals(user_id);
+CREATE INDEX IF NOT EXISTS idx_savings_goals_completed ON public.savings_goals(user_id, is_completed);
+
+CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON public.subscriptions(user_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_pocket ON public.subscriptions(category_pocket_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_account ON public.subscriptions(account_id);
+CREATE INDEX IF NOT EXISTS idx_subscriptions_active ON public.subscriptions(user_id, is_active);
+
+CREATE INDEX IF NOT EXISTS idx_debts_user ON public.debts(user_id);
+CREATE INDEX IF NOT EXISTS idx_debts_settled ON public.debts(user_id, is_settled);
+CREATE INDEX IF NOT EXISTS idx_debts_account ON public.debts(account_id);
+CREATE INDEX IF NOT EXISTS idx_debts_pocket ON public.debts(pocket_id);
+
+CREATE INDEX IF NOT EXISTS idx_sub_payments_user ON public.subscription_payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_sub_payments_sub ON public.subscription_payments(subscription_id);
+CREATE INDEX IF NOT EXISTS idx_sub_payments_period ON public.subscription_payments(user_id, period);
+
+CREATE INDEX IF NOT EXISTS idx_debt_payments_user ON public.debt_payments(user_id);
+CREATE INDEX IF NOT EXISTS idx_debt_payments_debt ON public.debt_payments(debt_id);

@@ -389,27 +389,41 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
       notes: sub.notes,
     });
 
-    // 2. Create explicit SubscriptionPayment record
-    const paymentRecord = await DataService.createSubscriptionPayment({
-      subscription_id: sub.id,
-      user_id: user?.id || 'user-1',
-      period,
-      due_date: `${period}-${String(sub.due_day).padStart(2, '0')}`,
-      paid_at: paymentDate,
-      recorded_at: new Date().toISOString(),
-      amount: sub.amount,
-      account_id: targetAccount,
-      transaction_id: createdTx.id,
-      status: 'paid',
-      notes: sub.notes,
-    });
+    try {
+      // 2. Create explicit SubscriptionPayment record
+      const paymentRecord = await DataService.createSubscriptionPayment({
+        subscription_id: sub.id,
+        user_id: user?.id || 'user-1',
+        period,
+        due_date: `${period}-${String(sub.due_day).padStart(2, '0')}`,
+        paid_at: paymentDate,
+        recorded_at: new Date().toISOString(),
+        amount: sub.amount,
+        account_id: targetAccount,
+        transaction_id: createdTx.id,
+        status: 'paid',
+        notes: sub.notes,
+      });
 
-    setSubscriptionPayments((prev) => [paymentRecord, ...prev]);
+      setSubscriptionPayments((prev) => [paymentRecord, ...prev]);
 
-    // 3. Update subscription last_paid_period
-    await updateSubscription(id, { last_paid_period: period });
+      // 3. Update subscription last_paid_period
+      await updateSubscription(id, { last_paid_period: period });
 
-    return createdTx;
+      return createdTx;
+    } catch (err) {
+      // Compensatory Rollback: remove created transaction so user balance is not wrongfully deducted on failure
+      try {
+        await deleteTransaction(createdTx.id);
+      } catch (rollbackErr) {
+        console.error('Failed to rollback created transaction for subscription payment:', rollbackErr);
+      }
+      throw new Error(
+        `Pembayaran tagihan gagal diproses: ${
+          (err as Error).message || 'Terjadi kesalahan sistem'
+        }. Transaksi dibatalkan untuk menjaga konsistensi saldo.`
+      );
+    }
   };
 
   // Debts Mutations & Actions
@@ -453,54 +467,77 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const isSettled = newPaidAmount >= debt.amount;
     const paymentDate = paidAtDate || getLocalSafeISOString();
 
+    const originalPaidAmount = debt.paid_amount;
+    const originalIsSettled = debt.is_settled;
+
     // 1. Update debt record
     const updatedDebt = await updateDebt(id, {
       paid_amount: newPaidAmount,
       is_settled: isSettled,
     });
 
-    // 2. Create ledger transaction if linked to an account
     let createdTx: Transaction | undefined;
-    if (createTransactionRecord && accountId && paymentAmount > 0) {
-      if (debt.type === 'receivable') {
-        // Someone paid back money to us -> income
-        createdTx = await addTransaction({
-          user_id: user?.id || 'user-1',
-          account_id: accountId,
-          pocket_id: debt.pocket_id,
-          type: 'income',
-          amount: paymentAmount,
-          date: paymentDate,
-          description: `Pelunasan Piutang: ${debt.person_name} (${debt.description})`,
-        });
-      } else {
-        // We paid our debt/installment -> expense
-        createdTx = await addTransaction({
-          user_id: user?.id || 'user-1',
-          account_id: accountId,
-          pocket_id: debt.pocket_id,
-          type: 'expense',
-          amount: paymentAmount,
-          date: paymentDate,
-          description: `Bayar Hutang/Cicilan: ${debt.person_name} (${debt.description})`,
-        });
+    try {
+      // 2. Create ledger transaction if linked to an account
+      if (createTransactionRecord && accountId && paymentAmount > 0) {
+        if (debt.type === 'receivable') {
+          // Someone paid back money to us -> income
+          createdTx = await addTransaction({
+            user_id: user?.id || 'user-1',
+            account_id: accountId,
+            pocket_id: debt.pocket_id,
+            type: 'income',
+            amount: paymentAmount,
+            date: paymentDate,
+            description: `Pelunasan Piutang: ${debt.person_name} (${debt.description})`,
+          });
+        } else {
+          // We paid our debt/installment -> expense
+          createdTx = await addTransaction({
+            user_id: user?.id || 'user-1',
+            account_id: accountId,
+            pocket_id: debt.pocket_id,
+            type: 'expense',
+            amount: paymentAmount,
+            date: paymentDate,
+            description: `Bayar Hutang/Cicilan: ${debt.person_name} (${debt.description})`,
+          });
+        }
       }
+
+      // 3. Create DebtPayment record
+      const paymentRecord = await DataService.createDebtPayment({
+        debt_id: debt.id,
+        user_id: user?.id || 'user-1',
+        amount: paymentAmount,
+        paid_at: paymentDate,
+        account_id: accountId || null,
+        transaction_id: createdTx?.id || null,
+        notes: `Pembayaran cicilan untuk ${debt.person_name}`,
+      });
+
+      setDebtPayments((prev) => [paymentRecord, ...prev]);
+
+      return updatedDebt;
+    } catch (err) {
+      // Compensatory Rollback: revert debt record and delete created transaction
+      try {
+        await updateDebt(id, {
+          paid_amount: originalPaidAmount,
+          is_settled: originalIsSettled,
+        });
+        if (createdTx) {
+          await deleteTransaction(createdTx.id);
+        }
+      } catch (rollbackErr) {
+        console.error('Failed to rollback debt payment state:', rollbackErr);
+      }
+      throw new Error(
+        `Pembayaran hutang/piutang gagal diproses: ${
+          (err as Error).message || 'Terjadi kesalahan sistem'
+        }. Perubahan telah dibatalkan untuk menjaga konsistensi saldo.`
+      );
     }
-
-    // 3. Create DebtPayment record
-    const paymentRecord = await DataService.createDebtPayment({
-      debt_id: debt.id,
-      user_id: user?.id || 'user-1',
-      amount: paymentAmount,
-      paid_at: paymentDate,
-      account_id: accountId || null,
-      transaction_id: createdTx?.id || null,
-      notes: `Pembayaran cicilan untuk ${debt.person_name}`,
-    });
-
-    setDebtPayments((prev) => [paymentRecord, ...prev]);
-
-    return updatedDebt;
   };
 
   const resetToDefaults = async () => {

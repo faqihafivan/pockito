@@ -103,6 +103,9 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
       setDate(new Date().toISOString().split('T')[0]);
       setNotes('');
       setError('');
+      if (previewUrl && previewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(previewUrl);
+      }
       setSelectedFile(null);
       setPreviewUrl('');
       setScanSuccessMessage('');
@@ -206,15 +209,38 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     showToast('Suara berhasil dikonversi ke teks dan mengisi form!', 'success');
   };
 
-  // Handle Photo File Select
+  // Handle Photo File Select with zero-trust client validation
+  const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024; // 5 MB maximum
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/heif'];
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-      setPreviewUrl(URL.createObjectURL(file));
-      setScanSuccessMessage('');
-      setError('');
+    if (!file) return;
+
+    // 1. Validate file MIME type
+    if (!file.type.startsWith('image/') && !ALLOWED_IMAGE_TYPES.includes(file.type)) {
+      setError('Format file tidak didukung. Mohon gunakan foto struk berformat JPG, PNG, atau WebP.');
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
     }
+
+    // 2. Validate file size (Max 5MB)
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+      setError(`Ukuran foto terlalu besar (${sizeMB} MB). Batas maksimum adalah 5 MB untuk mencegah browser melambat.`);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+      return;
+    }
+
+    // 3. Clean up previous object URL to avoid memory leaks
+    if (previewUrl && previewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(previewUrl);
+    }
+
+    setSelectedFile(file);
+    setPreviewUrl(URL.createObjectURL(file));
+    setScanSuccessMessage('');
+    setError('');
   };
 
   // Populate form from scan result (keeping all fields fully editable)
