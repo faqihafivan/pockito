@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
 import { MobileNav } from './MobileNav';
+import { PageLoader } from '../ui/PageLoader';
 import { TransactionModal } from '../transactions/TransactionModal';
 import { TaskModal } from '../planner/TaskModal';
 import { DailyBriefingModal } from '../common/DailyBriefingModal';
@@ -140,7 +141,9 @@ export const AppShell: React.FC = () => {
         />
 
         <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-36 sm:pb-40 lg:pb-8 max-w-7xl w-full mx-auto">
-          <Outlet />
+          <Suspense fallback={<PageLoader message="Memuat modul..." />}>
+            <Outlet />
+          </Suspense>
         </main>
 
         {/* Mobile Thumb Navigation with 1-Tap Quick Create and Feature Menu */}
