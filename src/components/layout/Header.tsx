@@ -20,15 +20,15 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
   const totalNotificationCount = dailyBriefing.items.length + alerts.length;
 
   return (
-    <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b-2 border-brand-dark px-4 sm:px-8 py-3.5 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b-2 border-brand-dark px-3 sm:px-8 py-3 flex items-center justify-between gap-2 sm:gap-4">
       {/* Left: Dynamic Realtime Period Selector */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         <PeriodSelector />
       </div>
 
       {/* Right: Actions */}
-      <div className="flex items-center gap-2 sm:gap-3">
-        {/* Privacy Toggle (Eye) */}
+      <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        {/* Privacy Toggle (Eye) - Hidden on mobile to keep '+ Catat' prominently visible without cut-off; available on desktop and directly on Total Saldo Riil */}
         <button
           onClick={() => {
             togglePrivacyMode();
@@ -39,7 +39,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
               'info'
             );
           }}
-          className={`p-2 sm:p-2.5 rounded-xl border-2 border-brand-dark transition-all shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 ${
+          className={`hidden md:inline-flex p-2 sm:p-2.5 rounded-xl border-2 border-brand-dark transition-all shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 ${
             isPrivacyMode
               ? 'bg-amber-100 text-amber-900 border-brand-dark'
               : 'bg-white hover:bg-brand-cream text-brand-dark'
@@ -61,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
         <PWAInstallButton className="hidden md:inline-flex" />
 
         {/* Notification Bell -> Opens Consolidated Daily Briefing */}
-        <div className="relative">
+        <div className="relative shrink-0">
           <button
             onClick={openBriefing}
             className="p-2 sm:p-2.5 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark relative"
@@ -100,9 +100,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           size="sm"
           onClick={onOpenNewTransaction}
           leftIcon={<Plus className="w-4 h-4" />}
+          className="shrink-0 whitespace-nowrap"
         >
-          <span className="hidden xs:inline">Catat Transaksi</span>
-          <span className="xs:hidden">Catat</span>
+          <span>Catat</span>
           <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/15 rounded text-[9px] font-mono">N</kbd>
         </Button>
       </div>

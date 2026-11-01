@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { useNotification } from '../context/NotificationContext';
 import { StatCards } from '../components/dashboard/StatCards';
 import { SafeDailyLimitCard } from '../components/dashboard/SafeDailyLimitCard';
 import { EmergencyRunwayCard } from '../components/dashboard/EmergencyRunwayCard';
@@ -47,6 +48,7 @@ export const DashboardPage: React.FC = () => {
     dailyBriefing,
     openBriefing,
   } = useData();
+  const { showToast } = useNotification();
 
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
@@ -110,20 +112,33 @@ export const DashboardPage: React.FC = () => {
         {/* Right: Saldo Riil Box (Prominent & Space-saving) */}
         <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 bg-brand-bg/60 p-3 sm:px-5 sm:py-3.5 rounded-xl sm:rounded-2xl border-2 border-brand-dark shadow-saweria-sm shrink-0">
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5">
+            <div className="flex items-center gap-2">
               <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider">
                 Total Saldo Riil
               </span>
               <button
                 type="button"
-                onClick={togglePrivacyMode}
-                className="text-brand-darkMuted hover:text-brand-dark transition-colors p-0.5"
-                title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor saldo'}
+                onClick={() => {
+                  togglePrivacyMode();
+                  showToast(
+                    !isPrivacyMode
+                      ? 'Mode Privasi Aktif: Saldo disensor 👁️'
+                      : 'Mode Privasi Nonaktif: Saldo ditampilkan',
+                    'info'
+                  );
+                }}
+                className={`p-1 rounded-lg border transition-all active:scale-95 flex items-center justify-center ${
+                  isPrivacyMode
+                    ? 'bg-amber-100 border-brand-dark text-amber-800 shadow-saweria-xs'
+                    : 'bg-white border-brand-dark/30 text-brand-darkMuted hover:text-brand-dark hover:border-brand-dark shadow-saweria-xs'
+                }`}
+                title={isPrivacyMode ? 'Buka sensor saldo (Mode Privasi Aktif)' : 'Sensor nominal saldo (Mode Privasi)'}
+                aria-label={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
               >
                 {isPrivacyMode ? (
-                  <EyeOff className="w-3.5 h-3.5 text-amber-600" />
+                  <EyeOff className="w-3.5 h-3.5 stroke-[2.4] text-amber-700" />
                 ) : (
-                  <Eye className="w-3.5 h-3.5" />
+                  <Eye className="w-3.5 h-3.5 stroke-[2.2]" />
                 )}
               </button>
             </div>
