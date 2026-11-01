@@ -10,7 +10,11 @@ import { PocketCard } from '../components/pockets/PocketCard';
 import { RecentTransactionsCard } from '../components/dashboard/RecentTransactionsCard';
 import { TodayTasksCard } from '../components/dashboard/TodayTasksCard';
 import { TaskModal } from '../components/planner/TaskModal';
+import { GoalModal } from '../components/goals/GoalModal';
+import { SubscriptionModal } from '../components/subscriptions/SubscriptionModal';
+import { DebtModal } from '../components/debts/DebtModal';
 import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
 import { Link } from 'react-router-dom';
 import {
   Sparkles,
@@ -26,6 +30,7 @@ import {
   PiggyBank,
   PieChart,
   ChevronRight,
+  Plus,
 } from 'lucide-react';
 import { formatPeriod } from '../domain/finance/financialEngine';
 
@@ -51,6 +56,10 @@ export const DashboardPage: React.FC = () => {
   const { showToast } = useNotification();
 
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
+  const [financialHubTab, setFinancialHubTab] = useState<'goals' | 'subscriptions' | 'debts'>('goals');
+  const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
+  const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
+  const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
 
   // Duplicate items for continuous 100% seamless marquee loop on mobile
@@ -162,13 +171,13 @@ export const DashboardPage: React.FC = () => {
       <StatCards overview={overview} />
 
       {/* 2.5 Quick Feature Shortcuts: 1-Tap Direct Access to Subscriptions, Debts, Goals, & Reports */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
         <Link
           to="/app/subscriptions"
           className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
               <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
             </div>
             <div className="min-w-0">
@@ -178,7 +187,21 @@ export const DashboardPage: React.FC = () => {
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsSubscriptionModalOpen(true);
+              }}
+              className="w-6 h-6 rounded-lg bg-sky-200/70 hover:bg-sky-300 text-sky-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+              title="Tambah Tagihan Baru"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+            <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+          </div>
         </Link>
 
         <Link
@@ -186,17 +209,31 @@ export const DashboardPage: React.FC = () => {
           className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
               <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
             </div>
             <div className="min-w-0">
               <span className="text-xs font-black text-brand-dark block truncate">Hutang Piutang</span>
               <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
-                {debts.filter((d) => !d.is_settled).length} transaksi aktif
+                {debts.filter((d) => !d.is_settled).length} aktif
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsDebtModalOpen(true);
+              }}
+              className="w-6 h-6 rounded-lg bg-rose-200/70 hover:bg-rose-300 text-rose-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+              title="Catat Hutang/Piutang Baru"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+            <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+          </div>
         </Link>
 
         <Link
@@ -204,7 +241,7 @@ export const DashboardPage: React.FC = () => {
           className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
               <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
             </div>
             <div className="min-w-0">
@@ -214,7 +251,21 @@ export const DashboardPage: React.FC = () => {
               </span>
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                setIsGoalModalOpen(true);
+              }}
+              className="w-6 h-6 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+              title="Buat Target Baru"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+            <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+          </div>
         </Link>
 
         <Link
@@ -222,7 +273,7 @@ export const DashboardPage: React.FC = () => {
           className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
         >
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-9 h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform">
+            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
               <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
             </div>
             <div className="min-w-0">
@@ -343,168 +394,315 @@ export const DashboardPage: React.FC = () => {
           />
         </div>
 
-        {/* Row 2: Target Tabungan Memanjang di Bawah (Full Width Card) */}
+        {/* Row 2: Unified Financial Commitments & Plans Hub (Tabs: Target Tabungan, Tagihan Rutin, Hutang Piutang) */}
         <Card variant="saweria" className="bg-white">
-          <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
-            <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
-              <Target className="w-4 h-4 text-brand-primary" />
-              <span>Target Tabungan</span>
-            </h3>
-            <Link
-              to="/app/goals"
-              className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
-            >
-              <span>Kelola Semua Target</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-
-          <div className="pt-3.5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-            {goals.slice(0, 3).map((goal) => {
-              const percent = Math.min(100, Math.round((goal.current_amount / goal.target_amount) * 100));
-              return (
-                <div key={goal.id} className="p-3.5 rounded-2xl bg-brand-cream border border-brand-border space-y-2 flex flex-col justify-between hover:bg-brand-cream/80 transition-colors">
-                  <div>
-                    <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
-                      <span className="truncate pr-2 font-black">{goal.name}</span>
-                      <span className="font-black text-brand-primary shrink-0">{percent}%</span>
-                    </div>
-                    <div className="w-full bg-white h-2.5 rounded-full border border-brand-border overflow-hidden mt-2">
-                      <div
-                        className="h-full bg-brand-primary rounded-full transition-all"
-                        style={{ width: `${percent}%` }}
-                      />
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-[11px] font-bold text-brand-darkMuted pt-1 border-t border-brand-border/40">
-                    <span className="text-brand-dark font-black">{formatMoney(goal.current_amount)}</span>
-                    <span className="text-[10px]">Target {formatMoney(goal.target_amount)}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        {/* Row 3: Tagihan Rutin & Hutang Piutang Mini Widgets */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Subscriptions Widget */}
-          <Card variant="saweria" className="bg-white">
-            <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
-              <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
-                <CalendarClock className="w-4 h-4 text-brand-primary" />
-                <span>Tagihan Rutin ({periodLabel})</span>
-              </h3>
-              <Link
-                to="/app/subscriptions"
-                className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-brand-border">
+            {/* Tab Selector */}
+            <div className="flex items-center gap-1 p-1 bg-brand-cream/80 rounded-2xl border-2 border-brand-dark/20 w-fit">
+              <button
+                type="button"
+                onClick={() => setFinancialHubTab('goals')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  financialHubTab === 'goals'
+                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                    : 'text-brand-darkMuted hover:text-brand-dark'
+                }`}
               >
-                <span>Kelola Semua</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
-            </div>
+                <Target className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Target ({goals.length})</span>
+              </button>
 
-            <div className="pt-3.5 space-y-2.5">
-              {subscriptions.slice(0, 3).map((sub) => {
-                const isPaid = sub.last_paid_period === selectedPeriod;
-                return (
-                  <div
-                    key={sub.id}
-                    className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
-                  >
-                    <div>
-                      <div className="text-xs font-black text-brand-dark">{sub.name}</div>
-                      <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
-                        Tgl {sub.due_day} • {formatMoney(sub.amount)}
-                      </div>
-                    </div>
-                    {isPaid ? (
-                      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                        <CheckCircle2 className="w-3 h-3" />
-                        <span>Lunas</span>
-                      </span>
-                    ) : (
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-brand-dark border border-brand-border">
-                        Belum Bayar
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </Card>
-
-          {/* Debts & Receivables Widget */}
-          <Card variant="saweria" className="bg-white">
-            <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
-              <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider flex items-center gap-2">
-                <HandCoins className="w-4 h-4 text-brand-primary" />
-                <span>Hutang & Piutang Aktif</span>
-              </h3>
-              <Link
-                to="/app/debts"
-                className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+              <button
+                type="button"
+                onClick={() => setFinancialHubTab('subscriptions')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  financialHubTab === 'subscriptions'
+                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                    : 'text-brand-darkMuted hover:text-brand-dark'
+                }`}
               >
-                <span>Buka Buku Hutang</span>
-                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-              </Link>
+                <CalendarClock className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Tagihan ({subscriptions.length})</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setFinancialHubTab('debts')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                  financialHubTab === 'debts'
+                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                    : 'text-brand-darkMuted hover:text-brand-dark'
+                }`}
+              >
+                <HandCoins className="w-3.5 h-3.5 stroke-[2.5]" />
+                <span>Hutang ({debts.filter((d) => !d.is_settled).length})</span>
+              </button>
             </div>
 
-            <div className="pt-3.5 space-y-2.5">
-              {debts.filter((d) => !d.is_settled).length === 0 ? (
-                <div className="text-center py-6 text-xs font-bold text-brand-darkMuted">
-                  Tidak ada catatan hutang atau piutang aktif saat ini.
-                </div>
-              ) : (
-                debts
-                  .filter((d) => !d.is_settled)
-                  .slice(0, 3)
-                  .map((debt) => {
-                    const isRec = debt.type === 'receivable';
-                    const remaining = Math.max(0, debt.amount - debt.paid_amount);
-                    return (
-                      <div
-                        key={debt.id}
-                        className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
-                      >
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            <span
-                              className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
-                                isRec
-                                  ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                  : 'bg-rose-100 text-rose-800 border-rose-300'
-                              }`}
-                            >
-                              {isRec ? 'Piutang' : 'Hutang'}
-                            </span>
-                            <span className="text-xs font-black text-brand-dark">{debt.person_name}</span>
-                          </div>
-                          <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
-                            {debt.description}
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <div className="text-xs font-black text-brand-dark tabular-nums">
-                            {formatMoney(remaining)}
-                          </div>
-                          <div className="text-[10px] font-bold text-brand-darkMuted">
-                            {debt.due_date ? `Target ${debt.due_date}` : 'Belum lunas'}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })
+            {/* Direct Create Action on the right */}
+            <div className="flex items-center gap-2">
+              {financialHubTab === 'goals' && (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setIsGoalModalOpen(true)}
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
+                >
+                  Buat Target Baru
+                </Button>
+              )}
+              {financialHubTab === 'subscriptions' && (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setIsSubscriptionModalOpen(true)}
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
+                >
+                  Tambah Tagihan
+                </Button>
+              )}
+              {financialHubTab === 'debts' && (
+                <Button
+                  size="sm"
+                  variant="primary"
+                  onClick={() => setIsDebtModalOpen(true)}
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
+                >
+                  Catat Hutang/Piutang
+                </Button>
               )}
             </div>
-          </Card>
-        </div>
+          </div>
+
+          {/* Tab 1: Goals */}
+          {financialHubTab === 'goals' && (
+            <div className="pt-3.5 space-y-3">
+              {goals.length === 0 ? (
+                <div className="text-center py-8 px-4 rounded-2xl bg-brand-cream/50 border border-brand-border space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-emerald-100 border-2 border-brand-dark mx-auto flex items-center justify-center text-emerald-800 shadow-saweria-xs">
+                    <Target className="w-6 h-6 stroke-[2.3]" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-brand-dark">Belum Ada Target Tabungan Impian</h4>
+                    <p className="text-xs font-bold text-brand-darkMuted mt-0.5">
+                      Rencanakan dana liburan, gadget impian, atau dana darurat secara terarah.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setIsGoalModalOpen(true)}
+                    leftIcon={<Plus className="w-4 h-4" />}
+                  >
+                    + Buat Target Tabungan Pertama
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                    {goals.slice(0, 3).map((goal) => {
+                      const percent = Math.min(100, Math.round((goal.current_amount / goal.target_amount) * 100));
+                      return (
+                        <div key={goal.id} className="p-3.5 rounded-2xl bg-brand-cream border border-brand-border space-y-2 flex flex-col justify-between hover:bg-brand-cream/80 transition-colors">
+                          <div>
+                            <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
+                              <span className="truncate pr-2 font-black">{goal.name}</span>
+                              <span className="font-black text-brand-primary shrink-0">{percent}%</span>
+                            </div>
+                            <div className="w-full bg-white h-2.5 rounded-full border border-brand-border overflow-hidden mt-2">
+                              <div
+                                className="h-full bg-brand-primary rounded-full transition-all"
+                                style={{ width: `${percent}%` }}
+                              />
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between text-[11px] font-bold text-brand-darkMuted pt-1 border-t border-brand-border/40">
+                            <span className="text-brand-dark font-black">{formatMoney(goal.current_amount)}</span>
+                            <span className="text-[10px]">Target {formatMoney(goal.target_amount)}</span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="pt-2 flex justify-end">
+                    <Link
+                      to="/app/goals"
+                      className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
+                    >
+                      <span>Lihat Semua Target ({goals.length})</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Tab 2: Subscriptions */}
+          {financialHubTab === 'subscriptions' && (
+            <div className="pt-3.5 space-y-3">
+              {subscriptions.length === 0 ? (
+                <div className="text-center py-8 px-4 rounded-2xl bg-brand-cream/50 border border-brand-border space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-sky-100 border-2 border-brand-dark mx-auto flex items-center justify-center text-sky-800 shadow-saweria-xs">
+                    <CalendarClock className="w-6 h-6 stroke-[2.3]" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-brand-dark">Belum Ada Tagihan Rutin Tercatat</h4>
+                    <p className="text-xs font-bold text-brand-darkMuted mt-0.5">
+                      Catat kos, Wi-Fi, listrik, air, dan langganan bulanan agar tidak telat bayar.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setIsSubscriptionModalOpen(true)}
+                    leftIcon={<Plus className="w-4 h-4" />}
+                  >
+                    + Daftarkan Tagihan Rutin Bulanan
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {subscriptions.slice(0, 3).map((sub) => {
+                      const isPaid = sub.last_paid_period === selectedPeriod;
+                      return (
+                        <div
+                          key={sub.id}
+                          className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                        >
+                          <div>
+                            <div className="text-xs font-black text-brand-dark">{sub.name}</div>
+                            <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
+                              Tgl {sub.due_day} • {formatMoney(sub.amount)}
+                            </div>
+                          </div>
+                          {isPaid ? (
+                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              <CheckCircle2 className="w-3 h-3" />
+                              <span>Lunas</span>
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-brand-dark border border-brand-border">
+                              Belum Bayar
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="pt-2 flex justify-end">
+                    <Link
+                      to="/app/subscriptions"
+                      className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
+                    >
+                      <span>Kelola Semua Tagihan ({subscriptions.length})</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+
+          {/* Tab 3: Debts */}
+          {financialHubTab === 'debts' && (
+            <div className="pt-3.5 space-y-3">
+              {debts.filter((d) => !d.is_settled).length === 0 ? (
+                <div className="text-center py-8 px-4 rounded-2xl bg-brand-cream/50 border border-brand-border space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-rose-100 border-2 border-brand-dark mx-auto flex items-center justify-center text-rose-800 shadow-saweria-xs">
+                    <HandCoins className="w-6 h-6 stroke-[2.3]" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-black text-brand-dark">Tidak Ada Hutang / Piutang Aktif</h4>
+                    <p className="text-xs font-bold text-brand-darkMuted mt-0.5">
+                      Catat pinjaman uang atau uang yang dipinjam teman agar tidak ada yang lupa.
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="primary"
+                    onClick={() => setIsDebtModalOpen(true)}
+                    leftIcon={<Plus className="w-4 h-4" />}
+                  >
+                    + Catat Pinjaman / Piutang Baru
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    {debts
+                      .filter((d) => !d.is_settled)
+                      .slice(0, 3)
+                      .map((debt) => {
+                        const isRec = debt.type === 'receivable';
+                        const remaining = Math.max(0, debt.amount - debt.paid_amount);
+                        return (
+                          <div
+                            key={debt.id}
+                            className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                          >
+                            <div>
+                              <div className="flex items-center gap-1.5">
+                                <span
+                                  className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
+                                    isRec
+                                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
+                                      : 'bg-rose-100 text-rose-800 border-rose-300'
+                                  }`}
+                                >
+                                  {isRec ? 'Piutang' : 'Hutang'}
+                                </span>
+                                <span className="text-xs font-black text-brand-dark">{debt.person_name}</span>
+                              </div>
+                              <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
+                                {debt.description}
+                              </div>
+                            </div>
+                            <div className="text-right">
+                              <div className="text-xs font-black text-brand-dark tabular-nums">
+                                {formatMoney(remaining)}
+                              </div>
+                              <div className="text-[10px] font-bold text-brand-darkMuted">
+                                {debt.due_date ? `Target ${debt.due_date}` : 'Belum lunas'}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                  <div className="pt-2 flex justify-end">
+                    <Link
+                      to="/app/debts"
+                      className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
+                    >
+                      <span>Buka Buku Hutang ({debts.filter((d) => !d.is_settled).length})</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                    </Link>
+                  </div>
+                </>
+              )}
+            </div>
+          )}
+        </Card>
       </div>
 
-      {/* Modals */}
+      {/* Modals: Direct 1-Tap Access Across Dashboard */}
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
+      />
+      <GoalModal
+        isOpen={isGoalModalOpen}
+        onClose={() => setIsGoalModalOpen(false)}
+      />
+      <SubscriptionModal
+        isOpen={isSubscriptionModalOpen}
+        onClose={() => setIsSubscriptionModalOpen(false)}
+      />
+      <DebtModal
+        isOpen={isDebtModalOpen}
+        onClose={() => setIsDebtModalOpen(false)}
       />
     </div>
   );

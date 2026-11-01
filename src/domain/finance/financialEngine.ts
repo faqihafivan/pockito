@@ -656,9 +656,15 @@ export function calculateEmergencyRunway(
     ? Math.min(100, Math.round((totalLiquidCash / targetAmount) * 100))
     : 0;
 
-  if (runwayMonths < 1) {
+  if (totalLiquidCash === 0) {
     status = 'critical';
-    statusLabel = 'Kritis ⚠️';
+    statusLabel = 'Tahap Awal 🌱';
+    badgeColor = '#F59E0B'; // Amber
+    adviceMessage =
+      'Kamu baru memulai! Sisihkan sebagian pemasukan awal ke pos dana darurat untuk membangun ketahanan 1 bulan pertamamu.';
+  } else if (runwayMonths < 1) {
+    status = 'critical';
+    statusLabel = 'Perlu Ditingkatkan ⚠️';
     badgeColor = '#EF4444'; // Red
     adviceMessage =
       'Tabungan daruratmu kurang dari 1 bulan. Prioritaskan alokasi ke pos darurat sebelum belanja sekunder!';
