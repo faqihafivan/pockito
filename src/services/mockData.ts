@@ -205,6 +205,18 @@ export const INITIAL_GOALS: SavingsGoal[] = [
 
 export const INITIAL_TASKS: Task[] = [
   {
+    id: 'task-5',
+    user_id: 'user-demo-1',
+    title: 'Beli Minyak Goreng & Beras',
+    description: 'Kebutuhan pokok dapur bulanan',
+    due_date: '2026-11-03',
+    start_time: '16:00',
+    priority: 'high',
+    is_completed: false,
+    amount: 145000,
+    pocket_id: 'pocket-1',
+  },
+  {
     id: 'task-1',
     user_id: 'user-demo-1',
     title: 'Bayar tagihan internet & wifi kos',
@@ -213,6 +225,8 @@ export const INITIAL_TASKS: Task[] = [
     start_time: '09:00',
     priority: 'high',
     is_completed: false,
+    amount: 250000,
+    pocket_id: 'pocket-2',
   },
   {
     id: 'task-2',
@@ -241,6 +255,8 @@ export const INITIAL_TASKS: Task[] = [
     priority: 'low',
     is_completed: true,
     completed_at: '2026-10-02T15:00:00Z',
+    amount: 120000,
+    pocket_id: 'pocket-1',
   },
 ];
 

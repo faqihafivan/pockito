@@ -5,6 +5,9 @@ import {
   ChevronRight,
   ChevronDown,
   RotateCcw,
+  Search,
+  TrendingUp,
+  TrendingDown,
 } from 'lucide-react';
 import { useData } from '../../context/DataContext';
 import {
@@ -16,17 +19,15 @@ import {
 } from '../../domain/finance/financialEngine';
 
 export const PeriodSelector: React.FC = () => {
-  const { selectedPeriod, setSelectedPeriod, transactions } = useData();
+  const { selectedPeriod, setSelectedPeriod, transactions, overview, formatMoney } = useData();
   const [isOpen, setIsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Parse currently selected year and month
-  const [selectedYear, selectedMonth] = useMemo(() => {
+  // Parse currently selected year
+  const selectedYear = useMemo(() => {
     const parts = selectedPeriod.split('-');
-    return [
-      parseInt(parts[0], 10) || new Date().getFullYear(),
-      parseInt(parts[1], 10) || new Date().getMonth() + 1,
-    ];
+    return parseInt(parts[0], 10) || new Date().getFullYear();
   }, [selectedPeriod]);
 
   // Year being viewed inside the popover picker
@@ -39,9 +40,9 @@ export const PeriodSelector: React.FC = () => {
 
   // Real-time current period
   const currentRealtimePeriod = useMemo(() => getCurrentRealtimePeriod(), []);
-  const [currentRealtimeYear, currentRealtimeMonth] = useMemo(() => {
+  const [currentRealtimeYear] = useMemo(() => {
     const parts = currentRealtimePeriod.split('-');
-    return [parseInt(parts[0], 10), parseInt(parts[1], 10)];
+    return [parseInt(parts[0], 10)];
   }, [currentRealtimePeriod]);
 
   const isCurrentMonth = selectedPeriod === currentRealtimePeriod;
@@ -94,13 +95,28 @@ export const PeriodSelector: React.FC = () => {
     const formattedMonth = String(monthIndex + 1).padStart(2, '0');
     setSelectedPeriod(`${viewYear}-${formattedMonth}`);
     setIsOpen(false);
+    setSearchQuery('');
   };
 
   const handleJumpToCurrent = () => {
     setSelectedPeriod(currentRealtimePeriod);
     setViewYear(currentRealtimeYear);
     setIsOpen(false);
+    setSearchQuery('');
   };
+
+  // Filter months if user types a search query
+  const filteredMonths = useMemo(() => {
+    if (!searchQuery.trim()) return null;
+    const q = searchQuery.toLowerCase().trim();
+    return INDONESIAN_MONTHS.map((name, idx) => ({ name, idx })).filter(
+      (m) =>
+        m.name.toLowerCase().includes(q) ||
+        INDONESIAN_MONTHS_SHORT[m.idx].toLowerCase().includes(q) ||
+        `${m.idx + 1}` === q ||
+        `0${m.idx + 1}` === q
+    );
+  }, [searchQuery]);
 
   return (
     <div className="relative inline-flex items-center" ref={popoverRef}>
@@ -110,7 +126,7 @@ export const PeriodSelector: React.FC = () => {
         <button
           type="button"
           onClick={handlePrevMonth}
-          className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-brand-primary border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark"
+          className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-brand-primary border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark cursor-pointer"
           title="Bulan Sebelumnya"
           aria-label="Bulan Sebelumnya"
         >
@@ -121,7 +137,7 @@ export const PeriodSelector: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white hover:bg-brand-primary/20 border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark font-black text-xs sm:text-sm select-none"
+          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white hover:bg-brand-primary/20 border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark font-black text-xs sm:text-sm select-none cursor-pointer"
           title="Pilih Bulan & Tahun Lainnya"
           aria-expanded={isOpen}
         >
@@ -147,7 +163,7 @@ export const PeriodSelector: React.FC = () => {
         <button
           type="button"
           onClick={handleNextMonth}
-          className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-brand-primary border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark"
+          className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-brand-primary border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark cursor-pointer"
           title="Bulan Berikutnya"
           aria-label="Bulan Berikutnya"
         >
@@ -157,13 +173,44 @@ export const PeriodSelector: React.FC = () => {
 
       {/* Popover Month & Year Picker */}
       {isOpen && (
-        <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-3xl border-2 border-brand-dark shadow-saweria-lg p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+        <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-3xl border-2 border-brand-dark shadow-saweria-lg p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+          {/* Quick Financial Summary for Selected Month (Menjawab Feedback #6) */}
+          <div className="mb-3 p-2.5 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between text-xs font-black">
+            <div className="flex items-center gap-1.5 text-emerald-800">
+              <TrendingUp className="w-3.5 h-3.5 stroke-[2.5]" />
+              <div className="text-left">
+                <span className="text-[9px] text-brand-darkMuted uppercase block">Masuk</span>
+                <span className="tabular-nums text-emerald-900">{formatMoney(overview.monthlyIncome)}</span>
+              </div>
+            </div>
+            <div className="h-6 w-px bg-brand-border" />
+            <div className="flex items-center gap-1.5 text-rose-800">
+              <TrendingDown className="w-3.5 h-3.5 stroke-[2.5]" />
+              <div className="text-right">
+                <span className="text-[9px] text-brand-darkMuted uppercase block">Keluar</span>
+                <span className="tabular-nums text-rose-900">{formatMoney(overview.totalMonthlyExpense)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Quick Search Input */}
+          <div className="relative mb-2.5">
+            <Search className="w-3.5 h-3.5 text-brand-darkMuted absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Cari bulan (misal: 'Mei', 'Okt')..."
+              className="w-full pl-8 pr-3 py-1.5 text-xs font-bold bg-white text-brand-dark rounded-xl border-2 border-brand-border focus:border-brand-dark outline-none"
+            />
+          </div>
+
           {/* Year Navigator */}
-          <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
+          <div className="flex items-center justify-between pb-2.5 border-b-2 border-brand-border">
             <button
               type="button"
               onClick={() => setViewYear((y) => y - 1)}
-              className="p-1.5 rounded-xl border-2 border-brand-dark bg-brand-cream hover:bg-brand-primary transition-colors text-brand-dark"
+              className="p-1.5 rounded-xl border-2 border-brand-dark bg-brand-cream hover:bg-brand-primary transition-colors text-brand-dark cursor-pointer"
               title="Tahun Sebelumnya"
             >
               <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
@@ -177,7 +224,7 @@ export const PeriodSelector: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => setViewYear(currentRealtimeYear)}
-                  className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-brand-cream hover:bg-brand-primary border border-brand-dark transition-colors"
+                  className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-brand-cream hover:bg-brand-primary border border-brand-dark transition-colors cursor-pointer"
                   title="Kembali ke tahun berjalan"
                 >
                   Tahun Ini
@@ -188,64 +235,67 @@ export const PeriodSelector: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewYear((y) => y + 1)}
-              className="p-1.5 rounded-xl border-2 border-brand-dark bg-brand-cream hover:bg-brand-primary transition-colors text-brand-dark"
+              className="p-1.5 rounded-xl border-2 border-brand-dark bg-brand-cream hover:bg-brand-primary transition-colors text-brand-dark cursor-pointer"
               title="Tahun Berikutnya"
             >
               <ChevronRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>
 
-          {/* 12 Months Grid (Strict Chronological Order) */}
-          <div className="grid grid-cols-3 gap-2 py-3">
-            {INDONESIAN_MONTHS.map((monthName, index) => {
-              const monthNum = String(index + 1).padStart(2, '0');
-              const periodKey = `${viewYear}-${monthNum}`;
-              const isSelected = selectedYear === viewYear && selectedMonth === index + 1;
-              const isCurrentRealtime =
-                currentRealtimeYear === viewYear && currentRealtimeMonth === index + 1;
-              const hasTransactions = activePeriodsWithTransactions.has(periodKey);
+          {/* 12 Months Grid */}
+          <div className="grid grid-cols-3 gap-1.5 py-2.5">
+            {filteredMonths
+              ? filteredMonths.map((m) => {
+                  const formattedMonth = String(m.idx + 1).padStart(2, '0');
+                  const periodKey = `${viewYear}-${formattedMonth}`;
+                  const isSelected = selectedPeriod === periodKey;
 
-              return (
-                <button
-                  key={monthName}
-                  type="button"
-                  onClick={() => handleSelectMonth(index)}
-                  className={`relative p-2.5 rounded-2xl text-xs font-black transition-all text-center select-none ${
-                    isSelected
-                      ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-sm scale-[1.02]'
-                      : isCurrentRealtime
-                      ? 'bg-brand-cream text-brand-dark border-2 border-dashed border-brand-dark hover:border-solid hover:bg-brand-primary/20'
-                      : 'bg-white hover:bg-brand-cream text-brand-dark border-2 border-brand-border hover:border-brand-dark'
-                  }`}
-                  title={`${monthName} ${viewYear}${hasTransactions ? ' (Terdapat transaksi)' : ''}`}
-                >
-                  <div className="flex flex-col items-center justify-center py-0.5">
-                    <span className="text-sm font-black tracking-tight">
-                      {INDONESIAN_MONTHS_SHORT[index]}
-                    </span>
-                    <span className="text-[10px] font-bold opacity-75 truncate max-w-full">
-                      {monthName}
-                    </span>
-                  </div>
+                  return (
+                    <button
+                      key={m.name}
+                      type="button"
+                      onClick={() => handleSelectMonth(m.idx)}
+                      className={`py-2 px-1 rounded-xl text-xs font-black transition-all border-2 cursor-pointer ${
+                        isSelected
+                          ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
+                          : 'bg-brand-cream/60 border-brand-border text-brand-dark hover:border-brand-dark hover:bg-white'
+                      }`}
+                    >
+                      {m.name}
+                    </button>
+                  );
+                })
+              : INDONESIAN_MONTHS.map((monthName, index) => {
+                  const formattedMonth = String(index + 1).padStart(2, '0');
+                  const periodKey = `${viewYear}-${formattedMonth}`;
+                  const isSelected = selectedPeriod === periodKey;
+                  const hasTransactions = activePeriodsWithTransactions.has(periodKey);
+                  const isCurrentRealtime =
+                    currentRealtimeYear === viewYear && currentRealtimePeriod.endsWith(formattedMonth);
 
-                  {/* Indicators */}
-                  <div className="absolute top-1 right-1.5 flex items-center gap-0.5">
-                    {hasTransactions && (
-                      <span
-                        className="w-1.5 h-1.5 rounded-full bg-emerald-600"
-                        title="Ada riwayat transaksi"
-                      />
-                    )}
-                    {isCurrentRealtime && (
-                      <span
-                        className="w-1.5 h-1.5 rounded-full bg-brand-primary border border-brand-dark"
-                        title="Bulan berjalan (Realtime)"
-                      />
-                    )}
-                  </div>
-                </button>
-              );
-            })}
+                  return (
+                    <button
+                      key={monthName}
+                      type="button"
+                      onClick={() => handleSelectMonth(index)}
+                      className={`relative py-2 px-1 rounded-xl text-xs font-black transition-all border-2 cursor-pointer ${
+                        isSelected
+                          ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm scale-[1.02]'
+                          : hasTransactions
+                          ? 'bg-brand-cream border-brand-border text-brand-dark hover:border-brand-dark hover:bg-white'
+                          : 'bg-white border-transparent text-brand-darkMuted hover:border-brand-border hover:bg-brand-cream/40'
+                      }`}
+                    >
+                      <span>{INDONESIAN_MONTHS_SHORT[index]}</span>
+                      {hasTransactions && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 absolute top-1 right-1" />
+                      )}
+                      {isCurrentRealtime && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-brand-primary border border-brand-dark absolute top-1 left-1" />
+                      )}
+                    </button>
+                  );
+                })}
           </div>
 
           {/* Popover Footer: Quick Realtime Jump */}
@@ -253,7 +303,7 @@ export const PeriodSelector: React.FC = () => {
             <button
               type="button"
               onClick={handleJumpToCurrent}
-              className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border-2 border-brand-dark font-black text-xs transition-all ${
+              className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border-2 border-brand-dark font-black text-xs transition-all cursor-pointer ${
                 isCurrentMonth
                   ? 'bg-brand-cream/60 text-brand-darkMuted cursor-default'
                   : 'bg-brand-primary hover:bg-brand-primaryHover text-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5'

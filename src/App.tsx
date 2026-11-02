@@ -1,5 +1,6 @@
 import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
 import { AuthProvider } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
@@ -34,48 +35,49 @@ const SettingsPage = lazy(() => import('./pages/SettingsPage').then(m => ({ defa
 export function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
-        <NotificationProvider>
-          <AuthProvider>
-            <DataProvider>
-              <Suspense fallback={<PageLoader fullScreen message="Memuat Pockito..." />}>
-                <Routes>
-                  {/* Public Routes */}
-                  <Route path="/" element={<LandingPage />} />
-                  <Route path="/welcome" element={<WelcomePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/register" element={<RegisterPage />} />
-                  <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-                  <Route path="/privacy" element={<PrivacyPolicyPage />} />
-                  <Route path="/terms" element={<TermsPage />} />
+      <ThemeProvider>
+        <BrowserRouter>
+          <NotificationProvider>
+            <AuthProvider>
+              <DataProvider>
+                <Suspense fallback={<PageLoader fullScreen message="Memuat Pockito..." />}>
+                  <Routes>
+                    {/* Public Routes */}
+                    <Route path="/" element={<LandingPage />} />
+                    <Route path="/welcome" element={<WelcomePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
+                    <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+                    <Route path="/privacy" element={<PrivacyPolicyPage />} />
+                    <Route path="/terms" element={<TermsPage />} />
 
-                  {/* Authenticated Application Shell */}
-                  <Route path="/app" element={<AppShell />}>
-                    <Route index element={<Navigate to="/app/dashboard" replace />} />
-                    <Route path="onboarding" element={<OnboardingPage />} />
-                    <Route path="dashboard" element={<DashboardPage />} />
-                    <Route path="budget" element={<BudgetPage />} />
-                    <Route path="budget/:id" element={<PocketDetailPage />} />
-                    <Route path="transactions" element={<TransactionsPage />} />
-                    <Route path="transactions/new" element={<Navigate to="/app/transactions" replace />} />
-                    <Route path="subscriptions" element={<SubscriptionsPage />} />
-                    <Route path="debts" element={<DebtsPage />} />
-                    <Route path="planner" element={<PlannerPage />} />
-                    <Route path="reports" element={<ReportsPage />} />
-                    <Route path="goals" element={<GoalsPage />} />
-                    <Route path="settings" element={<SettingsPage />} />
-                  </Route>
+                    {/* Authenticated Application Shell */}
+                    <Route path="/app" element={<AppShell />}>
+                      <Route index element={<Navigate to="/app/dashboard" replace />} />
+                      <Route path="onboarding" element={<OnboardingPage />} />
+                      <Route path="dashboard" element={<DashboardPage />} />
+                      <Route path="budget" element={<BudgetPage />} />
+                      <Route path="budget/:id" element={<PocketDetailPage />} />
+                      <Route path="transactions" element={<TransactionsPage />} />
+                      <Route path="transactions/new" element={<Navigate to="/app/transactions" replace />} />
+                      <Route path="subscriptions" element={<SubscriptionsPage />} />
+                      <Route path="debts" element={<DebtsPage />} />
+                      <Route path="planner" element={<PlannerPage />} />
+                      <Route path="reports" element={<ReportsPage />} />
+                      <Route path="goals" element={<GoalsPage />} />
+                      <Route path="settings" element={<SettingsPage />} />
+                    </Route>
 
-                  {/* Catch-all Fallback */}
-                  <Route path="*" element={<Navigate to="/" replace />} />
-                </Routes>
-              </Suspense>
-            </DataProvider>
-          </AuthProvider>
-        </NotificationProvider>
-      </BrowserRouter>
+                    {/* Fallback Catch-all Route */}
+                    <Route path="*" element={<Navigate to="/" replace />} />
+                  </Routes>
+                </Suspense>
+              </DataProvider>
+            </AuthProvider>
+          </NotificationProvider>
+        </BrowserRouter>
+      </ThemeProvider>
     </ErrorBoundary>
   );
 }
-
 export default App;

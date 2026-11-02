@@ -31,6 +31,7 @@ interface TransactionModalProps {
   onClose: () => void;
   defaultPocketId?: string;
   defaultMethod?: 'manual' | 'scan' | 'voice' | 'note';
+  defaultType?: TransactionType;
 }
 
 export const TransactionModal: React.FC<TransactionModalProps> = ({
@@ -38,6 +39,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   onClose,
   defaultPocketId,
   defaultMethod = 'manual',
+  defaultType,
 }) => {
   const { user } = useAuth();
   const { accounts, pockets, addTransaction } = useData();
@@ -93,7 +95,7 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
   // Reset when opened
   useEffect(() => {
     if (isOpen) {
-      setType('expense');
+      setType(defaultType || 'expense');
       setInputMethod(defaultMethod === 'note' ? 'manual' : (defaultMethod as 'manual' | 'scan' | 'voice') || 'manual');
       setAmount(0);
       setDescription('');

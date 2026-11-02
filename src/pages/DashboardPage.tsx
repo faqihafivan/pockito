@@ -13,16 +13,16 @@ import { TaskModal } from '../components/planner/TaskModal';
 import { GoalModal } from '../components/goals/GoalModal';
 import { SubscriptionModal } from '../components/subscriptions/SubscriptionModal';
 import { DebtModal } from '../components/debts/DebtModal';
+import { TransactionModal } from '../components/transactions/TransactionModal';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 import { Link } from 'react-router-dom';
 import {
-  Sparkles,
   ArrowRight,
   Target,
   CalendarClock,
   HandCoins,
-  CheckCircle2,
   Wallet,
   Eye,
   EyeOff,
@@ -31,8 +31,31 @@ import {
   PieChart,
   ChevronRight,
   Plus,
+  Info,
+  SlidersHorizontal,
 } from 'lucide-react';
-import { formatPeriod } from '../domain/finance/financialEngine';
+
+interface DashboardPrefs {
+  showQuickShortcuts: boolean;
+  showGuardrails: boolean;
+  showDonutChart: boolean;
+  showPocketMarquee: boolean;
+  showRecentTransactions: boolean;
+  showTasksAndShopping: boolean;
+  showFinancialHub: boolean;
+}
+
+const DEFAULT_PREFS: DashboardPrefs = {
+  showQuickShortcuts: true,
+  showGuardrails: true,
+  showDonutChart: true,
+  showPocketMarquee: true,
+  showRecentTransactions: true,
+  showTasksAndShopping: true,
+  showFinancialHub: true,
+};
+
+const PREFS_STORAGE_KEY = 'pockito_dashboard_prefs';
 
 export const DashboardPage: React.FC = () => {
   const { user } = useAuth();
@@ -46,7 +69,6 @@ export const DashboardPage: React.FC = () => {
     subscriptions,
     debts,
     dailySafeLimit,
-    selectedPeriod,
     formatMoney,
     isPrivacyMode,
     togglePrivacyMode,
@@ -55,12 +77,49 @@ export const DashboardPage: React.FC = () => {
   } = useData();
   const { showToast } = useNotification();
 
+  // Dashboard Modals
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [financialHubTab, setFinancialHubTab] = useState<'goals' | 'subscriptions' | 'debts'>('goals');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
+  const [isIncomeModalOpen, setIsIncomeModalOpen] = useState(false);
+  const [isBalanceInfoOpen, setIsBalanceInfoOpen] = useState(false);
+  const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
+
+  // Dashboard Preferences (Show/Hide sections as requested in feedback #9 & #12)
+  const [prefs, setPrefs] = useState<DashboardPrefs>(() => {
+    try {
+      const saved = localStorage.getItem(PREFS_STORAGE_KEY);
+      if (saved) return { ...DEFAULT_PREFS, ...JSON.parse(saved) };
+    } catch {
+      // ignore
+    }
+    return DEFAULT_PREFS;
+  });
+
+  const togglePref = (key: keyof DashboardPrefs) => {
+    setPrefs((prev) => {
+      const updated = { ...prev, [key]: !prev[key] };
+      try {
+        localStorage.setItem(PREFS_STORAGE_KEY, JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      return updated;
+    });
+  };
+
+  const resetPrefs = () => {
+    setPrefs(DEFAULT_PREFS);
+    try {
+      localStorage.removeItem(PREFS_STORAGE_KEY);
+    } catch {
+      // ignore
+    }
+    showToast('Tampilan dashboard dikembalikan ke tata letak bawaan.', 'info');
+  };
 
   // Duplicate items for continuous 100% seamless marquee loop on mobile
   const marqueePockets =
@@ -86,20 +145,13 @@ export const DashboardPage: React.FC = () => {
     return trimmed.split(' ')[0];
   };
 
-  const periodLabel = formatPeriod(selectedPeriod);
-
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* 1. Space-Saving Unified Hero: Greeting + Saldo Riil */}
+      {/* 1. Space-Saving Unified Hero: Greeting + Saldo Riil (Clutter Free) */}
       <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border-2 border-brand-dark shadow-saweria flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
-        {/* Left: Compact Greeting & Workspace Period */}
+        {/* Left: Compact Greeting & Quick Action Chips */}
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1 sm:mb-1.5">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-brand-primary/20 text-[10px] sm:text-xs font-black text-brand-dark border border-brand-dark/20">
-              <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
-              <span>Workspace Periode {periodLabel}</span>
-            </div>
-
             {/* Clickable Daily Briefing Trigger Chip */}
             <button
               type="button"
@@ -115,25 +167,49 @@ export const DashboardPage: React.FC = () => {
               <span>
                 {dailyBriefing.hasUrgentItems
                   ? `${dailyBriefing.urgentCount} Agenda Mendesak`
-                  : `${dailyBriefing.items.length} Briefing Hari Ini`}
+                  : `${dailyBriefing.items.length} Agenda Hari Ini`}
               </span>
             </button>
+
+            {/* Customize Dashboard Button (Menjawab Feedback #9 & #12) */}
+            <button
+              type="button"
+              onClick={() => setIsCustomizeOpen(true)}
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-brand-cream hover:bg-white text-brand-dark border border-brand-dark shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              title="Atur tampilan modul dashboard agar simpel dan rapi"
+            >
+              <SlidersHorizontal className="w-3 h-3" />
+              <span>Atur Tampilan</span>
+            </button>
           </div>
+
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark tracking-tight truncate">
             {getGreeting()}, {getUserDisplayName()}! 👋
           </h2>
           <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-0.5">
-            Pantau arus kas, alokasi kantong, dan jatah belanjamu di sini.
+            Arus kas, alokasi kantong, dan checklist belanjamu terpadu di sini.
           </p>
         </div>
 
-        {/* Right: Saldo Riil Box (Prominent & Space-saving) */}
-        <div className="flex items-center justify-between md:justify-end gap-3 sm:gap-5 bg-brand-bg/60 p-3 sm:px-5 sm:py-3.5 rounded-xl sm:rounded-2xl border-2 border-brand-dark shadow-saweria-sm shrink-0">
+        {/* Right: Saldo Riil Box with Quick Salary Entry & Explainer (Menjawab Feedback #14 & #16) */}
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-2.5 sm:gap-4 bg-brand-cream/60 p-3 sm:px-4 sm:py-3 rounded-2xl border-2 border-brand-dark shadow-saweria-sm shrink-0">
           <div className="min-w-0">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider">
                 Total Saldo Riil
               </span>
+
+              {/* Informative Help Button (Menjawab Feedback #14 & #16) */}
+              <button
+                type="button"
+                onClick={() => setIsBalanceInfoOpen(true)}
+                className="w-4 h-4 rounded-full bg-white border border-brand-dark/40 hover:border-brand-dark flex items-center justify-center text-brand-darkMuted hover:text-brand-dark transition-colors cursor-pointer"
+                title="Pelajari bagaimana Saldo Riil dihitung dan diakumulasikan setiap bulan"
+              >
+                <Info className="w-2.5 h-2.5 stroke-[2.5]" />
+              </button>
+
+              {/* Privacy Eye Toggle */}
               <button
                 type="button"
                 onClick={() => {
@@ -145,24 +221,26 @@ export const DashboardPage: React.FC = () => {
                     'info'
                   );
                 }}
-                className={`p-1 rounded-lg border transition-all active:scale-95 flex items-center justify-center ${
+                className={`p-1 rounded-lg border transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
                   isPrivacyMode
                     ? 'bg-amber-100 border-brand-dark text-amber-800 shadow-saweria-xs'
                     : 'bg-white border-brand-dark/30 text-brand-darkMuted hover:text-brand-dark hover:border-brand-dark shadow-saweria-xs'
                 }`}
-                title={isPrivacyMode ? 'Buka sensor saldo (Mode Privasi Aktif)' : 'Sensor nominal saldo (Mode Privasi)'}
+                title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
                 aria-label={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
               >
                 {isPrivacyMode ? (
-                  <EyeOff className="w-3.5 h-3.5 stroke-[2.4] text-amber-700" />
+                  <EyeOff className="w-3 h-3 stroke-[2.4] text-amber-700" />
                 ) : (
-                  <Eye className="w-3.5 h-3.5 stroke-[2.2]" />
+                  <Eye className="w-3 h-3 stroke-[2.2]" />
                 )}
               </button>
             </div>
-            <div className="text-xl sm:text-2xl lg:text-3xl font-black text-brand-dark tabular-nums tracking-tight truncate mt-0.5">
+
+            <div className="text-xl sm:text-2xl font-black text-brand-dark tabular-nums tracking-tight truncate mt-0.5">
               {formatMoney(overview.totalRecordedBalance)}
             </div>
+
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
               <p className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted truncate">
@@ -170,240 +248,263 @@ export const DashboardPage: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-brand-primary border-2 border-brand-dark flex items-center justify-center text-brand-dark shrink-0 shadow-saweria-sm">
-            <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
+
+          {/* Quick Add Income / Salary Button (1-Click Pemasukan) */}
+          <div className="flex sm:flex-col items-center justify-between sm:justify-center gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:pl-3 border-brand-border">
+            <button
+              type="button"
+              onClick={() => setIsIncomeModalOpen(true)}
+              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-brand-dark font-black text-xs border-2 border-brand-dark shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer whitespace-nowrap"
+              title="Catat Gaji Bulanan atau Pemasukan Baru"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[3]" />
+              <span>+ Catat Gaji</span>
+            </button>
           </div>
         </div>
       </div>
 
-      {/* 2. Headline Stat Cards: Pemasukan, Pengeluaran, Sisa Pagu */}
+      {/* 2. Headline Stat Cards: Pemasukan (Mint), Pengeluaran (Rose), Sisa Budget (Honey) */}
       <StatCards overview={overview} />
 
-      {/* 2.5 Quick Feature Shortcuts: 1-Tap Direct Access to Subscriptions, Debts, Goals, & Reports */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-        <Link
-          to="/app/subscriptions"
-          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-              <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-brand-dark block truncate">Tagihan Rutin</span>
-              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
-                {subscriptions.length} tagihan aktif
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsSubscriptionModalOpen(true);
-              }}
-              className="w-6 h-6 rounded-lg bg-sky-200/70 hover:bg-sky-300 text-sky-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-              title="Tambah Tagihan Baru"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
-            <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-          </div>
-        </Link>
-
-        <Link
-          to="/app/debts"
-          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-              <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-brand-dark block truncate">Hutang Piutang</span>
-              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
-                {debts.filter((d) => !d.is_settled).length} aktif
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsDebtModalOpen(true);
-              }}
-              className="w-6 h-6 rounded-lg bg-rose-200/70 hover:bg-rose-300 text-rose-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-              title="Catat Hutang/Piutang Baru"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
-            <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-          </div>
-        </Link>
-
-        <Link
-          to="/app/goals"
-          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-              <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-brand-dark block truncate">Target Tabungan</span>
-              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
-                {goals.length} target impian
-              </span>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                setIsGoalModalOpen(true);
-              }}
-              className="w-6 h-6 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-              title="Buat Target Baru"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
-            <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-          </div>
-        </Link>
-
-        <Link
-          to="/app/reports"
-          className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-        >
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-              <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
-            </div>
-            <div className="min-w-0">
-              <span className="text-xs font-black text-brand-dark block truncate">Laporan Keuangan</span>
-              <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
-                Analisis & arus kas
-              </span>
-            </div>
-          </div>
-          <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
-        </Link>
-      </div>
-
-      {/* 3. Financial Guardrails: Safe Daily Spend Limit & Emergency Runway */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch">
-        <SafeDailyLimitCard safeLimit={dailySafeLimit} />
-        <EmergencyRunwayCard />
-      </div>
-
-      {/* 4. Middle Section: Donut Allocation Breakdown + Pocket Summary Cards */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left: Donut Chart Card */}
-        <Card variant="saweria" className="bg-white">
-          <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
-            <div>
-              <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
-                Distribusi Alokasi Gaji
-              </h3>
-              <p className="text-[11px] text-brand-darkMuted mt-0.5">
-                Target pengeluaran per kantong
-              </p>
-            </div>
-            <Link
-              to="/app/budget"
-              className="text-xs font-black text-brand-dark hover:text-brand-primaryHover"
-            >
-              Atur
-            </Link>
-          </div>
-
-          <div className="py-2">
-            <BudgetDonut
-              pocketSummaries={pocketSummaries}
-              monthlyIncome={overview.monthlyIncome}
-              unallocatedPercentage={overview.unallocatedPercentage}
-              unallocatedIncome={overview.unallocatedIncome}
-            />
-          </div>
-        </Card>
-
-        {/* Right: Quick Pockets Grid (2 Columns on large screens, Auto-sliding Carousel on Mobile) */}
-        <div className="lg:col-span-2 space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-base font-black text-brand-dark tracking-tight">
-              Status Kantong Pengeluaran ({pocketSummaries.length})
-            </h3>
-            <Link
-              to="/app/budget"
-              className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
-            >
-              <span>Kelola Semua</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
-            </Link>
-          </div>
-
-          {/* Continuous Infinite Marquee Loop (Mobile, Tablet & Desktop) or Empty State */}
-          {pocketSummaries.length === 0 ? (
-            <div className="bg-white rounded-2xl border-2 border-brand-dark p-6 text-center space-y-3 shadow-saweria">
-              <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 border-2 border-brand-dark flex items-center justify-center mx-auto text-brand-dark shadow-saweria-sm">
-                <Wallet className="w-6 h-6 stroke-[2.2]" />
+      {/* 3. Quick Feature Shortcuts (Show/Hide configurable) */}
+      {prefs.showQuickShortcuts && (
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+          <Link
+            to="/app/subscriptions"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
               </div>
-              <div className="space-y-1">
-                <h4 className="text-sm font-black text-brand-dark">Belum Ada Kantong Anggaran</h4>
-                <p className="text-xs text-brand-darkMuted max-w-sm mx-auto font-medium">
-                  Alokasikan gajimu ke pos-pos penting (Makanan, Kos, Tabungan) agar arus kas terarah rapi dan terkontrol.
-                </p>
+              <div className="min-w-0">
+                <span className="text-xs font-black text-brand-dark block truncate">Tagihan Rutin</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                  {subscriptions.length} tagihan aktif
+                </span>
               </div>
-              <Link
-                to="/app/budget"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-primary border-2 border-brand-dark text-xs font-black shadow-saweria-sm hover:bg-brand-primaryHover transition-all active:translate-x-0.5 active:translate-y-0.5"
-              >
-                <span>Mulai Buat Kantong Pertamamu</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Link>
             </div>
-          ) : (
-            <div className="relative w-full overflow-hidden rounded-2xl py-1">
-              {/* Edge fade gradients for polished fintech aesthetics */}
-              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-[#FFFDF8] to-transparent z-10" />
-              <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-[#FFFDF8] to-transparent z-10" />
-
-              <div
-                className={`animate-marquee flex gap-3.5 ${isMarqueePaused ? 'animation-paused' : ''}`}
-                onTouchStart={() => setIsMarqueePaused(true)}
-                onTouchEnd={() => setTimeout(() => setIsMarqueePaused(false), 800)}
-                onMouseEnter={() => setIsMarqueePaused(true)}
-                onMouseLeave={() => setIsMarqueePaused(false)}
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsSubscriptionModalOpen(true);
+                }}
+                className="w-6 h-6 rounded-lg bg-sky-200/70 hover:bg-sky-300 text-sky-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+                title="Tambah Tagihan Baru"
               >
-                {marqueePockets.map((pocket, idx) => (
-                  <div key={`marquee-pocket-${pocket.id}-${idx}`} className="w-[280px] sm:w-[310px] shrink-0">
-                    <PocketCard pocket={pocket} />
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+              <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+            </div>
+          </Link>
+
+          <Link
+            to="/app/debts"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-black text-brand-dark block truncate">Hutang Piutang</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                  {debts.filter((d) => !d.is_settled).length} aktif
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsDebtModalOpen(true);
+                }}
+                className="w-6 h-6 rounded-lg bg-rose-200/70 hover:bg-rose-300 text-rose-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+                title="Catat Hutang/Piutang Baru"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+              <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+            </div>
+          </Link>
+
+          <Link
+            to="/app/goals"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-black text-brand-dark block truncate">Target Tabungan</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                  {goals.length} target impian
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setIsGoalModalOpen(true);
+                }}
+                className="w-6 h-6 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+                title="Buat Target Baru"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+              <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+            </div>
+          </Link>
+
+          <Link
+            to="/app/reports"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+          >
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
+              </div>
+              <div className="min-w-0">
+                <span className="text-xs font-black text-brand-dark block truncate">Laporan Keuangan</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                  Analisis & arus kas
+                </span>
+              </div>
+            </div>
+            <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+          </Link>
+        </div>
+      )}
+
+      {/* 4. Financial Guardrails: Safe Daily Spend Limit & Emergency Runway (Show/Hide configurable) */}
+      {prefs.showGuardrails && (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
+          <SafeDailyLimitCard safeLimit={dailySafeLimit} />
+          <EmergencyRunwayCard />
+        </div>
+      )}
+
+      {/* 5. Middle Section: Donut Allocation Breakdown + Pocket Summary Cards */}
+      {(prefs.showDonutChart || prefs.showPocketMarquee) && (
+        <div className={`grid grid-cols-1 ${prefs.showDonutChart && prefs.showPocketMarquee ? 'lg:grid-cols-3' : ''} gap-4 sm:gap-6 items-start`}>
+          {/* Left: Donut Chart Card */}
+          {prefs.showDonutChart && (
+            <Card variant="saweria" className="bg-white">
+              <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
+                <div>
+                  <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
+                    Distribusi Alokasi Gaji
+                  </h3>
+                  <p className="text-[11px] text-brand-darkMuted mt-0.5">
+                    Target pengeluaran per kantong
+                  </p>
+                </div>
+                <Link
+                  to="/app/budget"
+                  className="text-xs font-black text-brand-dark hover:text-brand-primaryHover"
+                >
+                  Atur
+                </Link>
+              </div>
+
+              <div className="py-2">
+                <BudgetDonut
+                  pocketSummaries={pocketSummaries}
+                  monthlyIncome={overview.monthlyIncome}
+                  unallocatedPercentage={overview.unallocatedPercentage}
+                  unallocatedIncome={overview.unallocatedIncome}
+                />
+              </div>
+            </Card>
+          )}
+
+          {/* Right: Quick Pockets Grid */}
+          {prefs.showPocketMarquee && (
+            <div className={`${prefs.showDonutChart ? 'lg:col-span-2' : ''} space-y-3`}>
+              <div className="flex items-center justify-between">
+                <h3 className="text-base font-black text-brand-dark tracking-tight">
+                  Status Kantong Pengeluaran ({pocketSummaries.length})
+                </h3>
+                <Link
+                  to="/app/budget"
+                  className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+                >
+                  <span>Kelola Semua</span>
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </Link>
+              </div>
+
+              {pocketSummaries.length === 0 ? (
+                <div className="bg-white rounded-2xl border-2 border-brand-dark p-6 text-center space-y-3 shadow-saweria">
+                  <div className="w-12 h-12 rounded-2xl bg-brand-primary/20 border-2 border-brand-dark flex items-center justify-center mx-auto text-brand-dark shadow-saweria-sm">
+                    <Wallet className="w-6 h-6 stroke-[2.2]" />
                   </div>
-                ))}
-              </div>
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-black text-brand-dark">Belum Ada Kantong Anggaran</h4>
+                    <p className="text-xs text-brand-darkMuted max-w-sm mx-auto font-medium">
+                      Alokasikan gajimu ke pos-pos penting (Makanan, Kos, Tabungan) agar arus kas terarah rapi dan terkontrol.
+                    </p>
+                  </div>
+                  <Link
+                    to="/app/budget"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-primary border-2 border-brand-dark text-xs font-black shadow-saweria-sm hover:bg-brand-primaryHover transition-all active:translate-x-0.5 active:translate-y-0.5"
+                  >
+                    <span>Mulai Buat Kantong Pertamamu</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              ) : (
+                <div className="relative w-full overflow-hidden rounded-2xl py-1">
+                  <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-brand-cream to-transparent z-10" />
+                  <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-brand-cream to-transparent z-10" />
+
+                  <div
+                    className={`animate-marquee flex gap-3.5 ${isMarqueePaused ? 'animation-paused' : ''}`}
+                    onTouchStart={() => setIsMarqueePaused(true)}
+                    onTouchEnd={() => setTimeout(() => setIsMarqueePaused(false), 800)}
+                    onMouseEnter={() => setIsMarqueePaused(true)}
+                    onMouseLeave={() => setIsMarqueePaused(false)}
+                  >
+                    {marqueePockets.map((pocket, idx) => (
+                      <div key={`marquee-pocket-${pocket.id}-${idx}`} className="w-[280px] sm:w-[310px] shrink-0">
+                        <PocketCard pocket={pocket} />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
         </div>
-      </div>
+      )}
 
-      {/* 4. Bottom Section: Side-by-side Recent Transactions & Today's Tasks, and Full-width Savings Goals Below */}
-      <div className="space-y-4 sm:space-y-6">
-        {/* Row 1: Aktivitas Transaksi Terbaru & Agenda Tugas Bersebelahan (Equal Height) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
-          <RecentTransactionsCard transactions={transactions} pockets={pockets} />
-          <TodayTasksCard
-            tasks={tasks}
-            onOpenNewTask={() => setIsTaskModalOpen(true)}
-          />
+      {/* 6. Side-by-side Recent Transactions & Smart Shopping / Task Checklist (Menjawab Feedback #10) */}
+      {(prefs.showRecentTransactions || prefs.showTasksAndShopping) && (
+        <div className={`grid grid-cols-1 ${prefs.showRecentTransactions && prefs.showTasksAndShopping ? 'md:grid-cols-2' : ''} gap-4 sm:gap-6 items-stretch`}>
+          {prefs.showRecentTransactions && (
+            <RecentTransactionsCard transactions={transactions} pockets={pockets} />
+          )}
+          {prefs.showTasksAndShopping && (
+            <TodayTasksCard
+              tasks={tasks}
+              onOpenNewTask={() => setIsTaskModalOpen(true)}
+            />
+          )}
         </div>
+      )}
 
-        {/* Row 2: Unified Financial Commitments & Plans Hub (Tabs: Target Tabungan, Tagihan Rutin, Hutang Piutang) */}
+      {/* 7. Unified Financial Commitments Hub (Target, Tagihan, Hutang) (Menjawab Feedback #12) */}
+      {prefs.showFinancialHub && (
         <Card variant="saweria" className="bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-brand-border">
             {/* Tab Selector */}
@@ -448,7 +549,7 @@ export const DashboardPage: React.FC = () => {
               </button>
             </div>
 
-            {/* Direct Create Action on the right */}
+            {/* Direct Create Action */}
             <div className="flex items-center gap-2">
               {financialHubTab === 'goals' && (
                 <Button
@@ -518,16 +619,16 @@ export const DashboardPage: React.FC = () => {
                               <span className="truncate pr-2 font-black">{goal.name}</span>
                               <span className="font-black text-brand-primary shrink-0">{percent}%</span>
                             </div>
-                            <div className="w-full bg-white h-2.5 rounded-full border border-brand-border overflow-hidden mt-2">
+                            <div className="w-full h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
                               <div
-                                className="h-full bg-brand-primary rounded-full transition-all"
+                                className="h-full bg-brand-primary rounded-full"
                                 style={{ width: `${percent}%` }}
                               />
                             </div>
                           </div>
-                          <div className="flex items-center justify-between text-[11px] font-bold text-brand-darkMuted pt-1 border-t border-brand-border/40">
-                            <span className="text-brand-dark font-black">{formatMoney(goal.current_amount)}</span>
-                            <span className="text-[10px]">Target {formatMoney(goal.target_amount)}</span>
+                          <div className="flex items-center justify-between text-xs pt-2">
+                            <span className="text-[10px] text-brand-darkMuted font-bold">Terkumpul:</span>
+                            <span className="font-black text-brand-dark tabular-nums">{formatMoney(goal.current_amount)}</span>
                           </div>
                         </div>
                       );
@@ -556,9 +657,9 @@ export const DashboardPage: React.FC = () => {
                     <CalendarClock className="w-6 h-6 stroke-[2.3]" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-black text-brand-dark">Belum Ada Tagihan Rutin Tercatat</h4>
+                    <h4 className="text-sm font-black text-brand-dark">Belum Ada Tagihan Rutin</h4>
                     <p className="text-xs font-bold text-brand-darkMuted mt-0.5">
-                      Catat kos, Wi-Fi, listrik, air, dan langganan bulanan agar tidak telat bayar.
+                      Catat tagihan listrik PLN, wifi, BPJS, atau langganan agar tidak telat bayar.
                     </p>
                   </div>
                   <Button
@@ -567,45 +668,40 @@ export const DashboardPage: React.FC = () => {
                     onClick={() => setIsSubscriptionModalOpen(true)}
                     leftIcon={<Plus className="w-4 h-4" />}
                   >
-                    + Daftarkan Tagihan Rutin Bulanan
+                    + Tambah Tagihan Pertama
                   </Button>
                 </div>
               ) : (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-                    {subscriptions.slice(0, 3).map((sub) => {
-                      const isPaid = sub.last_paid_period === selectedPeriod;
-                      return (
-                        <div
-                          key={sub.id}
-                          className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
-                        >
-                          <div>
-                            <div className="text-xs font-black text-brand-dark">{sub.name}</div>
-                            <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
-                              Tgl {sub.due_day} • {formatMoney(sub.amount)}
-                            </div>
-                          </div>
-                          {isPaid ? (
-                            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                              <CheckCircle2 className="w-3 h-3" />
-                              <span>Lunas</span>
-                            </span>
-                          ) : (
-                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-white text-brand-dark border border-brand-border">
-                              Belum Bayar
-                            </span>
-                          )}
+                    {subscriptions.slice(0, 3).map((sub) => (
+                      <div
+                        key={sub.id}
+                        className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                      >
+                        <div className="min-w-0">
+                          <span className="text-xs font-black text-brand-dark block truncate">{sub.name}</span>
+                          <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                            Jatuh tempo tgl {sub.due_day}
+                          </span>
                         </div>
-                      );
-                    })}
+                        <div className="text-right shrink-0">
+                          <span className="text-xs font-black text-brand-dark tabular-nums block">
+                            {formatMoney(sub.amount)}
+                          </span>
+                          <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-1.5 py-0.2 rounded border border-sky-300">
+                            Rutin
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                   <div className="pt-2 flex justify-end">
                     <Link
                       to="/app/subscriptions"
                       className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
                     >
-                      <span>Kelola Semua Tagihan ({subscriptions.length})</span>
+                      <span>Lihat Semua Tagihan ({subscriptions.length})</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                     </Link>
                   </div>
@@ -694,9 +790,127 @@ export const DashboardPage: React.FC = () => {
             </div>
           )}
         </Card>
-      </div>
+      )}
 
-      {/* Modals: Direct 1-Tap Access Across Dashboard */}
+      {/* MODALS */}
+
+      {/* 1. Modal: Memahami Saldo Riil & Gaji Bulanan (Menjawab Feedback #14 & #16) */}
+      <Modal
+        isOpen={isBalanceInfoOpen}
+        onClose={() => setIsBalanceInfoOpen(false)}
+        title="Memahami Saldo Riil & Arus Gaji"
+        subtitle="Panduan transparan cara Pockito mengelola uang kas dan rencana kantong Anda"
+      >
+        <div className="space-y-4">
+          <div className="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 space-y-2">
+            <h4 className="text-xs font-black text-emerald-900 uppercase tracking-wide">
+              1. Apa itu "Saldo Riil"?
+            </h4>
+            <p className="text-xs text-emerald-950 font-medium leading-relaxed">
+              <b>Saldo Riil</b> adalah uang kas nyata yang saat ini benar-benar ada di tangan Anda (akumulasi uang tunai di dompet ditambah saldo di rekening bank aktif). Setiap ada uang masuk atau keluar aktual, Saldo Riil otomatis bertambah atau berkurang.
+            </p>
+          </div>
+
+          <div className="p-4 bg-sky-50 rounded-2xl border-2 border-sky-300 space-y-2">
+            <h4 className="text-xs font-black text-sky-900 uppercase tracking-wide">
+              2. Bagaimana Jika Berganti Bulan?
+            </h4>
+            <p className="text-xs text-sky-950 font-medium leading-relaxed">
+              Saldo Riil bersifat <b>kumulatif berkelanjutan</b>. Contoh: Sisa uang Oktober Anda ada Rp 500.000. Saat masuk bulan November dan Anda mencatat gaji Rp 1.300.000, maka Saldo Riil otomatis menjadi <b>Rp 1.800.000</b>. Uang Anda tidak pernah hilang atau di-reset otomatis saat ganti bulan.
+            </p>
+          </div>
+
+          <div className="p-4 bg-amber-50 rounded-2xl border-2 border-amber-300 space-y-2">
+            <h4 className="text-xs font-black text-amber-900 uppercase tracking-wide">
+              3. Saldo Riil vs Rencana Budget Kantong
+            </h4>
+            <p className="text-xs text-amber-950 font-medium leading-relaxed">
+              Pockito memisahkan dengan tegas antara <b>Uang Nyata (Saldo Riil)</b> dan <b>Rencana Belanja (Kantong/Pagu)</b>. Kantong anggaran adalah target panduan belanja bulanan, sedangkan Saldo Riil adalah kas fisik Anda. Jika pengeluaran sebuah kantong melebihi kuota, aplikasi akan memberi tanda peringatan (defisit) agar Anda mengerem belanja, namun uang riil Anda tetap tercatat akurat.
+            </p>
+          </div>
+
+          <div className="pt-2 flex justify-end">
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => setIsBalanceInfoOpen(false)}
+            >
+              Saya Paham! 👍
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 2. Modal: Kustomisasi Tampilan Dashboard (Menjawab Feedback #9 & #12) */}
+      <Modal
+        isOpen={isCustomizeOpen}
+        onClose={() => setIsCustomizeOpen(false)}
+        title="Kustomisasi Tampilan Dashboard"
+        subtitle="Sembunyikan modul yang tidak Anda perlukan agar dashboard tetap rapi dan ringkas"
+      >
+        <div className="space-y-3">
+          <p className="text-xs text-brand-darkMuted font-medium">
+            Pilih bagian yang ingin Anda tampilkan pada layar beranda:
+          </p>
+
+          <div className="space-y-2 pt-1">
+            {[
+              { key: 'showTasksAndShopping', label: 'Belanja Pokok & To-Do List', desc: 'Checklist kebutuhan belanja yang memotong saldo otomatis' },
+              { key: 'showRecentTransactions', label: 'Riwayat Transaksi Terkini', desc: 'Aktivitas uang masuk dan keluar terbaru' },
+              { key: 'showQuickShortcuts', label: 'Pintasan Cepat (Tagihan, Hutang, Target)', desc: 'Tombol pintas akses cepat ke modul lain' },
+              { key: 'showGuardrails', label: 'Batas Belanja Aman & Dana Darurat', desc: 'Analisis limit aman belanja harian' },
+              { key: 'showDonutChart', label: 'Grafik Distribusi Alokasi Gaji', desc: 'Diagram donat persentase pembagian kantong' },
+              { key: 'showPocketMarquee', label: 'Slider Status Kantong Anggaran', desc: 'Daftar kartu pos anggaran belanja' },
+              { key: 'showFinancialHub', label: 'Hub Tab Target, Tagihan & Hutang Piutang', desc: 'Modul komitmen finansial di bagian bawah' },
+            ].map((item) => {
+              const k = item.key as keyof DashboardPrefs;
+              const isChecked = prefs[k];
+              return (
+                <label
+                  key={item.key}
+                  className="flex items-start gap-3 p-3 rounded-2xl bg-brand-cream/60 border-2 border-brand-border hover:border-brand-dark cursor-pointer transition-colors select-none"
+                >
+                  <input
+                    type="checkbox"
+                    checked={isChecked}
+                    onChange={() => togglePref(k)}
+                    className="w-4 h-4 mt-0.5 rounded text-brand-primary accent-brand-primary cursor-pointer"
+                  />
+                  <div className="min-w-0">
+                    <span className="text-xs font-black text-brand-dark block">{item.label}</span>
+                    <span className="text-[11px] text-brand-darkMuted font-medium block">{item.desc}</span>
+                  </div>
+                </label>
+              );
+            })}
+          </div>
+
+          <div className="pt-3 border-t border-brand-border flex items-center justify-between">
+            <button
+              type="button"
+              onClick={resetPrefs}
+              className="text-xs font-black text-brand-darkMuted hover:text-red-600 transition-colors cursor-pointer"
+            >
+              Reset ke Bawaan
+            </button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={() => setIsCustomizeOpen(false)}
+            >
+              Simpan & Tutup
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* Global Quick Modals */}
+      <TransactionModal
+        isOpen={isIncomeModalOpen}
+        onClose={() => setIsIncomeModalOpen(false)}
+        defaultType="income"
+      />
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}

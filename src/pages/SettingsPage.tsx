@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { useTheme } from '../context/ThemeContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
@@ -22,6 +23,11 @@ import {
   Download,
   Upload,
   FolderArchive,
+  Palette,
+  HelpCircle,
+  TrendingUp,
+  AlertTriangle,
+  Wallet,
 } from 'lucide-react';
 import { formatIDR } from '../domain/finance/financialEngine';
 import { AIScannerService } from '../services/aiScannerService';
@@ -31,6 +37,7 @@ import { PWAInstallButton } from '../components/common/PWAInstallButton';
 export const SettingsPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser, isCloudMode, logout } = useAuth();
+  const { theme, setTheme } = useTheme();
   const {
     resetToDefaults,
     clearTransactionsAndResetBalance,
@@ -169,9 +176,167 @@ export const SettingsPage: React.FC = () => {
           Pengaturan Akun & Preferensi
         </h2>
         <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-1">
-          Sesuaikan profil diri, estimasi gaji pokok, dan mode penyimpanan data.
+          Sesuaikan tema visual, profil diri, estimasi gaji pokok, dan mode data Anda.
         </p>
       </div>
+
+      {/* 1. Theme Selector (Menjawab Feedback #1, #2, #5, #8) */}
+      <Card variant="saweria" className="bg-white space-y-4">
+        <div className="pb-3 border-b-2 border-brand-border flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Palette className="w-4 h-4 text-brand-primary" />
+            <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
+              Pilihan Tema Tampilan & Kenyamanan Visual
+            </h3>
+          </div>
+          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-brand-primary/20 text-brand-dark border border-brand-dark/20">
+            Aktif: {theme.toUpperCase()}
+          </span>
+        </div>
+
+        <p className="text-xs text-brand-darkMuted leading-relaxed">
+          Pilih estetika warna yang paling membuat Anda nyaman mengelola keuangan setiap hari:
+        </p>
+
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          {/* Theme 1: Teal Mint */}
+          <button
+            type="button"
+            onClick={() => {
+              setTheme('teal-mint');
+              showToast('Tema Teal Mint diaktifkan! 🌿', 'success');
+            }}
+            className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+              theme === 'teal-mint'
+                ? 'bg-[#EBF6F4] border-[#379A8D] shadow-saweria ring-2 ring-[#379A8D]'
+                : 'bg-white border-brand-border hover:border-brand-dark hover:bg-brand-cream/40'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-brand-dark">Teal Mint (Direkomendasikan)</span>
+                {theme === 'teal-mint' && <CheckCircle2 className="w-4 h-4 text-[#379A8D]" />}
+              </div>
+              <p className="text-[11px] text-brand-darkMuted font-medium mt-1">
+                Hijau mint sejuk, aksen madu hangat, dan kontras lembut.
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="w-4 h-4 rounded-full bg-[#379A8D] border border-black/20" title="Teal Mint" />
+              <span className="w-4 h-4 rounded-full bg-[#F7C948] border border-black/20" title="Honey Gold" />
+              <span className="w-4 h-4 rounded-full bg-[#EBF6F4] border border-black/20" title="Soft Mint" />
+              <span className="w-4 h-4 rounded-full bg-[#FDF2F2] border border-black/20" title="Soft Rose" />
+            </div>
+          </button>
+
+          {/* Theme 2: Saweria Emas */}
+          <button
+            type="button"
+            onClick={() => {
+              setTheme('saweria');
+              showToast('Tema Saweria Emas diaktifkan! 🍯', 'success');
+            }}
+            className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+              theme === 'saweria'
+                ? 'bg-amber-50 border-amber-500 shadow-saweria ring-2 ring-amber-500'
+                : 'bg-white border-brand-border hover:border-brand-dark hover:bg-brand-cream/40'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-brand-dark">Saweria Emas (Klasik)</span>
+                {theme === 'saweria' && <CheckCircle2 className="w-4 h-4 text-amber-600" />}
+              </div>
+              <p className="text-[11px] text-brand-darkMuted font-medium mt-1">
+                Kuning amber hangat, kontras tinggi neobrutalisme ikonik.
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="w-4 h-4 rounded-full bg-[#FAAE2B] border border-black/20" title="Saweria Gold" />
+              <span className="w-4 h-4 rounded-full bg-[#FFFDF8] border border-black/20" title="Cream Canvas" />
+              <span className="w-4 h-4 rounded-full bg-[#18181B] border border-black/20" title="Solid Ink" />
+            </div>
+          </button>
+
+          {/* Theme 3: Midnight Dark */}
+          <button
+            type="button"
+            onClick={() => {
+              setTheme('midnight');
+              showToast('Tema Midnight Dark diaktifkan! 🌙', 'success');
+            }}
+            className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
+              theme === 'midnight'
+                ? 'bg-slate-900 text-white border-sky-400 shadow-saweria ring-2 ring-sky-400'
+                : 'bg-white border-brand-border hover:border-brand-dark hover:bg-brand-cream/40'
+            }`}
+          >
+            <div>
+              <div className="flex items-center justify-between">
+                <span className={`text-xs font-black ${theme === 'midnight' ? 'text-white' : 'text-brand-dark'}`}>
+                  Midnight Dark (Mode Gelap)
+                </span>
+                {theme === 'midnight' && <CheckCircle2 className="w-4 h-4 text-sky-400" />}
+              </div>
+              <p className={`text-[11px] font-medium mt-1 ${theme === 'midnight' ? 'text-slate-300' : 'text-brand-darkMuted'}`}>
+                Nuansa malam pekat, hemat daya dan nyaman di mata saat gelap.
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 pt-1">
+              <span className="w-4 h-4 rounded-full bg-[#0F172A] border border-white/20" title="Deep Midnight" />
+              <span className="w-4 h-4 rounded-full bg-[#38BDF8] border border-white/20" title="Neon Cyan" />
+              <span className="w-4 h-4 rounded-full bg-[#FACC15] border border-white/20" title="Soft Yellow" />
+            </div>
+          </button>
+        </div>
+      </Card>
+
+      {/* 2. Educational Financial Transparency (Menjawab Feedback #4, #7, #14, #16) */}
+      <Card variant="saweria" className="bg-white space-y-4">
+        <div className="pb-3 border-b-2 border-brand-border flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <HelpCircle className="w-4 h-4 text-brand-primary" />
+            <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
+              Panduan Finansial & Cara Kerja Saldo
+            </h3>
+          </div>
+          <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
+            Transparan 100%
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="p-3.5 rounded-2xl bg-brand-cream/70 border border-brand-border space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark">
+              <Wallet className="w-3.5 h-3.5 text-emerald-700" />
+              <span>Akumulasi Saldo & Gaji Baru</span>
+            </div>
+            <p className="text-[11px] text-brand-darkMuted font-medium leading-relaxed">
+              Saldo Riil adalah kas fisik Anda. Di bulan baru, sisa uang bulan lalu tetap tersimpan dan otomatis bertambah saat Anda mencatat gaji baru melalui tombol <b>+ Catat Gaji</b>.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-brand-cream/70 border border-brand-border space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark">
+              <AlertTriangle className="w-3.5 h-3.5 text-amber-700" />
+              <span>Status Kantong & Kuota Budget</span>
+            </div>
+            <p className="text-[11px] text-brand-darkMuted font-medium leading-relaxed">
+              Jika pengeluaran melebihi batas kuota, kantong ditandai <b>Defisit / Overbudget</b> dan batas belanja harian (Safe Daily Limit) otomatis diperketat agar Anda tidak kehabisan uang di akhir bulan.
+            </p>
+          </div>
+
+          <div className="p-3.5 rounded-2xl bg-brand-cream/70 border border-brand-border space-y-1.5">
+            <div className="flex items-center gap-1.5 text-xs font-black text-brand-dark">
+              <TrendingUp className="w-3.5 h-3.5 text-sky-700" />
+              <span>Batas Budget vs Saldo Riil</span>
+            </div>
+            <p className="text-[11px] text-brand-darkMuted font-medium leading-relaxed">
+              Kami mengganti istilah rumit "Pagu" menjadi <b>Batas Budget</b> (alokasi rencana) dan <b>Saldo Riil</b> (uang fisik aktual) agar semua pengguna langsung paham tanpa perlu membaca rumus.
+            </p>
+          </div>
+        </div>
+      </Card>
 
       {/* Cloud Status Card */}
       <Card variant="saweria" className="bg-white">

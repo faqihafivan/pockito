@@ -2,10 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Modal } from '../ui/Modal';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
+import { CurrencyInput } from '../ui/CurrencyInput';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { Task, TaskPriority } from '../../types';
 import { ReminderService } from '../../services/reminderService';
+import { ShoppingBag } from 'lucide-react';
 
 interface TaskModalProps {
   isOpen: boolean;
@@ -15,7 +17,7 @@ interface TaskModalProps {
 
 export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdit }) => {
   const { user } = useAuth();
-  const { addTask, updateTask } = useData();
+  const { addTask, updateTask, pockets } = useData();
 
   const [title, setTitle] = useState(taskToEdit?.title || '');
   const [description, setDescription] = useState(taskToEdit?.description || '');
@@ -24,6 +26,11 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
   );
   const [startTime, setStartTime] = useState(taskToEdit?.start_time || '09:00');
   const [priority, setPriority] = useState<TaskPriority>(taskToEdit?.priority || 'medium');
+  const [isFinancialTask, setIsFinancialTask] = useState<boolean>(!!taskToEdit?.amount);
+  const [amount, setAmount] = useState<number>(taskToEdit?.amount || 0);
+  const [pocketId, setPocketId] = useState<string>(
+    taskToEdit?.pocket_id || (pockets[0]?.id || '')
+  );
   const [setReminder, setReminderState] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
@@ -37,6 +44,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
         setDueDate(taskToEdit.due_date || new Date().toISOString().split('T')[0]);
         setStartTime(taskToEdit.start_time || '09:00');
         setPriority(taskToEdit.priority || 'medium');
+        setIsFinancialTask(!!taskToEdit.amount && taskToEdit.amount > 0);
+        setAmount(taskToEdit.amount || 0);
+        setPocketId(taskToEdit.pocket_id || (pockets[0]?.id || ''));
         setReminderState(false);
       } else {
         setTitle('');
@@ -44,11 +54,14 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
         setDueDate(new Date().toISOString().split('T')[0]);
         setStartTime('09:00');
         setPriority('medium');
+        setIsFinancialTask(false);
+        setAmount(0);
+        setPocketId(pockets[0]?.id || '');
         setReminderState(false);
       }
       setError('');
     }
-  }, [isOpen, taskToEdit]);
+  }, [isOpen, taskToEdit, pockets]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -59,6 +72,9 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
 
     setIsSubmitting(true);
     try {
+      const taskAmount = isFinancialTask && amount > 0 ? amount : undefined;
+      const taskPocket = isFinancialTask && pocketId ? pocketId : undefined;
+
       if (taskToEdit) {
         await updateTask(taskToEdit.id, {
           title: title.trim(),
@@ -66,6 +82,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
           due_date: dueDate || undefined,
           start_time: startTime || undefined,
           priority,
+          amount: taskAmount,
+          pocket_id: taskPocket,
         });
       } else {
         await addTask({
@@ -75,6 +93,8 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
           due_date: dueDate || undefined,
           start_time: startTime || undefined,
           priority,
+          amount: taskAmount,
+          pocket_id: taskPocket,
           is_completed: false,
         });
 
@@ -98,15 +118,15 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title={taskToEdit ? 'Edit Tugas & Jadwal' : 'Tambah Tugas & Jadwal'}
-      subtitle="Kelola agenda produktivitas harian berdampingan dengan keuangan Anda"
+      title={taskToEdit ? 'Edit Agenda / Belanja' : 'Tambah Agenda / Belanja'}
+      subtitle="Kelola agenda tugas dan kebutuhan belanja pokok yang terhubung ke saldo riil"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
         <Input
-          label="Judul Tugas / Aktivitas"
+          label="Judul Tugas / Belanja Pokok"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Contoh: Bayar tagihan wifi, Review budget mingguan"
+          placeholder="Contoh: Beli Minyak Goreng & Beras, Bayar Listrik PLN"
           required
         />
 
@@ -118,9 +138,63 @@ export const TaskModal: React.FC<TaskModalProps> = ({ isOpen, onClose, taskToEdi
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             rows={2}
-            placeholder="Tambahkan detail atau instruksi penting..."
+            placeholder="Tambahkan rincian belanjaan atau instruksi penting..."
             className="w-full bg-white text-brand-dark text-sm font-medium rounded-xl border-2 border-brand-border p-3 focus:border-brand-dark focus:shadow-saweria-sm outline-none"
           />
+        </div>
+
+        {/* Financial Shopping Option (Checklist that auto-deducts balance) */}
+        <div className="p-3 bg-brand-cream/70 rounded-2xl border-2 border-brand-border space-y-2.5">
+          <label className="flex items-center gap-2.5 cursor-pointer select-none">
+            <input
+              type="checkbox"
+              checked={isFinancialTask}
+              onChange={(e) => {
+                setIsFinancialTask(e.target.checked);
+                if (e.target.checked && !pocketId && pockets.length > 0) {
+                  setPocketId(pockets[0].id);
+                }
+              }}
+              className="w-4 h-4 rounded text-brand-primary accent-brand-primary cursor-pointer"
+            />
+            <div className="flex items-center gap-1.5">
+              <ShoppingBag className="w-4 h-4 text-brand-dark" />
+              <span className="text-xs font-black text-brand-dark">
+                Kebutuhan Belanja Pokok (Terkait Saldo Riil)
+              </span>
+            </div>
+          </label>
+
+          {isFinancialTask && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <div>
+                <label className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider">
+                  Estimasi Biaya
+                </label>
+                <CurrencyInput
+                  value={amount}
+                  onValueChange={(val: number) => setAmount(val)}
+                  placeholder="Rp 0"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider">
+                  Kantong Anggaran
+                </label>
+                <select
+                  value={pocketId}
+                  onChange={(e) => setPocketId(e.target.value)}
+                  className="w-full bg-white text-brand-dark font-bold text-sm rounded-xl border-2 border-brand-border p-2.5 focus:border-brand-dark focus:shadow-saweria-sm outline-none"
+                >
+                  {pockets.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

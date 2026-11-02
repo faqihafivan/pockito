@@ -1,0 +1,143 @@
+import { describe, it, expect, beforeEach } from 'vitest';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import { BrowserRouter } from 'react-router-dom';
+import { ThemeProvider, useTheme } from '../../src/context/ThemeContext';
+import { StatCards } from '../../src/components/dashboard/StatCards';
+import { TodayTasksCard } from '../../src/components/dashboard/TodayTasksCard';
+import { NotificationProvider } from '../../src/context/NotificationContext';
+import { AuthProvider } from '../../src/context/AuthContext';
+import { DataProvider } from '../../src/context/DataContext';
+import { FinancialOverview, Task } from '../../src/types';
+
+const mockOverview: FinancialOverview = {
+  monthlyIncome: 6500000,
+  totalMonthlyExpense: 2250000,
+  totalRecordedBalance: 4250000,
+  totalBudgetPlanned: 4750000,
+  totalBudgetRemaining: 2500000,
+  unallocatedIncome: 1750000,
+  unallocatedPercentage: 27,
+  totalAllocationPercentage: 73,
+  isOverallocated: false,
+};
+
+const mockTasks: Task[] = [
+  {
+    id: 'task-test-1',
+    user_id: 'user-demo-1',
+    title: 'Beli Minyak Goreng & Beras',
+    priority: 'high',
+    is_completed: false,
+    amount: 145000,
+    pocket_id: 'pocket-1',
+  },
+  {
+    id: 'task-test-2',
+    user_id: 'user-demo-1',
+    title: 'Evaluasi Modul Pembelajaran',
+    priority: 'medium',
+    is_completed: false,
+  },
+];
+
+const ThemeTestConsumer = () => {
+  const { theme, setTheme, toggleTheme, isDark } = useTheme();
+  return (
+    <div>
+      <span data-testid="current-theme">{theme}</span>
+      <span data-testid="is-dark">{isDark ? 'YES' : 'NO'}</span>
+      <button onClick={() => setTheme('saweria')}>Set Saweria</button>
+      <button onClick={() => setTheme('midnight')}>Set Midnight</button>
+      <button onClick={toggleTheme}>Toggle Theme</button>
+    </div>
+  );
+};
+
+describe('Tahap B: Theme Engine & Smart Shopping Tasks', () => {
+  beforeEach(() => {
+    localStorage.clear();
+    document.documentElement.className = '';
+    document.documentElement.removeAttribute('data-theme');
+  });
+
+  it('initializes ThemeProvider with default teal-mint and updates document attributes', () => {
+    render(
+      <ThemeProvider>
+        <ThemeTestConsumer />
+      </ThemeProvider>
+    );
+
+    expect(screen.getByTestId('current-theme').textContent).toBe('teal-mint');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('teal-mint');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+
+    // Change to midnight
+    act(() => {
+      fireEvent.click(screen.getByText('Set Midnight'));
+    });
+
+    expect(screen.getByTestId('current-theme').textContent).toBe('midnight');
+    expect(screen.getByTestId('is-dark').textContent).toBe('YES');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('midnight');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+
+    // Change to saweria
+    act(() => {
+      fireEvent.click(screen.getByText('Set Saweria'));
+    });
+
+    expect(screen.getByTestId('current-theme').textContent).toBe('saweria');
+    expect(document.documentElement.getAttribute('data-theme')).toBe('saweria');
+    expect(document.documentElement.classList.contains('dark')).toBe(false);
+  });
+
+  it('renders StatCards with Pemasukan (Mint), Pengeluaran (Rose), and Sisa Budget (Honey)', () => {
+    render(
+      <BrowserRouter>
+        <NotificationProvider>
+          <AuthProvider>
+            <DataProvider>
+              <StatCards overview={mockOverview} />
+            </DataProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </BrowserRouter>
+    );
+
+    expect(screen.getByText(/Pemasukan/i)).toBeInTheDocument();
+    expect(screen.getByText(/Pengeluaran/i)).toBeInTheDocument();
+    expect(screen.getByText(/Sisa Budget/i)).toBeInTheDocument();
+    expect(screen.getByText(/Kas Masuk Bulan Ini/i)).toBeInTheDocument();
+    expect(screen.getByText(/Kas Keluar Aktual/i)).toBeInTheDocument();
+  });
+
+  it('renders TodayTasksCard with shopping price badge and triggers modal on checking shopping item', () => {
+    render(
+      <BrowserRouter>
+        <NotificationProvider>
+          <AuthProvider>
+            <DataProvider>
+              <TodayTasksCard tasks={mockTasks} onOpenNewTask={() => {}} />
+            </DataProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </BrowserRouter>
+    );
+
+    expect(screen.getByText(/Belanja Pokok & To-Do List/i)).toBeInTheDocument();
+    expect(screen.getByText(/Beli Minyak Goreng & Beras/i)).toBeInTheDocument();
+    expect(screen.getByText(/Evaluasi Modul Pembelajaran/i)).toBeInTheDocument();
+
+    // The shopping item should display the price
+    expect(screen.getByText(/Rp 145\.000/i)).toBeInTheDocument();
+
+    // Clicking checkbox of shopping item should open deduction modal
+    const checkboxButtons = screen.getAllByRole('button', { name: /Tandai selesai/i });
+    fireEvent.click(checkboxButtons[0]);
+
+    // Modal should appear
+    expect(screen.getByText(/Selesaikan Belanja & Potong Saldo\?/i)).toBeInTheDocument();
+    expect(screen.getByText(/Potong dari Kantong:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Ya, Potong Saldo/i)).toBeInTheDocument();
+  });
+});
