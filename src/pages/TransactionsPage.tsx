@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useMemo, useEffect } from 'react';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useData } from '../context/DataContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -21,12 +21,26 @@ export const TransactionsPage: React.FC = () => {
   const { transactions, pockets, accounts, deleteTransaction, formatMoney } = useData();
   const { showConfirm, showToast } = useNotification();
 
+  const [searchParams] = useSearchParams();
+  const typeParam = searchParams.get('type');
+
   const [transactionModal, setTransactionModal] = useState<{
     isOpen: boolean;
     method: 'manual' | 'scan';
   }>({ isOpen: false, method: 'manual' });
   const [searchQuery, setSearchQuery] = useState('');
-  const [filterType, setFilterType] = useState<string>('all');
+  const [filterType, setFilterType] = useState<string>(() => {
+    if (typeParam === 'income' || typeParam === 'expense' || typeParam === 'transfer') {
+      return typeParam;
+    }
+    return 'all';
+  });
+
+  useEffect(() => {
+    if (typeParam === 'income' || typeParam === 'expense' || typeParam === 'transfer') {
+      setFilterType(typeParam);
+    }
+  }, [typeParam]);
   const [filterPocket, setFilterPocket] = useState<string>('all');
   const [filterAccount, setFilterAccount] = useState<string>('all');
 

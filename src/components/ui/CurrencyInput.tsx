@@ -52,7 +52,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
       {label && (
         <label 
           htmlFor={inputId}
-          className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider"
+          className="block text-xs font-bold text-brand-dark dark:text-slate-200 mb-1.5 uppercase tracking-wider"
         >
           {label}
         </label>
@@ -62,7 +62,6 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
           id={inputId}
           type="text"
           inputMode="numeric"
-          pattern="[0-9]*"
           autoComplete="off"
           autoCorrect="off"
           autoCapitalize="none"
@@ -74,11 +73,11 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
-          className={`w-full bg-white text-brand-dark font-bold text-base tabular-nums rounded-xl border-2 transition-all duration-150 outline-none px-4 py-2.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
+          className={`w-full bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 font-bold text-base tabular-nums rounded-xl border-2 transition-all duration-150 outline-none px-4 py-2.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
             error
               ? 'border-red-500 focus:border-red-600 focus:shadow-[2px_2px_0px_#EF4444]'
-              : 'border-brand-border focus:border-brand-dark focus:shadow-saweria-sm'
-          } ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50' : ''} ${className}`}
+              : 'border-brand-border dark:border-slate-700 focus:border-brand-dark dark:focus:border-brand-primary focus:shadow-saweria-sm'
+          } ${disabled ? 'opacity-60 cursor-not-allowed bg-gray-50 dark:bg-slate-800' : ''} ${className}`}
         />
       </div>
       {error && (

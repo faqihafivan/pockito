@@ -5,6 +5,7 @@ import { ThemeProvider, useTheme } from '../../src/context/ThemeContext';
 import { ThemeDropdown } from '../../src/components/layout/ThemeDropdown';
 import { Header } from '../../src/components/layout/Header';
 import { StatCards } from '../../src/components/dashboard/StatCards';
+import { CurrencyInput } from '../../src/components/ui/CurrencyInput';
 import { TodayTasksCard } from '../../src/components/dashboard/TodayTasksCard';
 import { PlannerPage } from '../../src/pages/PlannerPage';
 import { NotificationProvider } from '../../src/context/NotificationContext';
@@ -230,5 +231,62 @@ describe('Tahap B: Theme Engine & Smart Shopping Tasks', () => {
     // Catat button in header should be hidden on mobile (hidden sm:inline-flex)
     const catatBtn = screen.getByRole('button', { name: /Catat/i });
     expect(catatBtn.className).toContain('hidden sm:inline-flex');
+  });
+
+  it('triggers onSelectType when clicking Pemasukan or Pengeluaran StatCard', () => {
+    let selectedType: string | null = null;
+
+    render(
+      <BrowserRouter>
+        <NotificationProvider>
+          <AuthProvider>
+            <DataProvider>
+              <StatCards
+                overview={mockOverview}
+                onSelectType={(type) => {
+                  selectedType = type;
+                }}
+              />
+            </DataProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </BrowserRouter>
+    );
+
+    const incomeBtn = screen.getByRole('button', { name: /Lihat Riwayat Pemasukan/i });
+    fireEvent.click(incomeBtn);
+    expect(selectedType).toBe('income');
+
+    const expenseBtn = screen.getByRole('button', { name: /Lihat Riwayat Pengeluaran/i });
+    fireEvent.click(expenseBtn);
+    expect(selectedType).toBe('expense');
+  });
+
+  it('allows form submission with CurrencyInput without "Please match requested format" pattern errors', () => {
+    let formSubmitted = false;
+
+    render(
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          formSubmitted = true;
+        }}
+      >
+        <CurrencyInput
+          label="Gaji Bulanan Pokok (IDR)"
+          value={1600000}
+          onValueChange={() => {}}
+        />
+        <button type="submit">Simpan</button>
+      </form>
+    );
+
+    const input = screen.getByLabelText(/Gaji Bulanan Pokok/i);
+    expect(input).toHaveValue('Rp 1.600.000');
+    // Ensure pattern attribute is NOT blocking string with "Rp" and dots
+    expect(input.getAttribute('pattern')).toBeNull();
+
+    fireEvent.click(screen.getByText('Simpan'));
+    expect(formSubmitted).toBe(true);
   });
 });

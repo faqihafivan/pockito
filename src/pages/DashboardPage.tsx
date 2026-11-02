@@ -14,6 +14,7 @@ import { GoalModal } from '../components/goals/GoalModal';
 import { SubscriptionModal } from '../components/subscriptions/SubscriptionModal';
 import { DebtModal } from '../components/debts/DebtModal';
 import { TransactionModal } from '../components/transactions/TransactionModal';
+import { TransactionHistoryModal } from '../components/dashboard/TransactionHistoryModal';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
@@ -36,7 +37,15 @@ import {
 } from 'lucide-react';
 
 interface DashboardPrefs {
-  showQuickShortcuts: boolean;
+  // Pintasan di bawah Sisa Budget (Bisa dipilih sesuai kebutuhan user)
+  showShortcutSubscriptions: boolean;
+  showShortcutDebts: boolean;
+  showShortcutGoals: boolean;
+  showShortcutReports: boolean;
+  showShortcutPlanner: boolean;
+  showShortcutTransactions: boolean;
+
+  // Bagian modul lainnya
   showGuardrails: boolean;
   showDonutChart: boolean;
   showPocketMarquee: boolean;
@@ -46,7 +55,13 @@ interface DashboardPrefs {
 }
 
 const DEFAULT_PREFS: DashboardPrefs = {
-  showQuickShortcuts: true,
+  showShortcutSubscriptions: true,
+  showShortcutDebts: true,
+  showShortcutGoals: true,
+  showShortcutReports: true,
+  showShortcutPlanner: false,
+  showShortcutTransactions: false,
+
   showGuardrails: true,
   showDonutChart: true,
   showPocketMarquee: true,
@@ -74,6 +89,8 @@ export const DashboardPage: React.FC = () => {
     togglePrivacyMode,
     dailyBriefing,
     openBriefing,
+    selectedPeriod,
+    accounts,
   } = useData();
   const { showToast } = useNotification();
 
@@ -87,6 +104,7 @@ export const DashboardPage: React.FC = () => {
   const [isBalanceInfoOpen, setIsBalanceInfoOpen] = useState(false);
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false);
   const [isMarqueePaused, setIsMarqueePaused] = useState(false);
+  const [viewHistoryType, setViewHistoryType] = useState<'income' | 'expense' | null>(null);
 
   // Dashboard Preferences (Show/Hide sections as requested in feedback #9 & #12)
   const [prefs, setPrefs] = useState<DashboardPrefs>(() => {
@@ -170,17 +188,6 @@ export const DashboardPage: React.FC = () => {
                   : `${dailyBriefing.items.length} Agenda Hari Ini`}
               </span>
             </button>
-
-            {/* Customize Dashboard Button (Menjawab Feedback #9 & #12) */}
-            <button
-              type="button"
-              onClick={() => setIsCustomizeOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-brand-cream dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-brand-dark dark:text-slate-200 border border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
-              title="Atur tampilan modul dashboard agar simpel dan rapi"
-            >
-              <SlidersHorizontal className="w-3 h-3" />
-              <span>Atur Tampilan</span>
-            </button>
           </div>
 
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark dark:text-slate-100 tracking-tight truncate">
@@ -191,9 +198,9 @@ export const DashboardPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Right: Saldo Riil Box with Quick Salary Entry & Explainer (Menjawab Feedback #14 & #16) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-2.5 sm:gap-4 bg-brand-cream/60 dark:bg-slate-950/60 p-3 sm:px-4 sm:py-3 rounded-2xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm shrink-0">
-          <div className="min-w-0">
+        {/* Right: Saldo Riil Box with Quick Salary Entry (Compact Side-by-Side on Mobile & Desktop) */}
+        <div className="flex flex-row items-center justify-between gap-2.5 sm:gap-4 bg-brand-cream/60 dark:bg-slate-950/60 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm shrink-0">
+          <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted dark:text-slate-400 uppercase tracking-wider">
                 Total Saldo Riil
@@ -249,12 +256,12 @@ export const DashboardPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick Add Income / Salary Button (1-Click Pemasukan) */}
-          <div className="flex sm:flex-col items-center justify-between sm:justify-center gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:pl-3 border-brand-border dark:border-slate-800">
+          {/* Quick Add Income / Salary Button (Sebelah Saldo Riil di Mobile & Desktop) */}
+          <div className="flex items-center justify-end pl-2 sm:pl-3 border-l border-brand-border dark:border-slate-800 shrink-0">
             <button
               type="button"
               onClick={() => setIsIncomeModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-brand-dark font-black text-xs border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-brand-dark font-black text-xs border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer whitespace-nowrap"
               title="Catat Gaji Bulanan atau Pemasukan Baru"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -265,126 +272,204 @@ export const DashboardPage: React.FC = () => {
       </div>
 
       {/* 2. Headline Stat Cards: Pemasukan (Mint), Pengeluaran (Rose), Sisa Budget (Honey) */}
-      <StatCards overview={overview} />
+      <StatCards
+        overview={overview}
+        onSelectType={(type) => setViewHistoryType(type)}
+      />
 
-      {/* 3. Quick Feature Shortcuts (Show/Hide configurable) */}
-      {prefs.showQuickShortcuts && (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-          <Link
-            to="/app/subscriptions"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Tagihan Rutin</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                  {subscriptions.length} tagihan aktif
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsSubscriptionModalOpen(true);
-                }}
-                className="w-6 h-6 rounded-lg bg-sky-200/70 hover:bg-sky-300 text-sky-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-                title="Tambah Tagihan Baru"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-              <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-            </div>
-          </Link>
+      {/* 3. Pintasan Menu Tepat di Bawah Sisa Budget (Bisa Dipilih & Diatur User Sesuai Kebutuhan) */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between px-0.5 pt-1">
+          <div className="flex items-center gap-1.5">
+            <h3 className="text-xs font-black text-brand-dark dark:text-slate-100 uppercase tracking-wider">
+              Pintasan Menu
+            </h3>
+            <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 hidden sm:inline">
+              (Bisa dipilih sesuai kebutuhan)
+            </span>
+          </div>
 
-          <Link
-            to="/app/debts"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+          <button
+            type="button"
+            onClick={() => setIsCustomizeOpen(true)}
+            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-black bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 text-brand-dark dark:text-slate-200 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+            title="Atur pintasan yang ingin dimunculkan atau disembunyikan di bawah Sisa Budget"
           >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Hutang Piutang</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                  {debts.filter((d) => !d.is_settled).length} aktif
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsDebtModalOpen(true);
-                }}
-                className="w-6 h-6 rounded-lg bg-rose-200/70 hover:bg-rose-300 text-rose-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-                title="Catat Hutang/Piutang Baru"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-              <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-            </div>
-          </Link>
-
-          <Link
-            to="/app/goals"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Target Tabungan</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                  {goals.length} target impian
-                </span>
-              </div>
-            </div>
-            <div className="flex items-center gap-1 shrink-0">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  setIsGoalModalOpen(true);
-                }}
-                className="w-6 h-6 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-                title="Buat Target Baru"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-              <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-            </div>
-          </Link>
-
-          <Link
-            to="/app/reports"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-          >
-            <div className="flex items-center gap-2.5 min-w-0">
-              <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
-              </div>
-              <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Laporan Keuangan</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                  Analisis & arus kas
-                </span>
-              </div>
-            </div>
-            <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
-          </Link>
+            <SlidersHorizontal className="w-3 h-3 text-brand-primary" />
+            <span>Atur Pintasan</span>
+          </button>
         </div>
-      )}
+
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+          {/* 1. Tagihan Rutin */}
+          {prefs.showShortcutSubscriptions && (
+            <Link
+              to="/app/subscriptions"
+              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                  <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Tagihan Rutin</span>
+                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
+                    {subscriptions.length} tagihan aktif
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsSubscriptionModalOpen(true);
+                  }}
+                  className="w-6 h-6 rounded-lg bg-sky-200/70 hover:bg-sky-300 text-sky-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+                  title="Tambah Tagihan Baru"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+                <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+              </div>
+            </Link>
+          )}
+
+          {/* 2. Hutang & Piutang */}
+          {prefs.showShortcutDebts && (
+            <Link
+              to="/app/debts"
+              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                  <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Hutang Piutang</span>
+                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
+                    {debts.filter((d) => !d.is_settled).length} aktif
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsDebtModalOpen(true);
+                  }}
+                  className="w-6 h-6 rounded-lg bg-rose-200/70 hover:bg-rose-300 text-rose-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+                  title="Catat Hutang/Piutang Baru"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+                <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+              </div>
+            </Link>
+          )}
+
+          {/* 3. Target Tabungan */}
+          {prefs.showShortcutGoals && (
+            <Link
+              to="/app/goals"
+              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                  <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Target Tabungan</span>
+                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
+                    {goals.length} target impian
+                  </span>
+                </div>
+              </div>
+              <div className="flex items-center gap-1 shrink-0">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setIsGoalModalOpen(true);
+                  }}
+                  className="w-6 h-6 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
+                  title="Buat Target Baru"
+                >
+                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+                </button>
+                <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
+              </div>
+            </Link>
+          )}
+
+          {/* 4. Laporan Keuangan */}
+          {prefs.showShortcutReports && (
+            <Link
+              to="/app/reports"
+              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                  <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Laporan Keuangan</span>
+                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
+                    Analisis & arus kas
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+            </Link>
+          )}
+
+          {/* 5. Planner & Belanja Pokok */}
+          {prefs.showShortcutPlanner && (
+            <Link
+              to="/app/planner"
+              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                  <Target className="w-4 h-4 text-teal-900 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Planner & Belanja</span>
+                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
+                    {tasks.filter((t) => !t.is_completed).length} tugas aktif
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+            </Link>
+          )}
+
+          {/* 6. Semua Transaksi */}
+          {prefs.showShortcutTransactions && (
+            <Link
+              to="/app/transactions"
+              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+                  <Wallet className="w-4 h-4 text-purple-900 stroke-[2.3]" />
+                </div>
+                <div className="min-w-0">
+                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Buku Transaksi</span>
+                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
+                    Semua mutasi kas
+                  </span>
+                </div>
+              </div>
+              <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
+            </Link>
+          )}
+        </div>
+      </div>
 
       {/* 4. Financial Guardrails: Safe Daily Spend Limit & Emergency Runway (Show/Hide configurable) */}
       {prefs.showGuardrails && (
@@ -841,55 +926,113 @@ export const DashboardPage: React.FC = () => {
         </div>
       </Modal>
 
-      {/* 2. Modal: Kustomisasi Tampilan Dashboard (Menjawab Feedback #9 & #12) */}
+      {/* 2. Modal: Kustomisasi Tampilan Dashboard (Menjawab Masukan User Soal Pintasan di Bawah Sisa Budget) */}
       <Modal
         isOpen={isCustomizeOpen}
         onClose={() => setIsCustomizeOpen(false)}
-        title="Kustomisasi Tampilan Dashboard"
-        subtitle="Sembunyikan modul yang tidak Anda perlukan agar dashboard tetap rapi dan ringkas"
+        title="Atur Tampilan Dashboard & Pintasan"
+        subtitle="Pilih kartu pintasan dan modul yang ingin ditampilkan agar dashboard simpel dan relevan bagi Anda"
       >
-        <div className="space-y-3">
-          <p className="text-xs text-brand-darkMuted font-medium">
-            Pilih bagian yang ingin Anda tampilkan pada layar beranda:
-          </p>
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+          {/* Section 1: Pintasan di Bawah Sisa Budget */}
+          <div className="space-y-2">
+            <div className="pb-1 border-b border-brand-border dark:border-slate-800">
+              <h4 className="text-xs font-black text-brand-dark dark:text-slate-100 uppercase tracking-wider">
+                Kartu Pintasan (di Bawah Sisa Budget)
+              </h4>
+              <p className="text-[11px] text-brand-darkMuted dark:text-slate-400 mt-0.5">
+                Centang kartu yang Anda butuhkan. Contoh: jika tidak punya hutang, Anda bisa mematikannya agar hemat ruang.
+              </p>
+            </div>
 
-          <div className="space-y-2 pt-1">
-            {[
-              { key: 'showTasksAndShopping', label: 'Belanja Pokok & To-Do List', desc: 'Checklist kebutuhan belanja yang memotong saldo otomatis' },
-              { key: 'showRecentTransactions', label: 'Riwayat Transaksi Terkini', desc: 'Aktivitas uang masuk dan keluar terbaru' },
-              { key: 'showQuickShortcuts', label: 'Pintasan Cepat (Tagihan, Hutang, Target)', desc: 'Tombol pintas akses cepat ke modul lain' },
-              { key: 'showGuardrails', label: 'Batas Belanja Aman & Dana Darurat', desc: 'Analisis limit aman belanja harian' },
-              { key: 'showDonutChart', label: 'Grafik Distribusi Alokasi Gaji', desc: 'Diagram donat persentase pembagian kantong' },
-              { key: 'showPocketMarquee', label: 'Slider Status Kantong Anggaran', desc: 'Daftar kartu pos anggaran belanja' },
-              { key: 'showFinancialHub', label: 'Hub Tab Target, Tagihan & Hutang Piutang', desc: 'Modul komitmen finansial di bagian bawah' },
-            ].map((item) => {
-              const k = item.key as keyof DashboardPrefs;
-              const isChecked = prefs[k];
-              return (
-                <label
-                  key={item.key}
-                  className="flex items-start gap-3 p-3 rounded-2xl bg-brand-cream/60 border-2 border-brand-border hover:border-brand-dark cursor-pointer transition-colors select-none"
-                >
-                  <input
-                    type="checkbox"
-                    checked={isChecked}
-                    onChange={() => togglePref(k)}
-                    className="w-4 h-4 mt-0.5 rounded text-brand-primary accent-brand-primary cursor-pointer"
-                  />
-                  <div className="min-w-0">
-                    <span className="text-xs font-black text-brand-dark block">{item.label}</span>
-                    <span className="text-[11px] text-brand-darkMuted font-medium block">{item.desc}</span>
-                  </div>
-                </label>
-              );
-            })}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+              {[
+                { key: 'showShortcutSubscriptions', label: 'Tagihan Rutin', desc: 'Listrik, Wi-Fi, kos, cicilan bulanan' },
+                { key: 'showShortcutDebts', label: 'Hutang & Piutang', desc: 'Catatan pinjaman uang & penagihan' },
+                { key: 'showShortcutGoals', label: 'Target Tabungan', desc: 'Pos impian tabungan masa depan' },
+                { key: 'showShortcutReports', label: 'Laporan Keuangan', desc: 'Analisis & diagram arus kas' },
+                { key: 'showShortcutPlanner', label: 'Planner & Belanja', desc: 'Checklist belanja kebutuhan pokok' },
+                { key: 'showShortcutTransactions', label: 'Buku Transaksi', desc: 'Riwayat mutasi keluar & masuk' },
+              ].map((item) => {
+                const k = item.key as keyof DashboardPrefs;
+                const isChecked = prefs[k];
+                return (
+                  <label
+                    key={item.key}
+                    className={`flex items-start gap-2.5 p-2.5 rounded-xl border-2 cursor-pointer transition-colors select-none ${
+                      isChecked
+                        ? 'bg-brand-cream/80 dark:bg-slate-800 border-brand-dark dark:border-brand-primary'
+                        : 'bg-white dark:bg-slate-900 border-brand-border dark:border-slate-800 opacity-60'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => togglePref(k)}
+                      className="w-4 h-4 mt-0.5 rounded text-brand-primary accent-brand-primary cursor-pointer shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">{item.label}</span>
+                      <span className="text-[10px] text-brand-darkMuted dark:text-slate-400 font-medium block truncate">{item.desc}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
           </div>
 
-          <div className="pt-3 border-t border-brand-border flex items-center justify-between">
+          {/* Section 2: Modul Lainnya di Dashboard */}
+          <div className="space-y-2 pt-2">
+            <div className="pb-1 border-b border-brand-border dark:border-slate-800">
+              <h4 className="text-xs font-black text-brand-dark dark:text-slate-100 uppercase tracking-wider">
+                Modul Konten Lainnya
+              </h4>
+              <p className="text-[11px] text-brand-darkMuted dark:text-slate-400 mt-0.5">
+                Atur bagian modul lain yang tampil di halaman beranda:
+              </p>
+            </div>
+
+            <div className="space-y-1.5 pt-1">
+              {[
+                { key: 'showTasksAndShopping', label: 'Belanja Pokok & To-Do List', desc: 'Checklist kebutuhan belanja yang memotong saldo otomatis' },
+                { key: 'showRecentTransactions', label: 'Riwayat Transaksi Terkini', desc: 'Aktivitas uang masuk dan keluar terbaru' },
+                { key: 'showGuardrails', label: 'Batas Belanja Aman & Dana Darurat', desc: 'Analisis limit aman belanja harian' },
+                { key: 'showDonutChart', label: 'Grafik Distribusi Alokasi Gaji', desc: 'Diagram donat persentase pembagian kantong' },
+                { key: 'showPocketMarquee', label: 'Slider Status Kantong Anggaran', desc: 'Daftar kartu pos anggaran belanja' },
+                { key: 'showFinancialHub', label: 'Hub Tab Target, Tagihan & Hutang Piutang', desc: 'Modul komitmen finansial di bagian bawah' },
+              ].map((item) => {
+                const k = item.key as keyof DashboardPrefs;
+                const isChecked = prefs[k];
+                return (
+                  <label
+                    key={item.key}
+                    className={`flex items-start gap-2.5 p-2.5 rounded-xl border-2 cursor-pointer transition-colors select-none ${
+                      isChecked
+                        ? 'bg-brand-cream/80 dark:bg-slate-800 border-brand-dark dark:border-brand-primary'
+                        : 'bg-white dark:bg-slate-900 border-brand-border dark:border-slate-800 opacity-60'
+                    }`}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={isChecked}
+                      onChange={() => togglePref(k)}
+                      className="w-4 h-4 mt-0.5 rounded text-brand-primary accent-brand-primary cursor-pointer shrink-0"
+                    />
+                    <div className="min-w-0">
+                      <span className="text-xs font-black text-brand-dark dark:text-slate-100 block">{item.label}</span>
+                      <span className="text-[10px] text-brand-darkMuted dark:text-slate-400 font-medium block">{item.desc}</span>
+                    </div>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="pt-3 border-t-2 border-brand-border dark:border-slate-800 flex items-center justify-between">
             <button
               type="button"
               onClick={resetPrefs}
-              className="text-xs font-black text-brand-darkMuted hover:text-red-600 transition-colors cursor-pointer"
+              className="text-xs font-black text-brand-darkMuted dark:text-slate-400 hover:text-red-600 transition-colors cursor-pointer"
             >
               Reset ke Bawaan
             </button>
@@ -904,6 +1047,27 @@ export const DashboardPage: React.FC = () => {
           </div>
         </div>
       </Modal>
+
+      {/* 3. Modal: Riwayat Transaksi (Dipicu saat Mengklik Pemasukan / Pengeluaran di Dashboard) */}
+      {viewHistoryType && (
+        <TransactionHistoryModal
+          isOpen={!!viewHistoryType}
+          onClose={() => setViewHistoryType(null)}
+          type={viewHistoryType}
+          period={selectedPeriod}
+          transactions={transactions}
+          pockets={pockets}
+          accounts={accounts}
+          formatMoney={formatMoney}
+          onOpenNewTransaction={() => {
+            if (viewHistoryType === 'income') {
+              setIsIncomeModalOpen(true);
+            } else {
+              setIsTaskModalOpen(true);
+            }
+          }}
+        />
+      )}
 
       {/* Global Quick Modals */}
       <TransactionModal
