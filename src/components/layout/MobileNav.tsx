@@ -200,7 +200,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           transform: 'translate(-50%, -50%)',
         }}
       >
-        <div className="w-12 h-12 rounded-full bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-[3px_3px_0px_#18181B] flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full bg-brand-primary text-brand-dark border-2 border-brand-dark dark:border-slate-700 shadow-[3px_3px_0px_#18181B] dark:shadow-[3px_3px_0px_#020617] flex items-center justify-center">
           <ActiveIcon className="w-5 h-5 stroke-[2.5]" />
         </div>
       </div>
@@ -213,8 +213,8 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
           const tabInner = !isActive ? (
             <>
-              <Icon className="w-5 h-5 text-brand-darkMuted group-hover:text-brand-dark transition-colors stroke-[2]" />
-              <span className="text-[10px] font-bold text-brand-darkMuted group-hover:text-brand-dark mt-1 tracking-tight">
+              <Icon className="w-5 h-5 text-brand-darkMuted dark:text-slate-400 group-hover:text-brand-dark dark:group-hover:text-slate-100 transition-colors stroke-[2]" />
+              <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 group-hover:text-brand-dark dark:group-hover:text-slate-100 mt-1 tracking-tight">
                 {tab.label}
               </span>
             </>

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Plus, Bell, Check, Eye, EyeOff, Palette, Moon, Sun } from 'lucide-react';
+import { Plus, Bell, Check, Eye, EyeOff, Settings } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { PeriodSelector } from './PeriodSelector';
+import { ThemeDropdown } from './ThemeDropdown';
 import { InAppAlert, ReminderService } from '../../services/reminderService';
 import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
-import { useTheme } from '../../context/ThemeContext';
 import { PWAInstallButton } from '../common/PWAInstallButton';
 
 interface HeaderProps {
@@ -19,55 +19,37 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
   const { user } = useAuth();
   const { isPrivacyMode, togglePrivacyMode, dailyBriefing, openBriefing } = useData();
   const { showToast } = useNotification();
-  const { theme, toggleTheme } = useTheme();
   const [alerts] = useState<InAppAlert[]>(() => ReminderService.getAlerts());
 
   const totalNotificationCount = dailyBriefing.items.length + alerts.length;
 
-  const handleToggleTheme = () => {
-    toggleTheme();
-    const nextThemeName =
-      theme === 'teal-mint'
-        ? 'Saweria Emas (Klasik)'
-        : theme === 'saweria'
-        ? 'Midnight Dark (Mode Gelap)'
-        : 'Teal Mint (Cerah & Segar)';
-    showToast(`Tema diganti ke: ${nextThemeName} 🎨`, 'info');
-  };
-
   return (
-    <header className="sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b-2 border-brand-dark px-3 sm:px-8 py-3 flex items-center justify-between gap-2 sm:gap-4">
-      {/* Left: Dynamic Realtime Period Selector (Topbar Navbar) */}
+    <header className="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-brand-dark dark:border-slate-800 px-3 sm:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 transition-colors">
+      {/* Left: Dynamic Realtime Period Selector & Brand Logo (Clean on Mobile & Desktop) */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        {/* Mobile-Only Mini Logo Brand */}
+        <Link
+          to="/app/dashboard"
+          className="sm:hidden flex items-center gap-1.5 shrink-0 select-none group"
+          title="Pockito Home"
+        >
+          <img
+            src="/pockito.jpg"
+            alt="Pockito"
+            className="w-7 h-7 rounded-lg border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs object-contain bg-white dark:bg-slate-800"
+          />
+        </Link>
+
+        {/* Realtime Period Selector (Stepper on Desktop, Compact Pill on Mobile) */}
         <PeriodSelector />
       </div>
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-        {/* Quick Theme Switcher Button (1-Click Switch: Teal Mint -> Saweria -> Midnight) */}
-        <button
-          type="button"
-          onClick={handleToggleTheme}
-          className="p-1.5 sm:p-2 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center shrink-0 text-brand-dark"
-          title={`Tema: ${
-            theme === 'teal-mint'
-              ? 'Teal Mint (Klik untuk ganti)'
-              : theme === 'saweria'
-              ? 'Saweria Emas (Klik untuk ganti)'
-              : 'Midnight Dark (Klik untuk ganti)'
-          }`}
-          aria-label="Ganti Tema Warna"
-        >
-          {theme === 'midnight' ? (
-            <Moon className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-sky-400 stroke-[2.2]" />
-          ) : theme === 'teal-mint' ? (
-            <Palette className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-[#379A8D] stroke-[2.2]" />
-          ) : (
-            <Sun className="w-4 h-4 sm:w-4.5 sm:h-4.5 text-amber-500 stroke-[2.2]" />
-          )}
-        </button>
+        {/* Modern Interactive Theme Selection Dropdown (Teal Mint, Saweria, Midnight Dark) */}
+        <ThemeDropdown />
 
-        {/* Privacy Toggle (Eye) */}
+        {/* Privacy Toggle (Eye) - Desktop & Tablet */}
         <button
           onClick={() => {
             togglePrivacyMode();
@@ -78,10 +60,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
               'info'
             );
           }}
-          className={`hidden md:inline-flex p-2 sm:p-2 rounded-xl border-2 border-brand-dark transition-all shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 ${
+          className={`hidden md:inline-flex p-2 rounded-xl border-2 border-brand-dark dark:border-slate-700 transition-all shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 ${
             isPrivacyMode
               ? 'bg-amber-100 text-amber-900 border-brand-dark'
-              : 'bg-white hover:bg-brand-cream text-brand-dark'
+              : 'bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 text-brand-dark dark:text-slate-100'
           }`}
           title={
             isPrivacyMode
@@ -103,8 +85,9 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
         <div className="relative shrink-0">
           <button
             onClick={openBriefing}
-            className="p-1.5 sm:p-2 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark relative"
+            className="p-1.5 sm:p-2 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark dark:text-slate-100 relative cursor-pointer"
             title={`Briefing Finansial & Pengingat (${totalNotificationCount} catatan)`}
+            aria-label="Notifikasi & Pengingat"
           >
             <Bell className="w-4 h-4 sm:w-4.5 sm:h-4.5 stroke-[2.2]" />
             {totalNotificationCount > 0 && (
@@ -121,10 +104,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           </button>
         </div>
 
-        {/* User Profile / Settings Quick Access */}
+        {/* Settings Button: Prominent Gear Icon on Mobile, User Avatar on Desktop */}
+        {/* Mobile Settings Icon (Menjawab Masukan User: "Di mode HP tidak ada menu setting") */}
         <Link
           to="/app/settings"
-          className="p-1.5 sm:p-2 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center shrink-0"
+          className="sm:hidden p-1.5 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center shrink-0 text-brand-dark dark:text-slate-100"
+          title="Pengaturan Akun & Data"
+          aria-label="Buka Pengaturan Akun"
+        >
+          <Settings className="w-4 h-4 stroke-[2.3]" />
+        </Link>
+
+        {/* Desktop Profile / Settings Avatar */}
+        <Link
+          to="/app/settings"
+          className="hidden sm:flex p-1.5 sm:p-2 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all items-center justify-center shrink-0"
           title={`Profil & Pengaturan: ${user?.full_name || 'Pengguna'}`}
           aria-label="Buka Pengaturan Akun"
         >
@@ -139,7 +133,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           )}
         </Link>
 
-        {/* Quick Add Task (Desktop/Tablet) */}
+        {/* Quick Add Task (Desktop/Tablet Only) */}
         <Button
           variant="secondary"
           size="sm"
@@ -148,19 +142,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           className="hidden sm:inline-flex"
         >
           <span>Tugas</span>
-          <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/10 rounded text-[9px] font-mono">T</kbd>
+          <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/10 dark:bg-white/10 rounded text-[9px] font-mono">T</kbd>
         </Button>
 
-        {/* Quick Add Transaction (Primary) */}
+        {/* Quick Add Transaction (Desktop/Tablet Only - Mobile uses the large bottom center Catat button) */}
         <Button
           variant="primary"
           size="sm"
           onClick={onOpenNewTransaction}
           leftIcon={<Plus className="w-4 h-4" />}
-          className="shrink-0 whitespace-nowrap"
+          className="hidden sm:inline-flex shrink-0 whitespace-nowrap"
         >
           <span>Catat</span>
-          <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/15 rounded text-[9px] font-mono">N</kbd>
+          <kbd className="hidden lg:inline-block ml-1.5 px-1 py-0.5 bg-black/15 dark:bg-black/30 rounded text-[9px] font-mono">N</kbd>
         </Button>
       </div>
     </header>

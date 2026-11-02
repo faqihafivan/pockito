@@ -2,6 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, useTheme } from '../../src/context/ThemeContext';
+import { ThemeDropdown } from '../../src/components/layout/ThemeDropdown';
+import { Header } from '../../src/components/layout/Header';
 import { StatCards } from '../../src/components/dashboard/StatCards';
 import { TodayTasksCard } from '../../src/components/dashboard/TodayTasksCard';
 import { PlannerPage } from '../../src/pages/PlannerPage';
@@ -171,5 +173,62 @@ describe('Tahap B: Theme Engine & Smart Shopping Tasks', () => {
 
     // Should display shopping tasks once loaded
     expect(await screen.findByText(/Beli Minyak Goreng & Beras/i)).toBeInTheDocument();
+  });
+
+  it('renders ThemeDropdown popover and switches theme between Teal Mint, Saweria, and Midnight Dark', () => {
+    render(
+      <NotificationProvider>
+        <ThemeProvider>
+          <ThemeDropdown />
+        </ThemeProvider>
+      </NotificationProvider>
+    );
+
+    const triggerBtn = screen.getByRole('button', { name: /Pilih Tema Tampilan/i });
+    expect(triggerBtn).toBeInTheDocument();
+
+    // Open popover
+    act(() => {
+      fireEvent.click(triggerBtn);
+    });
+
+    expect(screen.getByText(/Pilih Tema Tampilan/i)).toBeInTheDocument();
+    expect(screen.getByText(/Teal Mint/i)).toBeInTheDocument();
+    expect(screen.getByText(/Saweria Emas/i)).toBeInTheDocument();
+    expect(screen.getByText(/Midnight Dark/i)).toBeInTheDocument();
+
+    // Select Midnight Dark
+    const midnightBtn = screen.getByRole('button', { name: /Midnight Dark/i });
+    act(() => {
+      fireEvent.click(midnightBtn);
+    });
+
+    expect(document.documentElement.getAttribute('data-theme')).toBe('midnight');
+    expect(document.documentElement.classList.contains('dark')).toBe(true);
+  });
+
+  it('renders Header with mobile-optimized uncluttered bar and dedicated Settings link', () => {
+    render(
+      <BrowserRouter>
+        <NotificationProvider>
+          <AuthProvider>
+            <DataProvider>
+              <ThemeProvider>
+                <Header onOpenNewTransaction={() => {}} onOpenNewTask={() => {}} />
+              </ThemeProvider>
+            </DataProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </BrowserRouter>
+    );
+
+    // Settings links should be present (both mobile gear and desktop avatar)
+    const settingsLinks = screen.getAllByRole('link', { name: /Buka Pengaturan Akun/i });
+    expect(settingsLinks.length).toBeGreaterThanOrEqual(1);
+    expect(settingsLinks[0]).toHaveAttribute('href', '/app/settings');
+
+    // Catat button in header should be hidden on mobile (hidden sm:inline-flex)
+    const catatBtn = screen.getByRole('button', { name: /Catat/i });
+    expect(catatBtn.className).toContain('hidden sm:inline-flex');
   });
 });

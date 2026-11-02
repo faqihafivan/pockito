@@ -120,13 +120,13 @@ export const PeriodSelector: React.FC = () => {
 
   return (
     <div className="relative inline-flex items-center" ref={popoverRef}>
-      {/* Stepper Group */}
-      <div className="inline-flex items-center gap-1 sm:gap-1.5 bg-brand-cream/80 p-1 rounded-2xl border-2 border-brand-dark shadow-saweria-sm">
+      {/* 1. Desktop & Tablet: Full Stepper Group */}
+      <div className="hidden sm:inline-flex items-center gap-1 sm:gap-1.5 bg-brand-cream/80 dark:bg-slate-800/80 p-1 rounded-2xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm">
         {/* Prev Month Button */}
         <button
           type="button"
           onClick={handlePrevMonth}
-          className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-brand-primary border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark cursor-pointer"
+          className="p-1.5 sm:p-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-brand-primary border border-brand-dark/40 dark:border-slate-700 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark dark:text-slate-100 cursor-pointer"
           title="Bulan Sebelumnya"
           aria-label="Bulan Sebelumnya"
         >
@@ -137,11 +137,11 @@ export const PeriodSelector: React.FC = () => {
         <button
           type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white hover:bg-brand-primary/20 border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark font-black text-xs sm:text-sm select-none cursor-pointer"
+          className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-white dark:bg-slate-800 hover:bg-brand-primary/20 border border-brand-dark/40 dark:border-slate-700 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark dark:text-slate-100 font-black text-xs sm:text-sm select-none cursor-pointer"
           title="Pilih Bulan & Tahun Lainnya"
           aria-expanded={isOpen}
         >
-          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-dark shrink-0" />
+          <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brand-primary shrink-0" />
           <span className="tabular-nums tracking-tight whitespace-nowrap">
             {formatPeriod(selectedPeriod)}
           </span>
@@ -153,7 +153,7 @@ export const PeriodSelector: React.FC = () => {
           )}
 
           <ChevronDown
-            className={`w-3.5 h-3.5 text-brand-dark/70 shrink-0 transition-transform duration-200 ${
+            className={`w-3.5 h-3.5 text-brand-dark/70 dark:text-slate-400 shrink-0 transition-transform duration-200 ${
               isOpen ? 'rotate-180' : ''
             }`}
           />
@@ -163,7 +163,7 @@ export const PeriodSelector: React.FC = () => {
         <button
           type="button"
           onClick={handleNextMonth}
-          className="p-1.5 sm:p-2 rounded-xl bg-white hover:bg-brand-primary border border-brand-dark/40 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark cursor-pointer"
+          className="p-1.5 sm:p-2 rounded-xl bg-white dark:bg-slate-800 hover:bg-brand-primary border border-brand-dark/40 dark:border-slate-700 hover:border-brand-dark active:translate-x-0.5 active:translate-y-0.5 transition-all text-brand-dark dark:text-slate-100 cursor-pointer"
           title="Bulan Berikutnya"
           aria-label="Bulan Berikutnya"
         >
@@ -171,60 +171,79 @@ export const PeriodSelector: React.FC = () => {
         </button>
       </div>
 
+      {/* 2. Mobile Only: Compact, Clean Single Pill Trigger (Zero Clutter) */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="sm:hidden flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs text-brand-dark dark:text-slate-100 font-black text-xs active:translate-x-0.5 active:translate-y-0.5 transition-all select-none cursor-pointer shrink-0"
+        title="Pilih Bulan & Tahun"
+        aria-expanded={isOpen}
+      >
+        <Calendar className="w-3.5 h-3.5 text-brand-primary shrink-0" />
+        <span className="tabular-nums tracking-tight whitespace-nowrap">
+          {formatPeriod(selectedPeriod)}
+        </span>
+        <ChevronDown
+          className={`w-3 h-3 text-brand-darkMuted dark:text-slate-400 shrink-0 transition-transform duration-200 ${
+            isOpen ? 'rotate-180' : ''
+          }`}
+        />
+      </button>
+
       {/* Popover Month & Year Picker */}
       {isOpen && (
-        <div className="absolute left-0 sm:left-auto sm:right-0 top-full mt-2 w-72 sm:w-80 bg-white rounded-3xl border-2 border-brand-dark shadow-saweria-lg p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
-          {/* Quick Financial Summary for Selected Month (Menjawab Feedback #6) */}
-          <div className="mb-3 p-2.5 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between text-xs font-black">
-            <div className="flex items-center gap-1.5 text-emerald-800">
+        <div className="fixed sm:absolute left-3 right-3 sm:left-0 sm:right-auto top-16 sm:top-full mt-2 w-auto sm:w-80 bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria-lg p-3.5 sm:p-4 z-50 animate-in fade-in zoom-in-95 duration-150">
+          {/* Quick Financial Summary for Selected Month */}
+          <div className="mb-3 p-2.5 rounded-2xl bg-brand-cream dark:bg-slate-800/80 border border-brand-border dark:border-slate-700 flex items-center justify-between text-xs font-black">
+            <div className="flex items-center gap-1.5 text-emerald-800 dark:text-emerald-400">
               <TrendingUp className="w-3.5 h-3.5 stroke-[2.5]" />
               <div className="text-left">
-                <span className="text-[9px] text-brand-darkMuted uppercase block">Masuk</span>
-                <span className="tabular-nums text-emerald-900">{formatMoney(overview.monthlyIncome)}</span>
+                <span className="text-[9px] text-brand-darkMuted dark:text-slate-400 uppercase block">Masuk</span>
+                <span className="tabular-nums text-emerald-900 dark:text-emerald-300">{formatMoney(overview.monthlyIncome)}</span>
               </div>
             </div>
-            <div className="h-6 w-px bg-brand-border" />
-            <div className="flex items-center gap-1.5 text-rose-800">
+            <div className="h-6 w-px bg-brand-border dark:bg-slate-700" />
+            <div className="flex items-center gap-1.5 text-rose-800 dark:text-rose-400">
               <TrendingDown className="w-3.5 h-3.5 stroke-[2.5]" />
               <div className="text-right">
-                <span className="text-[9px] text-brand-darkMuted uppercase block">Keluar</span>
-                <span className="tabular-nums text-rose-900">{formatMoney(overview.totalMonthlyExpense)}</span>
+                <span className="text-[9px] text-brand-darkMuted dark:text-slate-400 uppercase block">Keluar</span>
+                <span className="tabular-nums text-rose-900 dark:text-rose-300">{formatMoney(overview.totalMonthlyExpense)}</span>
               </div>
             </div>
           </div>
 
           {/* Quick Search Input */}
           <div className="relative mb-2.5">
-            <Search className="w-3.5 h-3.5 text-brand-darkMuted absolute left-2.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-3.5 h-3.5 text-brand-darkMuted dark:text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari bulan (misal: 'Mei', 'Okt')..."
-              className="w-full pl-8 pr-3 py-1.5 text-xs font-bold bg-white text-brand-dark rounded-xl border-2 border-brand-border focus:border-brand-dark outline-none"
+              className="w-full pl-8 pr-3 py-1.5 text-xs font-bold bg-white dark:bg-slate-800 text-brand-dark dark:text-slate-100 rounded-xl border-2 border-brand-border dark:border-slate-700 focus:border-brand-dark dark:focus:border-brand-primary outline-none"
             />
           </div>
 
           {/* Year Navigator */}
-          <div className="flex items-center justify-between pb-2.5 border-b-2 border-brand-border">
+          <div className="flex items-center justify-between pb-2.5 border-b-2 border-brand-border dark:border-slate-800">
             <button
               type="button"
               onClick={() => setViewYear((y) => y - 1)}
-              className="p-1.5 rounded-xl border-2 border-brand-dark bg-brand-cream hover:bg-brand-primary transition-colors text-brand-dark cursor-pointer"
+              className="p-1.5 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-brand-cream dark:bg-slate-800 hover:bg-brand-primary transition-colors text-brand-dark dark:text-slate-100 cursor-pointer"
               title="Tahun Sebelumnya"
             >
               <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-base font-black text-brand-dark tabular-nums tracking-tight">
+              <span className="text-base font-black text-brand-dark dark:text-slate-100 tabular-nums tracking-tight">
                 Tahun {viewYear}
               </span>
               {viewYear !== currentRealtimeYear && (
                 <button
                   type="button"
                   onClick={() => setViewYear(currentRealtimeYear)}
-                  className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-brand-cream hover:bg-brand-primary border border-brand-dark transition-colors cursor-pointer"
+                  className="px-2 py-0.5 rounded-lg text-[10px] font-black bg-brand-cream dark:bg-slate-800 hover:bg-brand-primary border border-brand-dark dark:border-slate-700 transition-colors cursor-pointer text-brand-dark dark:text-slate-100"
                   title="Kembali ke tahun berjalan"
                 >
                   Tahun Ini
@@ -235,7 +254,7 @@ export const PeriodSelector: React.FC = () => {
             <button
               type="button"
               onClick={() => setViewYear((y) => y + 1)}
-              className="p-1.5 rounded-xl border-2 border-brand-dark bg-brand-cream hover:bg-brand-primary transition-colors text-brand-dark cursor-pointer"
+              className="p-1.5 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-brand-cream dark:bg-slate-800 hover:bg-brand-primary transition-colors text-brand-dark dark:text-slate-100 cursor-pointer"
               title="Tahun Berikutnya"
             >
               <ChevronRight className="w-4 h-4 stroke-[2.5]" />
@@ -258,7 +277,7 @@ export const PeriodSelector: React.FC = () => {
                       className={`py-2 px-1 rounded-xl text-xs font-black transition-all border-2 cursor-pointer ${
                         isSelected
                           ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
-                          : 'bg-brand-cream/60 border-brand-border text-brand-dark hover:border-brand-dark hover:bg-white'
+                          : 'bg-brand-cream/60 dark:bg-slate-800 border-brand-border dark:border-slate-700 text-brand-dark dark:text-slate-100 hover:border-brand-dark hover:bg-white dark:hover:bg-slate-700'
                       }`}
                     >
                       {m.name}
@@ -282,8 +301,8 @@ export const PeriodSelector: React.FC = () => {
                         isSelected
                           ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm scale-[1.02]'
                           : hasTransactions
-                          ? 'bg-brand-cream border-brand-border text-brand-dark hover:border-brand-dark hover:bg-white'
-                          : 'bg-white border-transparent text-brand-darkMuted hover:border-brand-border hover:bg-brand-cream/40'
+                          ? 'bg-brand-cream dark:bg-slate-800 border-brand-border dark:border-slate-700 text-brand-dark dark:text-slate-100 hover:border-brand-dark hover:bg-white dark:hover:bg-slate-700'
+                          : 'bg-white dark:bg-slate-900 border-transparent text-brand-darkMuted dark:text-slate-400 hover:border-brand-border hover:bg-brand-cream/40 dark:hover:bg-slate-800/40'
                       }`}
                     >
                       <span>{INDONESIAN_MONTHS_SHORT[index]}</span>
@@ -299,13 +318,13 @@ export const PeriodSelector: React.FC = () => {
           </div>
 
           {/* Popover Footer: Quick Realtime Jump */}
-          <div className="pt-2 border-t-2 border-brand-border flex items-center justify-between gap-2">
+          <div className="pt-2 border-t-2 border-brand-border dark:border-slate-800 flex items-center justify-between gap-2">
             <button
               type="button"
               onClick={handleJumpToCurrent}
-              className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border-2 border-brand-dark font-black text-xs transition-all cursor-pointer ${
+              className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border-2 border-brand-dark dark:border-slate-700 font-black text-xs transition-all cursor-pointer ${
                 isCurrentMonth
-                  ? 'bg-brand-cream/60 text-brand-darkMuted cursor-default'
+                  ? 'bg-brand-cream/60 dark:bg-slate-800 text-brand-darkMuted dark:text-slate-400 cursor-default'
                   : 'bg-brand-primary hover:bg-brand-primaryHover text-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5'
               }`}
             >

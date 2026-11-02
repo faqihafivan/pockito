@@ -148,7 +148,7 @@ export const DashboardPage: React.FC = () => {
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* 1. Space-Saving Unified Hero: Greeting + Saldo Riil (Clutter Free) */}
-      <div className="bg-white p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border-2 border-brand-dark shadow-saweria flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4">
+      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 transition-colors">
         {/* Left: Compact Greeting & Quick Action Chips */}
         <div className="min-w-0">
           <div className="flex items-center gap-2 flex-wrap mb-1 sm:mb-1.5">
@@ -175,7 +175,7 @@ export const DashboardPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsCustomizeOpen(true)}
-              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-brand-cream hover:bg-white text-brand-dark border border-brand-dark shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+              className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black bg-brand-cream dark:bg-slate-800 hover:bg-white dark:hover:bg-slate-700 text-brand-dark dark:text-slate-200 border border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               title="Atur tampilan modul dashboard agar simpel dan rapi"
             >
               <SlidersHorizontal className="w-3 h-3" />
@@ -183,19 +183,19 @@ export const DashboardPage: React.FC = () => {
             </button>
           </div>
 
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark tracking-tight truncate">
+          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark dark:text-slate-100 tracking-tight truncate">
             {getGreeting()}, {getUserDisplayName()}! 👋
           </h2>
-          <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-0.5">
+          <p className="text-xs sm:text-sm font-bold text-brand-darkMuted dark:text-slate-400 mt-0.5">
             Arus kas, alokasi kantong, dan checklist belanjamu terpadu di sini.
           </p>
         </div>
 
         {/* Right: Saldo Riil Box with Quick Salary Entry & Explainer (Menjawab Feedback #14 & #16) */}
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-2.5 sm:gap-4 bg-brand-cream/60 p-3 sm:px-4 sm:py-3 rounded-2xl border-2 border-brand-dark shadow-saweria-sm shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-2.5 sm:gap-4 bg-brand-cream/60 dark:bg-slate-950/60 p-3 sm:px-4 sm:py-3 rounded-2xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm shrink-0">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider">
+              <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted dark:text-slate-400 uppercase tracking-wider">
                 Total Saldo Riil
               </span>
 
@@ -203,7 +203,7 @@ export const DashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsBalanceInfoOpen(true)}
-                className="w-4 h-4 rounded-full bg-white border border-brand-dark/40 hover:border-brand-dark flex items-center justify-center text-brand-darkMuted hover:text-brand-dark transition-colors cursor-pointer"
+                className="w-4 h-4 rounded-full bg-white dark:bg-slate-800 border border-brand-dark/40 dark:border-slate-700 hover:border-brand-dark flex items-center justify-center text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark transition-colors cursor-pointer"
                 title="Pelajari bagaimana Saldo Riil dihitung dan diakumulasikan setiap bulan"
               >
                 <Info className="w-2.5 h-2.5 stroke-[2.5]" />
@@ -224,7 +224,7 @@ export const DashboardPage: React.FC = () => {
                 className={`p-1 rounded-lg border transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
                   isPrivacyMode
                     ? 'bg-amber-100 border-brand-dark text-amber-800 shadow-saweria-xs'
-                    : 'bg-white border-brand-dark/30 text-brand-darkMuted hover:text-brand-dark hover:border-brand-dark shadow-saweria-xs'
+                    : 'bg-white dark:bg-slate-800 border-brand-dark/30 dark:border-slate-700 text-brand-darkMuted dark:text-slate-300 hover:text-brand-dark hover:border-brand-dark shadow-saweria-xs'
                 }`}
                 title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
                 aria-label={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
@@ -237,24 +237,24 @@ export const DashboardPage: React.FC = () => {
               </button>
             </div>
 
-            <div className="text-xl sm:text-2xl font-black text-brand-dark tabular-nums tracking-tight truncate mt-0.5">
+            <div className="text-xl sm:text-2xl font-black text-brand-dark dark:text-slate-100 tabular-nums tracking-tight truncate mt-0.5">
               {formatMoney(overview.totalRecordedBalance)}
             </div>
 
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted truncate">
+              <p className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 truncate">
                 Kas & rekening aktif
               </p>
             </div>
           </div>
 
           {/* Quick Add Income / Salary Button (1-Click Pemasukan) */}
-          <div className="flex sm:flex-col items-center justify-between sm:justify-center gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:pl-3 border-brand-border">
+          <div className="flex sm:flex-col items-center justify-between sm:justify-center gap-2 pt-1 sm:pt-0 border-t sm:border-t-0 sm:border-l sm:pl-3 border-brand-border dark:border-slate-800">
             <button
               type="button"
               onClick={() => setIsIncomeModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-brand-dark font-black text-xs border-2 border-brand-dark shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center justify-center gap-1 px-3 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-brand-dark font-black text-xs border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer whitespace-nowrap"
               title="Catat Gaji Bulanan atau Pemasukan Baru"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -272,15 +272,15 @@ export const DashboardPage: React.FC = () => {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
           <Link
             to="/app/subscriptions"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
                 <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark block truncate">Tagihan Rutin</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Tagihan Rutin</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
                   {subscriptions.length} tagihan aktif
                 </span>
               </div>
@@ -304,15 +304,15 @@ export const DashboardPage: React.FC = () => {
 
           <Link
             to="/app/debts"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
                 <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark block truncate">Hutang Piutang</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Hutang Piutang</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
                   {debts.filter((d) => !d.is_settled).length} aktif
                 </span>
               </div>
@@ -336,15 +336,15 @@ export const DashboardPage: React.FC = () => {
 
           <Link
             to="/app/goals"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
                 <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark block truncate">Target Tabungan</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Target Tabungan</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
                   {goals.length} target impian
                 </span>
               </div>
@@ -368,15 +368,15 @@ export const DashboardPage: React.FC = () => {
 
           <Link
             to="/app/reports"
-            className="p-3 sm:p-3.5 rounded-2xl bg-white border-2 border-brand-dark shadow-saweria-sm hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
+            className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
           >
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
                 <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
               </div>
               <div className="min-w-0">
-                <span className="text-xs font-black text-brand-dark block truncate">Laporan Keuangan</span>
-                <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Laporan Keuangan</span>
+                <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
                   Analisis & arus kas
                 </span>
               </div>

@@ -2,21 +2,31 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   POCKITO DESIGN SYSTEM: 3 COHESIVE THEMES
+   1. Teal Mint: Fresh, modern, soft mint pastel background (#F3FAF8),
+      deep spruce ink (#132F2B), teal mint primary (#379A8D).
+   2. Saweria Emas: Classic warm neobrutalism (#FFFDF8),
+      golden amber (#FAAE2B), ink black (#18181B).
+   3. Midnight Dark: Deep midnight slate (#0B132B / #0F172A),
+      slate cards (#1E293B), neon cyan (#2DD4BF), bright white text (#F8FAFC).
+   ============================================================ */
+
 :root, :root[data-theme="teal-mint"] {
   --color-primary: #379A8D;
   --color-primary-hover: #2E8377;
   --color-accent: #F7C948;
-  --color-cream: #F8FBFB;
-  --color-dark: #1E293B;
-  --color-dark-muted: #64748B;
+  --color-cream: #F3FAF8;
+  --color-dark: #132F2B;
+  --color-dark-muted: #53716B;
   --color-card: #FFFFFF;
-  --color-border: #E2E8F0;
-  --color-border-dark: #1E293B;
-  --color-income-bg: #EBF6F4;
-  --color-income-text: #047857;
-  --color-expense-bg: #FDF2F2;
+  --color-border: #D1E7E2;
+  --color-border-dark: #132F2B;
+  --color-income-bg: #E3F6F3;
+  --color-income-text: #0D705C;
+  --color-expense-bg: #FEECEC;
   --color-expense-text: #B91C1C;
-  --color-budget-bg: #FEF9E7;
+  --color-budget-bg: #FEF8E7;
   --color-budget-text: #B45309;
 }
 
@@ -48,11 +58,11 @@
   --color-card: #1E293B;
   --color-border: #334155;
   --color-border-dark: #475569;
-  --color-income-bg: rgba(6, 78, 59, 0.45);
+  --color-income-bg: rgba(6, 78, 59, 0.55);
   --color-income-text: #6EE7B7;
-  --color-expense-bg: rgba(136, 19, 55, 0.45);
+  --color-expense-bg: rgba(136, 19, 55, 0.55);
   --color-expense-text: #FDA4AF;
-  --color-budget-bg: rgba(120, 53, 15, 0.45);
+  --color-budget-bg: rgba(120, 53, 15, 0.55);
   --color-budget-text: #FDE68A;
 }
 
@@ -70,7 +80,121 @@
   }
 }
 
-/* Custom scrollbars for clean desktop appearance */
+/* ============================================================
+   GLOBAL DARK MODE & THEME SURFACE COHESION OVERRIDES
+   Ensures zero white-on-white text bugs and complete dark mode
+   ============================================================ */
+
+html.dark,
+[data-theme="midnight"] {
+  color-scheme: dark;
+}
+
+/* Force dark card surface on elements using bg-white in midnight mode */
+html.dark .bg-white,
+[data-theme="midnight"] .bg-white {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+}
+
+/* Header and Sidebar dark backgrounds in dark mode */
+html.dark header,
+[data-theme="midnight"] header {
+  background-color: rgba(15, 23, 42, 0.95) !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+html.dark aside,
+[data-theme="midnight"] aside {
+  background-color: #0F172A !important;
+  border-color: #334155 !important;
+  color: #F8FAFC !important;
+}
+
+/* Cream background adaptation in dark mode */
+html.dark .bg-brand-cream,
+html.dark .bg-brand-cream\/40,
+html.dark .bg-brand-cream\/60,
+html.dark .bg-brand-cream\/80,
+html.dark .bg-brand-cream\/90,
+[data-theme="midnight"] .bg-brand-cream,
+[data-theme="midnight"] .bg-brand-cream\/40,
+[data-theme="midnight"] .bg-brand-cream\/60,
+[data-theme="midnight"] .bg-brand-cream\/80,
+[data-theme="midnight"] .bg-brand-cream\/90 {
+  background-color: #0F172A !important;
+}
+
+/* Form controls in dark mode */
+html.dark input:not([type="checkbox"]):not([type="radio"]),
+html.dark select,
+html.dark textarea,
+[data-theme="midnight"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="midnight"] select,
+[data-theme="midnight"] textarea {
+  background-color: #0F172A !important;
+  color: #F8FAFC !important;
+  border-color: #334155 !important;
+}
+
+html.dark input::placeholder,
+html.dark textarea::placeholder,
+[data-theme="midnight"] input::placeholder,
+[data-theme="midnight"] textarea::placeholder {
+  color: #64748B !important;
+}
+
+/* Borders and shadows in dark mode */
+html.dark .border-brand-dark,
+[data-theme="midnight"] .border-brand-dark {
+  border-color: #475569 !important;
+}
+
+html.dark .border-brand-border,
+[data-theme="midnight"] .border-brand-border {
+  border-color: #334155 !important;
+}
+
+html.dark .shadow-saweria,
+[data-theme="midnight"] .shadow-saweria {
+  box-shadow: 2.5px 2.5px 0px #020617 !important;
+}
+
+html.dark .shadow-saweria-sm,
+[data-theme="midnight"] .shadow-saweria-sm {
+  box-shadow: 1.5px 1.5px 0px #020617 !important;
+}
+
+html.dark .shadow-saweria-xs,
+[data-theme="midnight"] .shadow-saweria-xs {
+  box-shadow: 1px 1px 0px #020617 !important;
+}
+
+html.dark .shadow-saweria-lg,
+[data-theme="midnight"] .shadow-saweria-lg {
+  box-shadow: 4px 4px 0px #020617 !important;
+}
+
+/* Hover highlights in dark mode */
+html.dark .hover\:bg-brand-cream:hover,
+html.dark .hover\:bg-brand-cream\/80:hover,
+html.dark .hover\:bg-white:hover,
+[data-theme="midnight"] .hover\:bg-brand-cream:hover,
+[data-theme="midnight"] .hover\:bg-brand-cream\/80:hover,
+[data-theme="midnight"] .hover\:bg-white:hover {
+  background-color: #334155 !important;
+}
+
+/* Modals & Dialogs surface in dark mode */
+html.dark [role="dialog"],
+[data-theme="midnight"] [role="dialog"] {
+  background-color: #1E293B !important;
+  color: #F8FAFC !important;
+  border-color: #475569 !important;
+}
+
+/* Custom scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -86,7 +210,7 @@
   background: var(--color-dark);
 }
 
-/* Continuous Infinite Marquee for Cards (Mobile, Tablet & Desktop) */
+/* Continuous Infinite Marquee for Cards */
 @keyframes marquee-glide {
   0% {
     transform: translate3d(0, 0, 0);
@@ -116,7 +240,6 @@
     color: #000000 !important;
   }
 
-  /* Hide app chrome, sidebars, headers, floating widgets, dialog backdrops */
   aside,
   header,
   nav,
@@ -125,7 +248,6 @@
     display: none !important;
   }
 
-  /* Make statement fill the printed page cleanly */
   #pockito-printable-statement {
     box-shadow: none !important;
     border: 1px solid #18181B !important;

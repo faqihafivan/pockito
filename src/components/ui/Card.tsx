@@ -13,9 +13,12 @@ export const Card: React.FC<CardProps> = ({
   ...props
 }) => {
   const variantStyles = {
-    saweria: 'bg-white border-2 border-brand-dark shadow-saweria',
-    flat: 'bg-white border border-brand-border shadow-sm',
-    subtle: 'bg-brand-cream/80 border border-brand-border/60',
+    saweria:
+      'bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria text-brand-dark dark:text-slate-100',
+    flat:
+      'bg-white dark:bg-slate-800 border border-brand-border dark:border-slate-700 shadow-sm text-brand-dark dark:text-slate-100',
+    subtle:
+      'bg-brand-cream/80 dark:bg-slate-900 border border-brand-border/60 dark:border-slate-800 text-brand-dark dark:text-slate-100',
   };
 
   const hoverStyles = hoverable
