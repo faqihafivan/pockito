@@ -6,16 +6,16 @@ import { Card } from '../components/ui/Card';
 
 export const PrivacyPolicyPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-brand-cream text-brand-dark selection:bg-brand-primary selection:text-brand-dark">
+    <div className="min-h-screen bg-brand-cream dark:bg-slate-900 text-brand-dark dark:text-slate-100 selection:bg-brand-primary selection:text-brand-dark transition-colors duration-200">
       {/* Header */}
-      <header className="border-b-2 border-brand-dark bg-white px-6 sm:px-12 py-4 flex items-center justify-between sticky top-0 z-30">
+      <header className="border-b-2 border-brand-dark dark:border-slate-800 bg-white dark:bg-slate-900 px-6 sm:px-12 py-4 flex items-center justify-between sticky top-0 z-30">
         <Link to="/" className="flex items-center gap-3">
           <img
-            src="/pockito.jpg"
+            src="/pockito.png"
             alt="Pockito"
-            className="w-10 h-10 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm"
+            className="w-10 h-10 rounded-xl object-contain bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm dark:shadow-none"
           />
-          <span className="text-xl font-black text-brand-dark tracking-tight">
+          <span className="text-xl font-black text-brand-dark dark:text-slate-100 tracking-tight">
             Pockito<span className="text-brand-primary">.</span>
           </span>
         </Link>
@@ -29,7 +29,7 @@ export const PrivacyPolicyPage: React.FC = () => {
 
       {/* Content */}
       <main className="max-w-4xl mx-auto px-6 py-10 sm:py-14 space-y-8">
-        <div className="bg-white p-6 sm:p-8 rounded-3xl border-2 border-brand-dark shadow-saweria space-y-3">
+        <div className="bg-white dark:bg-slate-800 p-6 sm:p-8 rounded-3xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria dark:shadow-[4px_4px_0px_#0f172a] space-y-3">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-100 border border-emerald-600 text-emerald-800 text-xs font-black">
             <Shield className="w-3.5 h-3.5" />
             <span>Kepatuhan Google Play Store & Privasi Pengguna</span>

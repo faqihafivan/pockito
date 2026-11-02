@@ -60,7 +60,12 @@ export const WelcomePage: React.FC = () => {
     if (currentSlide < SLIDES.length - 1) {
       setCurrentSlide((prev) => prev + 1);
     } else {
-      navigate('/register');
+      try {
+        localStorage.setItem('pockito_has_seen_tour', 'true');
+      } catch {
+        // ignore
+      }
+      navigate('/login');
     }
   };
 
@@ -68,6 +73,15 @@ export const WelcomePage: React.FC = () => {
     if (currentSlide > 0) {
       setCurrentSlide((prev) => prev - 1);
     }
+  };
+
+  const handleSkipTour = () => {
+    try {
+      localStorage.setItem('pockito_has_seen_tour', 'true');
+    } catch {
+      // ignore
+    }
+    navigate('/login');
   };
 
   // Keyboard navigation
@@ -109,7 +123,7 @@ export const WelcomePage: React.FC = () => {
 
   return (
     <div
-      className="min-h-screen bg-brand-cream text-brand-dark flex flex-col justify-between select-none relative overflow-x-hidden"
+      className="min-h-screen bg-brand-cream dark:bg-slate-900 text-brand-dark dark:text-slate-100 flex flex-col justify-between select-none relative overflow-x-hidden transition-colors duration-200"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -120,19 +134,19 @@ export const WelcomePage: React.FC = () => {
           <img
             src="/pockito.png"
             alt="Pockito"
-            className="w-9 h-9 rounded-xl object-contain bg-white border-2 border-brand-dark shadow-saweria-sm"
+            className="w-9 h-9 rounded-xl object-contain bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm dark:shadow-none"
           />
-          <span className="font-black text-lg text-brand-dark tracking-tight">
+          <span className="font-black text-lg text-brand-dark dark:text-slate-100 tracking-tight">
             Pockito<span className="text-brand-primary">.</span>
           </span>
-          <span className="hidden sm:inline-block ml-2 text-[10px] font-black uppercase tracking-wider bg-white px-2 py-0.5 rounded-full border border-brand-dark text-brand-darkMuted">
+          <span className="hidden sm:inline-block ml-2 text-[10px] font-black uppercase tracking-wider bg-white dark:bg-slate-800 px-2 py-0.5 rounded-full border border-brand-dark dark:border-slate-700 text-brand-darkMuted dark:text-slate-300">
             Tour Aplikasi
           </span>
         </div>
 
         <button
-          onClick={() => navigate('/register')}
-          className="text-xs font-bold text-brand-darkMuted hover:text-brand-dark px-3 py-1.5 rounded-xl border border-transparent hover:border-brand-dark transition-all"
+          onClick={handleSkipTour}
+          className="text-xs font-bold text-brand-darkMuted hover:text-brand-dark dark:text-slate-400 dark:hover:text-slate-100 px-3 py-1.5 rounded-xl border border-transparent hover:border-brand-dark dark:hover:border-slate-700 transition-all"
         >
           Lewati Tour
         </button>
@@ -143,7 +157,7 @@ export const WelcomePage: React.FC = () => {
         <div className="md:grid md:grid-cols-12 md:gap-8 lg:gap-12 md:items-center">
           {/* Kolom Kiri: Visual Slide Showcase */}
           <div className="md:col-span-6 lg:col-span-6 flex flex-col items-center">
-            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-none aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden border-2 border-brand-dark shadow-saweria-lg bg-white mb-4 md:mb-0 transition-all duration-300">
+            <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-none aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden border-2 border-brand-dark dark:border-slate-700 shadow-saweria-lg dark:shadow-[4px_4px_0px_#0f172a] bg-white dark:bg-slate-800 mb-4 md:mb-0 transition-all duration-300">
               <img
                 key={slide.id}
                 src={slide.image}
@@ -152,7 +166,7 @@ export const WelcomePage: React.FC = () => {
               />
 
               {/* Badge Tag on top of image */}
-              <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm border-2 border-brand-dark px-3 py-1 rounded-full text-[10px] font-black text-brand-dark shadow-saweria-sm flex items-center gap-1.5">
+              <div className="absolute top-3 left-3 bg-white/95 dark:bg-slate-850/95 backdrop-blur-sm border-2 border-brand-dark dark:border-slate-700 px-3 py-1 rounded-full text-[10px] font-black text-brand-dark dark:text-slate-100 shadow-saweria-sm dark:shadow-none flex items-center gap-1.5">
                 <Sparkles className="w-3 h-3 text-brand-primary" />
                 <span>{slide.highlight}</span>
               </div>
@@ -161,7 +175,7 @@ export const WelcomePage: React.FC = () => {
               {currentSlide > 0 && (
                 <button
                   onClick={prevSlide}
-                  className="flex absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 border-2 border-brand-dark items-center justify-center text-brand-dark shadow-saweria-sm hover:bg-white active:scale-95 transition-all"
+                  className="flex absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-600 items-center justify-center text-brand-dark dark:text-slate-100 shadow-saweria-sm dark:shadow-none hover:bg-brand-cream dark:hover:bg-slate-700 active:scale-95 transition-all"
                   aria-label="Slide sebelumnya"
                 >
                   <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
@@ -171,7 +185,7 @@ export const WelcomePage: React.FC = () => {
               {currentSlide < SLIDES.length - 1 && (
                 <button
                   onClick={nextSlide}
-                  className="flex absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white/95 border-2 border-brand-dark items-center justify-center text-brand-dark shadow-saweria-sm hover:bg-white active:scale-95 transition-all"
+                  className="flex absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-600 items-center justify-center text-brand-dark dark:text-slate-100 shadow-saweria-sm dark:shadow-none hover:bg-brand-cream dark:hover:bg-slate-700 active:scale-95 transition-all"
                   aria-label="Slide berikutnya"
                 >
                   <ChevronRight className="w-5 h-5 stroke-[2.5]" />
@@ -183,33 +197,33 @@ export const WelcomePage: React.FC = () => {
           {/* Kolom Kanan: Narasi, Speech Bubble Maskot & Aksi Tablet */}
           <div className="md:col-span-6 lg:col-span-6 flex flex-col justify-center text-center md:text-left space-y-4 md:space-y-5 px-2">
             {/* Tag Kategori (Tablet View) */}
-            <div className="hidden md:inline-flex items-center gap-2 self-start px-3 py-1 rounded-full bg-brand-primary/20 border-2 border-brand-dark text-xs font-black text-brand-dark shadow-saweria-sm">
-              <Sparkles className="w-3.5 h-3.5 text-brand-dark" />
+            <div className="hidden md:inline-flex items-center gap-2 self-start px-3 py-1 rounded-full bg-brand-primary/20 dark:bg-brand-primary/10 border-2 border-brand-dark dark:border-slate-700 text-xs font-black text-brand-dark dark:text-slate-200 shadow-saweria-sm dark:shadow-none">
+              <Sparkles className="w-3.5 h-3.5 text-brand-dark dark:text-brand-primary" />
               <span>Langkah {currentSlide + 1} dari 3: {slide.highlight}</span>
             </div>
 
             {/* Slide Title & Subtitle */}
             <div className="space-y-2">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark tracking-tight leading-snug">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-snug">
                 {slide.title}
               </h2>
-              <p className="text-xs sm:text-sm text-brand-darkMuted font-medium leading-relaxed max-w-sm md:max-w-none mx-auto md:mx-0">
+              <p className="text-xs sm:text-sm text-brand-darkMuted dark:text-slate-400 font-medium leading-relaxed max-w-sm md:max-w-none mx-auto md:mx-0">
                 {slide.subtitle}
               </p>
             </div>
 
             {/* Balon Dialog Maskot Pockito (Speech Bubble) */}
-            <div className="relative bg-white border-2 border-brand-dark p-3.5 rounded-2xl shadow-saweria text-left flex items-start gap-3 mt-1">
+            <div className="relative bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 p-3.5 rounded-2xl shadow-saweria dark:shadow-[4px_4px_0px_#0f172a] text-left flex items-start gap-3 mt-1">
               <img
                 src="/pockito.png"
                 alt="Pockito Maskot"
-                className="w-10 h-10 rounded-xl bg-white border-2 border-brand-dark shrink-0 object-contain shadow-saweria-xs"
+                className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-700 shrink-0 object-contain shadow-saweria-xs"
               />
               <div className="space-y-0.5">
-                <span className="text-[10px] font-black uppercase tracking-wider text-brand-dark/60 block">
+                <span className="text-[10px] font-black uppercase tracking-wider text-brand-dark/60 dark:text-slate-400 block">
                   Pockito Berkata:
                 </span>
-                <p className="text-xs font-bold text-brand-dark leading-snug">
+                <p className="text-xs font-bold text-brand-dark dark:text-slate-100 leading-snug">
                   "{slide.mascotDialogue}"
                 </p>
               </div>
@@ -221,10 +235,10 @@ export const WelcomePage: React.FC = () => {
                 <button
                   key={s.id}
                   onClick={() => setCurrentSlide(idx)}
-                  className={`transition-all duration-300 rounded-full border border-brand-dark ${
+                  className={`transition-all duration-300 rounded-full border border-brand-dark dark:border-slate-600 ${
                     currentSlide === idx
-                      ? 'w-7 h-2.5 bg-brand-primary shadow-saweria-sm'
-                      : 'w-2.5 h-2.5 bg-white opacity-70 hover:opacity-100'
+                      ? 'w-7 h-2.5 bg-brand-primary shadow-saweria-sm dark:shadow-none'
+                      : 'w-2.5 h-2.5 bg-brand-dark/20 dark:bg-slate-700 opacity-70 hover:opacity-100'
                   }`}
                   aria-label={`Ke slide ${idx + 1}`}
                 />
@@ -240,7 +254,7 @@ export const WelcomePage: React.FC = () => {
                 onClick={nextSlide}
                 rightIcon={<ArrowRight className="w-4 h-4" />}
               >
-                {isLastSlide ? 'Mulai Sekarang Gratis' : 'Lanjut ke Slide Berikutnya'}
+                {isLastSlide ? 'Mulai Sekarang — Masuk' : 'Lanjut ke Slide Berikutnya'}
               </Button>
 
               <Button
@@ -254,9 +268,9 @@ export const WelcomePage: React.FC = () => {
               </Button>
 
               <div className="text-center md:text-left pt-1">
-                <p className="text-xs font-bold text-brand-darkMuted">
+                <p className="text-xs font-bold text-brand-darkMuted dark:text-slate-400">
                   Sudah punya akun?{' '}
-                  <Link to="/login" className="text-brand-dark underline font-black hover:text-brand-primaryHover">
+                  <Link to="/login" className="text-brand-dark dark:text-brand-primary underline font-black hover:text-brand-primaryHover">
                     Masuk di sini
                   </Link>
                 </p>
@@ -275,7 +289,7 @@ export const WelcomePage: React.FC = () => {
           onClick={nextSlide}
           rightIcon={<ArrowRight className="w-4 h-4" />}
         >
-          {isLastSlide ? 'Mulai Sekarang Gratis' : 'Lanjut'}
+          {isLastSlide ? 'Mulai Sekarang — Masuk' : 'Lanjut'}
         </Button>
 
         <Button
@@ -289,9 +303,9 @@ export const WelcomePage: React.FC = () => {
         </Button>
 
         <div className="text-center pt-1">
-          <p className="text-xs font-bold text-brand-darkMuted">
+          <p className="text-xs font-bold text-brand-darkMuted dark:text-slate-400">
             Sudah punya akun?{' '}
-            <Link to="/login" className="text-brand-dark underline font-black hover:text-brand-primaryHover">
+            <Link to="/login" className="text-brand-dark dark:text-brand-primary underline font-black hover:text-brand-primaryHover">
               Masuk di sini
             </Link>
           </p>
