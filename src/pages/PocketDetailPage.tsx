@@ -133,7 +133,7 @@ export const PocketDetailPage: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2">
           <div className="p-4 bg-brand-cream rounded-2xl border border-brand-border">
             <span className="text-[10px] font-black text-brand-darkMuted uppercase">
-              Rencana Pagu Bulanan
+              Rencana Budget Bulanan
             </span>
             <div className="text-lg font-black text-brand-dark tabular-nums mt-0.5">
               {formatMoney(pocket.plannedAmount)}

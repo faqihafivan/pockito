@@ -200,7 +200,7 @@ export const BudgetPage: React.FC = () => {
                       </button>
                     </div>
                     <p className="text-[11px] text-brand-darkMuted font-bold">
-                      Pagu Rencana: {formatMoney(pocket.plannedAmount)} / bulan
+                      Budget Rencana: {formatMoney(pocket.plannedAmount)} / bulan
                     </p>
                   </div>
                 </div>

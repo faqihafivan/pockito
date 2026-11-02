@@ -90,7 +90,7 @@ export const StatCards: React.FC<StatCardsProps> = ({ overview }) => {
               )}
             </div>
             <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted uppercase tracking-wider truncate">
-              Sisa Pagu
+              Sisa Budget
             </span>
           </div>
 
@@ -104,7 +104,7 @@ export const StatCards: React.FC<StatCardsProps> = ({ overview }) => {
             }`}
           >
             {overview.isOverallocated
-              ? 'Pagu Berlebih'
+              ? 'Budget Berlebih'
               : overview.unallocatedPercentage === 0
               ? '100% Terbagi Rapi'
               : `${overview.unallocatedPercentage}% Sisa`}

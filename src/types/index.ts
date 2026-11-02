@@ -8,6 +8,7 @@ export interface UserProfile {
   id: string;
   full_name: string;
   email: string;
+  avatar_url?: string;
   currency: string;
   timezone: string;
   monthly_income: number; // Stored as integer IDR
@@ -91,6 +92,9 @@ export interface Task {
   priority: TaskPriority;
   is_completed: boolean;
   completed_at?: string;
+  // Financial Shopping / Expense Task
+  amount?: number;
+  pocket_id?: string;
   created_at?: string;
   updated_at?: string;
 }

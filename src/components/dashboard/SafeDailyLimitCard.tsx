@@ -67,7 +67,7 @@ export const SafeDailyLimitCard: React.FC<SafeDailyLimitCardProps> = ({ safeLimi
               Batas Belanja Harian
             </h3>
             <p className="text-[11px] font-bold text-brand-darkMuted">
-              Jatah belanja per hari agar pagu aman sampai akhir bulan
+              Jatah belanja per hari agar pengeluaran aman sampai akhir bulan
             </p>
           </div>
         </div>
@@ -146,7 +146,7 @@ export const SafeDailyLimitCard: React.FC<SafeDailyLimitCardProps> = ({ safeLimi
 
         <div className="p-2.5 rounded-xl bg-white border border-brand-border space-y-0.5">
           <span className="text-[10px] font-black text-brand-darkMuted uppercase tracking-wider">
-            Sisa Total Pagu Anggaran:
+            Sisa Total Batas Budget:
           </span>
           <p className="font-black text-brand-dark tabular-nums">
             {formatMoney(totalRemainingBudget)}

@@ -57,7 +57,7 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
         <div className="mt-4 grid grid-cols-2 gap-2 pt-3 border-t border-brand-border">
           <div>
             <span className="text-[10px] font-bold text-brand-darkMuted uppercase">
-              Rencana Pagu
+              Rencana Budget
             </span>
             <div className="text-sm font-black text-brand-dark tabular-nums">
               {formatMoney(pocket.plannedAmount)}

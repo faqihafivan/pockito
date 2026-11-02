@@ -198,7 +198,13 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     if (!text.trim()) return;
     const parsed = AIScannerService.parseQuickNote(text, pockets, accounts);
     applyScanResult(parsed, 'catatan cepat');
-    showToast('Data otomatis terisi ke form di bawah!', 'success');
+    if (parsed.amount <= 0) {
+      setError('Keterangan terisi, namun nominal belum terdeteksi. Silakan masukkan nominal harga di kolom bawah.');
+      showToast('Keterangan terisi! Masukkan nominal harga di bawah.', 'warning');
+    } else {
+      setError('');
+      showToast('Data otomatis terisi ke form di bawah!', 'success');
+    }
   };
 
   // Apply Voice Transcript (also used by Voice Sample Chips)
@@ -299,12 +305,28 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
     e.preventDefault();
     setError('');
 
-    if (amount <= 0) {
-      setError('Nominal harus lebih besar dari Rp 0');
+    let activeAmount = amount;
+    let activeDescription = description;
+
+    // Rescue unapplied quick manual text if user typed but forgot to click Terapkan
+    if (activeAmount <= 0 && quickManualText.trim()) {
+      const parsed = AIScannerService.parseQuickNote(quickManualText.trim(), pockets, accounts);
+      if (parsed.amount > 0) {
+        activeAmount = parsed.amount;
+        setAmount(parsed.amount);
+      }
+      if (!activeDescription.trim() && parsed.description) {
+        activeDescription = parsed.description;
+        setDescription(parsed.description);
+      }
+    }
+
+    if (activeAmount <= 0) {
+      setError('Nominal harus lebih besar dari Rp 0. Masukkan nominal harga belanjaan.');
       return;
     }
-    if (!description.trim()) {
-      setError('Keterangan transaksi wajib diisi');
+    if (!activeDescription.trim()) {
+      setError('Keterangan transaksi wajib diisi (contoh: Kopi, Makan siang)');
       return;
     }
     if (!accountId) {
@@ -323,10 +345,10 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
         account_id: accountId,
         pocket_id: type === 'expense' ? pocketId : undefined,
         type,
-        amount,
+        amount: activeAmount,
         destination_account_id: type === 'transfer' ? destinationAccountId : undefined,
         date: date.includes('T') ? date : `${date}T12:00:00.000Z`,
-        description: description.trim(),
+        description: activeDescription.trim(),
         notes: notes.trim() || undefined,
       });
 
@@ -484,6 +506,11 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
                 type="text"
                 value={quickManualText}
                 onChange={(e) => setQuickManualText(e.target.value)}
+                onBlur={() => {
+                  if (quickManualText.trim() && amount <= 0) {
+                    handleApplyQuickText(quickManualText);
+                  }
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') {
                     e.preventDefault();
@@ -797,11 +824,17 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
 
         {/* Currency Input (Always editable) */}
         <CurrencyInput
+          id="transaction-nominal-input"
           label="Nominal Transaksi (IDR) *"
           value={amount}
-          onValueChange={setAmount}
+          onValueChange={(val) => {
+            setAmount(val);
+            if (val > 0 && error.includes('Nominal')) setError('');
+          }}
           placeholder="Rp 50.000"
           className="text-lg"
+          error={amount <= 0 && error && error.includes('Nominal') ? error : undefined}
+          helperText={amount <= 0 ? 'Masukkan nominal angka tanpa titik/koma' : undefined}
         />
 
         {/* Description (Always editable) */}

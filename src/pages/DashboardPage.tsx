@@ -77,6 +77,15 @@ export const DashboardPage: React.FC = () => {
     return 'Selamat Malam';
   };
 
+  const getUserDisplayName = () => {
+    if (!user?.full_name) return 'Kawan';
+    const trimmed = user.full_name.trim();
+    if (trimmed.toLowerCase() === 'pengguna pockito' || trimmed.toLowerCase() === 'pengguna') {
+      return 'Kawan';
+    }
+    return trimmed.split(' ')[0];
+  };
+
   const periodLabel = formatPeriod(selectedPeriod);
 
   return (
@@ -111,10 +120,10 @@ export const DashboardPage: React.FC = () => {
             </button>
           </div>
           <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark tracking-tight truncate">
-            {getGreeting()}, {user?.full_name?.split(' ')[0] || 'Kawan'}! 👋
+            {getGreeting()}, {getUserDisplayName()}! 👋
           </h2>
           <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-0.5">
-            Pantau arus kas, alokasi kantong, dan pagu harianmu di sini.
+            Pantau arus kas, alokasi kantong, dan jatah belanjamu di sini.
           </p>
         </div>
 

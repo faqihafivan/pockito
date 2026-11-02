@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Plus, Bell, Check, Eye, EyeOff } from 'lucide-react';
 import { Button } from '../ui/Button';
 import { PeriodSelector } from './PeriodSelector';
 import { InAppAlert, ReminderService } from '../../services/reminderService';
 import { useData } from '../../context/DataContext';
+import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { PWAInstallButton } from '../common/PWAInstallButton';
 
@@ -13,6 +15,7 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewTask }) => {
+  const { user } = useAuth();
   const { isPrivacyMode, togglePrivacyMode, dailyBriefing, openBriefing } = useData();
   const { showToast } = useNotification();
   const [alerts] = useState<InAppAlert[]>(() => ReminderService.getAlerts());
@@ -81,6 +84,24 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
             )}
           </button>
         </div>
+
+        {/* User Profile / Settings Quick Access (1-Tap for Mobile & Desktop) */}
+        <Link
+          to="/app/settings"
+          className="p-1.5 sm:p-2 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-center shrink-0"
+          title={`Profil & Pengaturan: ${user?.full_name || 'Pengguna'}`}
+          aria-label="Buka Pengaturan Akun"
+        >
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt="" className="w-5 h-5 rounded-md object-cover" />
+          ) : (
+            <div className="w-5 h-5 rounded-md bg-brand-primary border border-brand-dark flex items-center justify-center text-[10px] font-black text-brand-dark">
+              {user?.full_name && user.full_name !== 'Pengguna Pockito'
+                ? user.full_name.charAt(0).toUpperCase()
+                : 'P'}
+            </div>
+          )}
+        </Link>
 
         {/* Quick Add Task (Desktop/Tablet) */}
         <Button
