@@ -13,6 +13,8 @@ import {
   Trash2,
   Star,
   ArrowUpRight,
+  AlertTriangle,
+  CheckCircle2,
 } from 'lucide-react';
 import { getPocketIcon } from '../domain/finance/pocketIcons';
 import { useNotification } from '../context/NotificationContext';
@@ -175,6 +177,24 @@ export const PocketDetailPage: React.FC = () => {
           </div>
           <ProgressBar value={pocket.spentPercentage} color={pocket.color} size="lg" />
         </div>
+
+        {/* Status & Quota Explanation Box (Menjawab Feedback #7) */}
+        {isOverBudget ? (
+          <div className="p-4 bg-red-50 dark:bg-red-950/40 border-2 border-red-500 rounded-2xl flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+            <div className="text-xs">
+              <h5 className="font-black text-red-700 dark:text-red-300">Status: Melebihi Kuota (Overbudget)</h5>
+              <p className="text-red-900/90 dark:text-red-200 font-medium mt-0.5 leading-relaxed">
+                Pengeluaran pada kantong ini telah melebihi rencana awal sebesar <b>{formatMoney(Math.abs(pocket.remainingAmount))}</b>. Transaksi tetap dicatat agar Saldo Riil kas Anda tetap akurat, namun batas belanja aman harian (Safe Daily Limit) akan otomatis diperketat untuk menyeimbangkan keuangan bulan ini.
+              </p>
+            </div>
+          </div>
+        ) : (
+          <div className="p-3.5 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-700/50 rounded-2xl flex items-center gap-2.5 text-xs text-emerald-900 dark:text-emerald-200">
+            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400 shrink-0" />
+            <span>Status: <b>Terkendali & Stabil</b>. Pengeluaran masih dalam batas aman alokasi anggaran bulanan.</span>
+          </div>
+        )}
       </Card>
 
       {/* History of Transactions */}

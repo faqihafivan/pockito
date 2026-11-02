@@ -177,14 +177,14 @@ export const MobileNav: React.FC<MobileNavProps> = ({
       >
         <path
           d={pathD}
-          fill="#FFFFFF"
+          fill="var(--color-card, #FFFFFF)"
           className="transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"
         />
-        {/* Subtle grey contour line clearly tracing the indented scoop curve */}
+        {/* Subtle contour line clearly tracing the indented scoop curve */}
         <path
           d={borderLineD}
           fill="none"
-          stroke="#B5B0A4"
+          stroke="var(--color-border, #B5B0A4)"
           strokeWidth="2"
           strokeLinecap="round"
           className="transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)]"

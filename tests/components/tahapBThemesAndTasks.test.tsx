@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom';
 import { ThemeProvider, useTheme } from '../../src/context/ThemeContext';
 import { StatCards } from '../../src/components/dashboard/StatCards';
 import { TodayTasksCard } from '../../src/components/dashboard/TodayTasksCard';
+import { PlannerPage } from '../../src/pages/PlannerPage';
 import { NotificationProvider } from '../../src/context/NotificationContext';
 import { AuthProvider } from '../../src/context/AuthContext';
 import { DataProvider } from '../../src/context/DataContext';
@@ -139,5 +140,36 @@ describe('Tahap B: Theme Engine & Smart Shopping Tasks', () => {
     expect(screen.getByText(/Selesaikan Belanja & Potong Saldo\?/i)).toBeInTheDocument();
     expect(screen.getByText(/Potong dari Kantong:/i)).toBeInTheDocument();
     expect(screen.getByText(/Ya, Potong Saldo/i)).toBeInTheDocument();
+  });
+
+  it('renders PlannerPage with Belanja Pokok tab and shopping budget summary banner', async () => {
+    localStorage.setItem('pockito_tasks_v1', JSON.stringify(mockTasks));
+    localStorage.setItem('pockito:demo:tasks:v2', JSON.stringify(mockTasks));
+
+    render(
+      <BrowserRouter>
+        <NotificationProvider>
+          <AuthProvider>
+            <DataProvider>
+              <PlannerPage />
+            </DataProvider>
+          </AuthProvider>
+        </NotificationProvider>
+      </BrowserRouter>
+    );
+
+    expect(screen.getByText(/Planner & Belanja Pokok/i)).toBeInTheDocument();
+    
+    // Wait for tasks to load from DataService into DataProvider
+    const shoppingTabButton = await screen.findByRole('button', { name: /Belanja Pokok/i });
+    expect(shoppingTabButton).toBeInTheDocument();
+
+    // Click on Belanja Pokok tab
+    act(() => {
+      fireEvent.click(shoppingTabButton);
+    });
+
+    // Should display shopping tasks once loaded
+    expect(await screen.findByText(/Beli Minyak Goreng & Beras/i)).toBeInTheDocument();
   });
 });

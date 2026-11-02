@@ -27,7 +27,7 @@ export const Sidebar: React.FC = () => {
     { to: '/app/transactions', label: 'Transaksi', icon: ReceiptText },
     { to: '/app/subscriptions', label: 'Tagihan Rutin', icon: CalendarClock },
     { to: '/app/debts', label: 'Hutang & Piutang', icon: HandCoins },
-    { to: '/app/planner', label: 'Planner & Tugas', icon: CalendarCheck2 },
+    { to: '/app/planner', label: 'Planner & Belanja', icon: CalendarCheck2 },
     { to: '/app/reports', label: 'Laporan Keuangan', icon: PieChart },
     { to: '/app/goals', label: 'Target Tabungan', icon: PiggyBank },
   ];

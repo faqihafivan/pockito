@@ -1,7 +1,10 @@
 import React, { useState, useMemo } from 'react';
+import { useAuth } from '../context/AuthContext';
 import { useData } from '../context/DataContext';
+import { useNotification } from '../context/NotificationContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
 import { TaskModal } from '../components/planner/TaskModal';
 import { Task } from '../types';
 import {
@@ -13,24 +16,33 @@ import {
   Trash2,
   Edit2,
   CheckCircle2,
+  ShoppingBag,
+  AlertCircle,
+  Tag,
 } from 'lucide-react';
-import { useNotification } from '../context/NotificationContext';
 
 export const PlannerPage: React.FC = () => {
-  const { tasks, toggleTask, deleteTask } = useData();
+  const { user } = useAuth();
+  const { tasks, toggleTask, deleteTask, pockets, accounts, addTransaction, formatMoney } = useData();
   const { showConfirm, showToast } = useNotification();
 
-  const [activeTab, setActiveTab] = useState<'today' | 'upcoming' | 'later' | 'completed'>('today');
+  const [activeTab, setActiveTab] = useState<'today' | 'upcoming' | 'later' | 'shopping' | 'completed'>('today');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [taskToEdit, setTaskToEdit] = useState<Task | null>(null);
 
+  // Deduction confirmation modal state
+  const [pendingTask, setPendingTask] = useState<Task | null>(null);
+  const [selectedPocketId, setSelectedPocketId] = useState<string>('');
+  const [isProcessing, setIsProcessing] = useState(false);
+
   const todayStr = useMemo(() => new Date().toISOString().split('T')[0], []);
 
-  // Filter tasks into Today, Upcoming, Later, Completed
+  // Filter tasks into Today, Upcoming, Later, Shopping, Completed
   const groupedTasks = useMemo(() => {
     const today: Task[] = [];
     const upcoming: Task[] = [];
     const later: Task[] = [];
+    const shopping: Task[] = [];
     const completed: Task[] = [];
 
     tasks.forEach((t) => {
@@ -38,10 +50,17 @@ export const PlannerPage: React.FC = () => {
         completed.push(t);
         return;
       }
+
+      // If it's a shopping item with amount, add to shopping list
+      if (t.amount && t.amount > 0) {
+        shopping.push(t);
+      }
+
       if (!t.due_date) {
         later.push(t);
         return;
       }
+
       if (t.due_date === todayStr) {
         today.push(t);
       } else if (t.due_date > todayStr) {
@@ -52,8 +71,13 @@ export const PlannerPage: React.FC = () => {
       }
     });
 
-    return { today, upcoming, later, completed };
+    return { today, upcoming, later, shopping, completed };
   }, [tasks, todayStr]);
+
+  // Total estimated budget for pending shopping items
+  const totalPendingShopping = useMemo(() => {
+    return groupedTasks.shopping.reduce((acc, t) => acc + (t.amount || 0), 0);
+  }, [groupedTasks.shopping]);
 
   const currentList = groupedTasks[activeTab];
 
@@ -75,16 +99,71 @@ export const PlannerPage: React.FC = () => {
     }
   };
 
+  const handleCheckboxClick = (task: Task) => {
+    if (task.is_completed) {
+      toggleTask(task.id);
+      return;
+    }
+
+    if (task.amount && task.amount > 0) {
+      setPendingTask(task);
+      setSelectedPocketId(task.pocket_id || (pockets[0]?.id || ''));
+      return;
+    }
+
+    toggleTask(task.id);
+    showToast(`Tugas "${task.title}" diselesaikan! ✨`, 'success');
+  };
+
+  const handleConfirmDeduct = async () => {
+    if (!pendingTask || !pendingTask.amount) return;
+
+    setIsProcessing(true);
+    try {
+      const pocket = pockets.find((p) => p.id === selectedPocketId) || pockets[0];
+      const todayISO = new Date().toISOString().split('T')[0];
+
+      await addTransaction({
+        user_id: user?.id || 'user-demo-1',
+        account_id: accounts[0]?.id || 'acc-cash',
+        pocket_id: pocket ? pocket.id : (pockets[0]?.id || 'pocket-1'),
+        amount: pendingTask.amount,
+        type: 'expense',
+        description: `[Belanja Selesai] ${pendingTask.title}`,
+        date: todayISO,
+      });
+
+      await toggleTask(pendingTask.id);
+
+      showToast(
+        `Berhasil! ${formatMoney(pendingTask.amount)} dipotong dari ${pocket ? pocket.name : 'Kantong'} & tugas selesai! 🎉`,
+        'success'
+      );
+      setPendingTask(null);
+    } catch {
+      showToast('Gagal memproses transaksi belanja.', 'error');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  const handleCompleteWithoutDeduct = async () => {
+    if (!pendingTask) return;
+    await toggleTask(pendingTask.id);
+    showToast(`Tugas "${pendingTask.title}" ditandai selesai (saldo tidak dipotong).`, 'info');
+    setPendingTask(null);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-3xl border-2 border-brand-dark shadow-saweria">
         <div>
           <h2 className="text-2xl font-black text-brand-dark tracking-tight">
-            Planner & Tugas Produktivitas
+            Planner & Belanja Pokok
           </h2>
           <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-1">
-            Kelola agenda penting, tanggal jatuh tempo tagihan, dan kebiasaan harianmu.
+            Satukan checklist belanja kebutuhan pokok dan agenda harian dalam satu layar praktis.
           </p>
         </div>
 
@@ -97,48 +176,89 @@ export const PlannerPage: React.FC = () => {
           }}
           leftIcon={<Plus className="w-4 h-4" />}
         >
-          Tambah Tugas
+          + Tambah Agenda / Belanja
         </Button>
       </div>
 
-      {/* Segment Tabs: Hari Ini, Mendatang, Nanti, Selesai */}
+      {/* Shopping Budget Summary Pill Banner */}
+      {groupedTasks.shopping.length > 0 && (
+        <div className="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-saweria-xs">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-200/80 border border-emerald-800/40 flex items-center justify-center text-emerald-900 shrink-0">
+              <ShoppingBag className="w-5 h-5 stroke-[2.3]" />
+            </div>
+            <div>
+              <span className="text-xs font-black text-emerald-900 dark:text-emerald-200 block">
+                Total Estimasi Kebutuhan Belanja Pokok ({groupedTasks.shopping.length} Barang)
+              </span>
+              <p className="text-[11px] text-emerald-800 dark:text-emerald-400 font-medium mt-0.5">
+                Centang barang belanjaan saat selesai untuk otomatis mencatat pengeluaran dan memotong Saldo Riil.
+              </p>
+            </div>
+          </div>
+
+          <div className="text-left sm:text-right shrink-0">
+            <span className="text-base sm:text-lg font-black text-emerald-950 dark:text-emerald-100 tabular-nums block">
+              {formatMoney(totalPendingShopping)}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* Segment Tabs: Hari Ini, Mendatang, Kapan-kapan, Belanja Pokok, Selesai */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 select-none">
         <button
           onClick={() => setActiveTab('today')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'today'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'today'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-            }`}
+          }`}
         >
           Hari Ini ({groupedTasks.today.length})
         </button>
 
         <button
+          onClick={() => setActiveTab('shopping')}
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
+            activeTab === 'shopping'
+              ? 'bg-emerald-500 text-brand-dark border-brand-dark shadow-saweria-sm'
+              : 'bg-white text-emerald-800 border-emerald-300 hover:border-emerald-500'
+          }`}
+        >
+          <ShoppingBag className="w-3.5 h-3.5" />
+          <span>Belanja Pokok ({groupedTasks.shopping.length})</span>
+        </button>
+
+        <button
           onClick={() => setActiveTab('upcoming')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'upcoming'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'upcoming'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-            }`}
+          }`}
         >
           Mendatang ({groupedTasks.upcoming.length})
         </button>
 
         <button
           onClick={() => setActiveTab('later')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'later'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'later'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-            }`}
+          }`}
         >
           Kapan-kapan ({groupedTasks.later.length})
         </button>
 
         <button
           onClick={() => setActiveTab('completed')}
-          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 ${activeTab === 'completed'
+          className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
+            activeTab === 'completed'
               ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
-            }`}
+          }`}
         >
           Selesai ({groupedTasks.completed.length})
         </button>
@@ -150,91 +270,206 @@ export const PlannerPage: React.FC = () => {
           {currentList.length === 0 ? (
             <div className="p-12 text-center text-xs text-brand-darkMuted space-y-2">
               <CheckCircle2 className="w-8 h-8 text-brand-primary mx-auto" />
-              <p className="font-bold">Tidak ada agenda pada tab ini.</p>
+              <p className="font-bold">Tidak ada agenda atau belanjaan pada tab ini.</p>
             </div>
           ) : (
-            currentList.map((task) => (
-              <div
-                key={task.id}
-                className="p-4 flex items-center justify-between gap-4 hover:bg-brand-cream/30 transition-colors group"
-              >
-                <div className="flex items-center gap-3.5 overflow-hidden">
-                  <button
-                    onClick={() => toggleTask(task.id)}
-                    className="p-1 text-brand-dark hover:text-brand-primary transition-colors shrink-0"
-                    title={task.is_completed ? 'Tandai belum selesai' : 'Tandai selesai'}
-                  >
-                    {task.is_completed ? (
-                      <CheckSquare className="w-5 h-5 text-[#10B981]" />
-                    ) : (
-                      <Square className="w-5 h-5" />
-                    )}
-                  </button>
+            currentList.map((task) => {
+              const isShopping = Boolean(task.amount && task.amount > 0);
+              const taskPocket = isShopping ? pockets.find((p) => p.id === task.pocket_id) : null;
 
-                  <div className="overflow-hidden">
-                    <h4
-                      className={`text-sm font-black text-brand-dark truncate ${task.is_completed ? 'line-through text-brand-darkMuted' : ''
-                        }`}
+              return (
+                <div
+                  key={task.id}
+                  className="p-4 flex items-center justify-between gap-4 hover:bg-brand-cream/30 transition-colors group"
+                >
+                  <div className="flex items-center gap-3.5 overflow-hidden">
+                    <button
+                      type="button"
+                      onClick={() => handleCheckboxClick(task)}
+                      className={`p-1 transition-colors shrink-0 cursor-pointer ${
+                        task.is_completed ? 'text-emerald-600' : 'text-brand-dark hover:text-brand-primary'
+                      }`}
+                      title={
+                        isShopping
+                          ? 'Klik untuk selesaikan belanja & potong saldo riil'
+                          : task.is_completed
+                          ? 'Tandai belum selesai'
+                          : 'Tandai selesai'
+                      }
                     >
-                      {task.title}
-                    </h4>
-
-                    {task.description && (
-                      <p className="text-xs text-brand-darkMuted mt-0.5 line-clamp-1">
-                        {task.description}
-                      </p>
-                    )}
-
-                    <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-bold text-brand-darkMuted">
-                      {task.due_date && (
-                        <span className="flex items-center gap-1">
-                          <Calendar className="w-3 h-3" />
-                          {task.due_date === todayStr ? 'Hari Ini' : task.due_date}
-                        </span>
+                      {task.is_completed ? (
+                        <CheckSquare className="w-5 h-5 text-emerald-500" />
+                      ) : (
+                        <Square className="w-5 h-5" />
                       )}
-                      {task.start_time && (
-                        <span className="flex items-center gap-1">
-                          <Clock className="w-3 h-3 text-brand-primary" />
-                          {task.start_time}
-                        </span>
+                    </button>
+
+                    <div className="overflow-hidden">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <h4
+                          className={`text-sm font-black text-brand-dark truncate ${
+                            task.is_completed ? 'line-through text-brand-darkMuted' : ''
+                          }`}
+                        >
+                          {task.title}
+                        </h4>
+
+                        {isShopping && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black tabular-nums">
+                            <ShoppingBag className="w-3 h-3" />
+                            {formatMoney(task.amount!)}
+                          </span>
+                        )}
+                      </div>
+
+                      {task.description && (
+                        <p className="text-xs text-brand-darkMuted mt-0.5 line-clamp-1">
+                          {task.description}
+                        </p>
                       )}
+
+                      <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-bold text-brand-darkMuted">
+                        {isShopping && taskPocket && (
+                          <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
+                            <Tag className="w-2.5 h-2.5" />
+                            {taskPocket.name}
+                          </span>
+                        )}
+                        {task.due_date && (
+                          <span className="flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            {task.due_date === todayStr ? 'Hari Ini' : task.due_date}
+                          </span>
+                        )}
+                        {task.start_time && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-brand-primary" />
+                            {task.start_time}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="flex items-center gap-2 shrink-0">
-                  {task.priority === 'high' && (
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-red-100 text-red-700 border border-red-300">
-                      Penting
-                    </span>
-                  )}
-                  {task.priority === 'medium' && (
-                    <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-300">
-                      Sedang
-                    </span>
-                  )}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {task.priority === 'high' && (
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-red-100 text-red-700 border border-red-300">
+                        Penting
+                      </span>
+                    )}
+                    {task.priority === 'medium' && (
+                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-300">
+                        Sedang
+                      </span>
+                    )}
 
-                  <button
-                    onClick={() => handleEdit(task)}
-                    className="p-1.5 rounded-lg text-brand-darkMuted hover:text-brand-dark hover:bg-brand-cream"
-                    title="Edit Tugas"
-                  >
-                    <Edit2 className="w-3.5 h-3.5" />
-                  </button>
-                  <button
-                    onClick={() => handleDelete(task.id, task.title)}
-                    className="p-1.5 rounded-lg text-brand-darkMuted hover:text-red-600 hover:bg-red-50"
-                    title="Hapus Tugas"
-                  >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                    <button
+                      onClick={() => handleEdit(task)}
+                      className="p-1.5 rounded-lg text-brand-darkMuted hover:text-brand-dark hover:bg-brand-cream cursor-pointer"
+                      title="Edit Tugas"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(task.id, task.title)}
+                      className="p-1.5 rounded-lg text-brand-darkMuted hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                      title="Hapus Tugas"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </Card>
 
+      {/* Deduction Modal for Shopping Task */}
+      {pendingTask && (
+        <Modal
+          isOpen={!!pendingTask}
+          onClose={() => setPendingTask(null)}
+          title="Selesaikan Belanja & Potong Saldo?"
+          subtitle="Otomatisasi pengeluaran ke dalam buku kas dan saldo riil Anda"
+        >
+          <div className="space-y-4">
+            <div className="p-4 bg-emerald-50 rounded-2xl border-2 border-emerald-300 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-emerald-900 uppercase tracking-wide">
+                  Detail Kebutuhan Belanja
+                </span>
+                <span className="text-sm font-black text-emerald-950 tabular-nums">
+                  {formatMoney(pendingTask.amount || 0)}
+                </span>
+              </div>
+              <h4 className="text-sm font-black text-brand-dark">{pendingTask.title}</h4>
+              {pendingTask.description && (
+                <p className="text-xs text-brand-darkMuted font-medium">
+                  {pendingTask.description}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider">
+                Potong dari Kantong:
+              </label>
+              <select
+                value={selectedPocketId}
+                onChange={(e) => setSelectedPocketId(e.target.value)}
+                className="w-full bg-white text-brand-dark font-bold text-sm rounded-xl border-2 border-brand-border p-2.5 focus:border-brand-dark focus:shadow-saweria-sm outline-none"
+              >
+                {pockets.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div className="p-3 bg-brand-cream rounded-xl border border-brand-border flex items-start gap-2.5 text-xs text-brand-darkMuted font-medium">
+              <AlertCircle className="w-4 h-4 text-brand-dark shrink-0 mt-0.5" />
+              <span>
+                Memilih <b>Potong Saldo</b> akan langsung mengurangi <b>Total Saldo Riil</b> dan mencatatnya ke Riwayat Transaksi.
+              </span>
+            </div>
+
+            <div className="pt-2 flex flex-col sm:flex-row items-center justify-end gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setPendingTask(null)}
+                className="w-full sm:w-auto"
+              >
+                Batal
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleCompleteWithoutDeduct}
+                className="w-full sm:w-auto"
+              >
+                Hanya Selesaikan
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                isLoading={isProcessing}
+                onClick={handleConfirmDeduct}
+                className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 border-brand-dark text-brand-dark font-black"
+              >
+                Ya, Potong Saldo ({formatMoney(pendingTask.amount || 0)})
+              </Button>
+            </div>
+          </div>
+        </Modal>
+      )}
+
+      {/* Global Task Creation / Edit Modal */}
       <TaskModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}

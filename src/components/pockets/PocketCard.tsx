@@ -89,14 +89,23 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
 
       {/* Footer: Sisa Saldo */}
       <div className="mt-4 pt-2.5 flex items-center justify-between text-xs font-bold border-t border-dashed border-brand-border">
-        <span className="text-brand-darkMuted">Sisa Kuota:</span>
+        <div className="flex items-center gap-1.5">
+          <span
+            className={`w-2 h-2 rounded-full ${
+              isOverBudget ? 'bg-red-500 animate-pulse' : 'bg-emerald-500'
+            }`}
+          />
+          <span className="text-brand-darkMuted">
+            {isOverBudget ? 'Overbudget:' : 'Sisa Kuota:'}
+          </span>
+        </div>
         <span
           className={`font-black tabular-nums ${
             isOverBudget ? 'text-red-600' : 'text-[#047857]'
           }`}
         >
           {isOverBudget
-            ? `Melebihi ${formatMoney(Math.abs(pocket.remainingAmount))}`
+            ? `-${formatMoney(Math.abs(pocket.remainingAmount))}`
             : formatMoney(pocket.remainingAmount)}
         </span>
       </div>

@@ -3,6 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import {
   X,
   CalendarClock,
+  CalendarCheck2,
   HandCoins,
   PiggyBank,
   PieChart,
@@ -68,6 +69,13 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
       color: '#34D399',
       badge: activeGoalsCount > 0 ? `${activeGoalsCount} Target` : undefined,
       badgeDanger: false,
+    },
+    {
+      to: '/app/planner',
+      title: 'Planner & Belanja Pokok',
+      desc: 'Checklist belanja dan tugas dengan potong saldo otomatis',
+      icon: CalendarCheck2,
+      color: '#10B981',
     },
     {
       to: '/app/reports',
