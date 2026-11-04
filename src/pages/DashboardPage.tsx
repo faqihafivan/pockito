@@ -30,10 +30,13 @@ import {
   Bell,
   PiggyBank,
   PieChart,
-  ChevronRight,
   Plus,
   Info,
   SlidersHorizontal,
+  Zap,
+  Sparkles,
+  BarChart3,
+  LayoutGrid,
 } from 'lucide-react';
 
 interface DashboardPrefs {
@@ -59,10 +62,10 @@ const DEFAULT_PREFS: DashboardPrefs = {
   showShortcutDebts: true,
   showShortcutGoals: true,
   showShortcutReports: true,
-  showShortcutPlanner: false,
-  showShortcutTransactions: false,
+  showShortcutPlanner: true,
+  showShortcutTransactions: true,
 
-  showGuardrails: true,
+  showGuardrails: false, // Default false to eliminate pagu/budget limit clutter
   showDonutChart: true,
   showPocketMarquee: true,
   showRecentTransactions: true,
@@ -165,57 +168,84 @@ export const DashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-4 sm:space-y-6">
-      {/* 1. Space-Saving Unified Hero: Greeting + Saldo Riil (Clutter Free) */}
-      <div className="bg-white dark:bg-slate-900 p-3.5 sm:p-5 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria flex flex-col md:flex-row md:items-center justify-between gap-3 sm:gap-4 transition-colors">
-        {/* Left: Compact Greeting & Quick Action Chips */}
-        <div className="min-w-0">
-          <div className="flex items-center gap-2 flex-wrap mb-1 sm:mb-1.5">
-            {/* Clickable Daily Briefing Trigger Chip */}
-            <button
-              type="button"
-              onClick={openBriefing}
-              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black border-2 border-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer ${
-                dailyBriefing.hasUrgentItems
-                  ? 'bg-red-500 text-white animate-pulse'
-                  : 'bg-brand-primary text-brand-dark hover:bg-brand-primaryHover'
-              }`}
-              title="Buka Ringkasan Briefing Finansial Hari Ini"
-            >
-              <Bell className="w-3 h-3 fill-current" />
-              <span>
-                {dailyBriefing.hasUrgentItems
-                  ? `${dailyBriefing.urgentCount} Agenda Mendesak`
-                  : `${dailyBriefing.items.length} Agenda Hari Ini`}
-              </span>
-            </button>
+      {/* 1. Top Header Row: User Avatar & Greeting (Left) + Notification & Customize Pill (Right) - Matching Screenshot 1 */}
+      <div className="flex items-center justify-between gap-3">
+        {/* Left: User Avatar + Welcome Greeting */}
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-brand-primary/25 dark:bg-brand-primary/30 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center font-black text-brand-dark dark:text-slate-100 shadow-saweria-xs shrink-0 overflow-hidden">
+            {user?.avatar_url ? (
+              <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+            ) : (
+              <span className="text-base sm:text-lg font-black">{getUserDisplayName().charAt(0).toUpperCase()}</span>
+            )}
           </div>
-
-          <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark dark:text-slate-100 tracking-tight truncate">
-            {getGreeting()}, {getUserDisplayName()}! 👋
-          </h2>
-          <p className="text-xs sm:text-sm font-bold text-brand-darkMuted dark:text-slate-400 mt-0.5">
-            Arus kas, alokasi kantong, dan checklist belanjamu terpadu di sini.
-          </p>
+          <div className="min-w-0">
+            <span className="text-[11px] sm:text-xs font-bold text-brand-darkMuted dark:text-slate-400 block leading-tight">
+              {getGreeting()},
+            </span>
+            <h2 className="text-base sm:text-lg md:text-xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-tight truncate">
+              {getUserDisplayName()}! 👋
+            </h2>
+          </div>
         </div>
 
-        {/* Right: Saldo Riil Box with Quick Salary Entry (Compact Side-by-Side on Mobile & Desktop) */}
-        <div className="flex flex-row items-center justify-between gap-2.5 sm:gap-4 bg-brand-cream/60 dark:bg-slate-950/60 p-2.5 sm:px-4 sm:py-3 rounded-xl sm:rounded-2xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm shrink-0">
-          <div className="min-w-0 flex-1">
+        {/* Right: Pill container with Notification Bell & Customize Settings (Screenshot 1 Pill Style) */}
+        <div className="flex items-center bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-700 rounded-full p-1 shadow-saweria-xs shrink-0">
+          {/* Bell / Daily Briefing */}
+          <button
+            type="button"
+            onClick={openBriefing}
+            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer relative ${
+              dailyBriefing.hasUrgentItems
+                ? 'bg-red-500 text-white animate-pulse'
+                : 'hover:bg-brand-cream dark:hover:bg-slate-800 text-brand-dark dark:text-slate-200'
+            }`}
+            title="Buka Briefing & Agenda Harian"
+            aria-label="Notifikasi Agenda"
+          >
+            <Bell className="w-4 h-4 stroke-[2.3]" />
+            {dailyBriefing.items.length > 0 && !dailyBriefing.hasUrgentItems && (
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-primary border border-brand-dark" />
+            )}
+          </button>
+
+          {/* Atur Tampilan / Customize View */}
+          <button
+            type="button"
+            onClick={() => setIsCustomizeOpen(true)}
+            className="w-9 h-9 rounded-full hover:bg-brand-cream dark:hover:bg-slate-800 text-brand-dark dark:text-slate-200 flex items-center justify-center transition-all cursor-pointer"
+            title="Atur Tampilan Dashboard"
+            aria-label="Atur Tampilan Dashboard"
+          >
+            <SlidersHorizontal className="w-4 h-4 stroke-[2.3]" />
+          </button>
+        </div>
+      </div>
+
+      {/* 2. Hero Card: Total Saldo Riil (Golden Wallet Card Pass - Matching Screenshot 1) */}
+      <div className="relative rounded-3xl bg-gradient-to-br from-[#FFE366] via-[#FFD233] to-[#F5BA00] dark:from-amber-500 dark:via-amber-600 dark:to-amber-700 text-brand-dark border-2 border-brand-dark dark:border-slate-800 shadow-saweria p-5 sm:p-6 overflow-hidden transition-all">
+        {/* Subtle geometric watermark/accent */}
+        <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-white/15 dark:bg-white/10 pointer-events-none" />
+        <div className="absolute -right-2 -top-12 w-28 h-28 rounded-full bg-brand-dark/5 pointer-events-none" />
+
+        <div className="relative z-10 flex flex-col justify-between gap-4 sm:gap-5">
+          {/* Card Top Row: Label + Info + Privacy Toggle + Period Chip */}
+          <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-[10px] sm:text-xs font-black text-brand-darkMuted dark:text-slate-400 uppercase tracking-wider">
+              <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-brand-dark/85">
                 Total Saldo Riil
               </span>
-
-              {/* Informative Help Button (Menjawab Feedback #14 & #16) */}
               <button
                 type="button"
                 onClick={() => setIsBalanceInfoOpen(true)}
-                className="w-4 h-4 rounded-full bg-white dark:bg-slate-800 border border-brand-dark/40 dark:border-slate-700 hover:border-brand-dark flex items-center justify-center text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark transition-colors cursor-pointer"
+                className="w-4 h-4 rounded-full bg-brand-dark/10 hover:bg-brand-dark/20 text-brand-dark flex items-center justify-center transition-colors cursor-pointer"
                 title="Pelajari bagaimana Saldo Riil dihitung dan diakumulasikan setiap bulan"
               >
                 <Info className="w-2.5 h-2.5 stroke-[2.5]" />
               </button>
+            </div>
 
+            <div className="flex items-center gap-1.5">
               {/* Privacy Eye Toggle */}
               <button
                 type="button"
@@ -228,40 +258,48 @@ export const DashboardPage: React.FC = () => {
                     'info'
                   );
                 }}
-                className={`p-1 rounded-lg border transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
+                className={`p-1.5 rounded-xl border border-brand-dark/30 transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
                   isPrivacyMode
-                    ? 'bg-amber-100 border-brand-dark text-amber-800 shadow-saweria-xs'
-                    : 'bg-white dark:bg-slate-800 border-brand-dark/30 dark:border-slate-700 text-brand-darkMuted dark:text-slate-300 hover:text-brand-dark hover:border-brand-dark shadow-saweria-xs'
+                    ? 'bg-brand-dark text-white shadow-saweria-xs'
+                    : 'bg-white/80 hover:bg-white text-brand-dark shadow-saweria-xs'
                 }`}
                 title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
                 aria-label={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
               >
                 {isPrivacyMode ? (
-                  <EyeOff className="w-3 h-3 stroke-[2.4] text-amber-700" />
+                  <EyeOff className="w-3.5 h-3.5 stroke-[2.4]" />
                 ) : (
-                  <Eye className="w-3 h-3 stroke-[2.2]" />
+                  <Eye className="w-3.5 h-3.5 stroke-[2.2]" />
                 )}
               </button>
-            </div>
 
-            <div className="text-xl sm:text-2xl font-black text-brand-dark dark:text-slate-100 tabular-nums tracking-tight truncate mt-0.5">
-              {formatMoney(overview.totalRecordedBalance)}
-            </div>
-
-            <div className="flex items-center gap-1.5 mt-0.5">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <p className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 truncate">
-                Kas & rekening aktif
-              </p>
+              {/* Period Dropdown Chip (Like 'Year v' in Screenshot 1) */}
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs font-black bg-white/80 dark:bg-slate-900/40 text-brand-dark dark:text-slate-100 border border-brand-dark/30 shadow-saweria-xs flex items-center gap-1">
+                <span>{selectedPeriod}</span>
+              </span>
             </div>
           </div>
 
-          {/* Quick Add Income / Salary Button (Sebelah Saldo Riil di Mobile & Desktop) */}
-          <div className="flex items-center justify-end pl-2 sm:pl-3 border-l border-brand-border dark:border-slate-800 shrink-0">
+          {/* Card Center: Hero Balance Number */}
+          <div className="py-0.5">
+            <div className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-dark tabular-nums tracking-tight drop-shadow-sm">
+              {formatMoney(overview.totalRecordedBalance)}
+            </div>
+          </div>
+
+          {/* Card Bottom Row: Account Info + Catat Gaji Button */}
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-brand-dark/15 dark:border-white/15">
+            <div className="flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse border border-emerald-800" />
+              <span className="text-xs font-bold text-brand-dark/90">
+                Kas & Bank Aktif
+              </span>
+            </div>
+
             <button
               type="button"
               onClick={() => setIsIncomeModalOpen(true)}
-              className="inline-flex items-center justify-center gap-1 px-2.5 sm:px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-brand-dark font-black text-xs border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-brand-dark hover:bg-black text-white font-black text-xs shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
               title="Catat Gaji Bulanan atau Pemasukan Baru"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />
@@ -271,203 +309,151 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Headline Stat Cards: Pemasukan (Mint), Pengeluaran (Rose), Sisa Budget (Honey) */}
+      {/* 3. Two Metric Cards: Pengeluaran (Left) & Pemasukan (Right) - Matching Screenshot 1 (Tanpa Pagu / Sisa Budget) */}
       <StatCards
         overview={overview}
         onSelectType={(type) => setViewHistoryType(type)}
+        showBudgetRemaining={false}
       />
 
-      {/* 3. Pintasan Menu Tepat di Bawah Sisa Budget (Bisa Dipilih & Diatur User Sesuai Kebutuhan) */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between px-0.5 pt-1">
+      {/* 4. Pintasan Fitur (8 Icon Grid - Matching Screenshot 2: Clean, Circular & Familiar) */}
+      <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria p-4 sm:p-5 space-y-3 transition-colors">
+        <div className="flex items-center justify-between px-1">
           <div className="flex items-center gap-1.5">
-            <h3 className="text-xs font-black text-brand-dark dark:text-slate-100 uppercase tracking-wider">
-              Pintasan Menu
+            <h3 className="text-xs sm:text-sm font-black text-brand-dark dark:text-slate-100 uppercase tracking-wider">
+              Pintasan Fitur
             </h3>
             <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 hidden sm:inline">
-              (Bisa dipilih sesuai kebutuhan)
+              (Akses cepat 1-ketukan)
             </span>
           </div>
 
           <button
             type="button"
             onClick={() => setIsCustomizeOpen(true)}
-            className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-[10px] sm:text-xs font-black bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 text-brand-dark dark:text-slate-200 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
-            title="Atur pintasan yang ingin dimunculkan atau disembunyikan di bawah Sisa Budget"
+            className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200 transition-colors cursor-pointer"
           >
             <SlidersHorizontal className="w-3 h-3 text-brand-primary" />
-            <span>Atur Pintasan</span>
+            <span>Atur Tampilan</span>
           </button>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
-          {/* 1. Tagihan Rutin */}
-          {prefs.showShortcutSubscriptions && (
-            <Link
-              to="/app/subscriptions"
-              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                  <CalendarClock className="w-4 h-4 text-sky-900 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Tagihan Rutin</span>
-                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                    {subscriptions.length} tagihan aktif
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsSubscriptionModalOpen(true);
-                  }}
-                  className="w-6 h-6 rounded-lg bg-sky-200/70 hover:bg-sky-300 text-sky-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-                  title="Tambah Tagihan Baru"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-                <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-              </div>
-            </Link>
-          )}
+        {/* 8-Icon Grid: 4 cols on mobile, 8 cols on desktop */}
+        <div className="grid grid-cols-4 md:grid-cols-8 gap-3 sm:gap-4 pt-1">
+          {/* 1. Tagihan */}
+          <Link
+            to="/app/subscriptions"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Kelola Tagihan Rutin (Listrik, Wifi, Air)"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-amber-100 to-amber-50 dark:from-amber-950/60 dark:to-amber-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-amber-600 dark:text-amber-400 group-hover:scale-105 active:scale-95 transition-all">
+              <Zap className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.4] fill-amber-500/20" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Tagihan
+            </span>
+          </Link>
 
-          {/* 2. Hutang & Piutang */}
-          {prefs.showShortcutDebts && (
-            <Link
-              to="/app/debts"
-              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-rose-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                  <HandCoins className="w-4 h-4 text-rose-900 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Hutang Piutang</span>
-                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                    {debts.filter((d) => !d.is_settled).length} aktif
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsDebtModalOpen(true);
-                  }}
-                  className="w-6 h-6 rounded-lg bg-rose-200/70 hover:bg-rose-300 text-rose-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-                  title="Catat Hutang/Piutang Baru"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-                <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-              </div>
-            </Link>
-          )}
+          {/* 2. Hutang */}
+          <Link
+            to="/app/debts"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Kelola Hutang & Piutang"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-purple-100 to-purple-50 dark:from-purple-950/60 dark:to-purple-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-purple-600 dark:text-purple-400 group-hover:scale-105 active:scale-95 transition-all">
+              <HandCoins className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Hutang
+            </span>
+          </Link>
 
-          {/* 3. Target Tabungan */}
-          {prefs.showShortcutGoals && (
-            <Link
-              to="/app/goals"
-              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                  <PiggyBank className="w-4 h-4 text-emerald-900 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Target Tabungan</span>
-                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                    {goals.length} target impian
-                  </span>
-                </div>
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    setIsGoalModalOpen(true);
-                  }}
-                  className="w-6 h-6 rounded-lg bg-emerald-200/70 hover:bg-emerald-300 text-emerald-900 border border-brand-dark/40 flex items-center justify-center transition-all active:scale-90"
-                  title="Buat Target Baru"
-                >
-                  <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-                </button>
-                <ChevronRight className="w-3.5 h-3.5 text-brand-darkMuted group-hover:text-brand-dark hidden sm:inline" />
-              </div>
-            </Link>
-          )}
+          {/* 3. Tabungan */}
+          <Link
+            to="/app/goals"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Target Tabungan & Dana Impian"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-sky-100 to-sky-50 dark:from-sky-950/60 dark:to-sky-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-sky-600 dark:text-sky-400 group-hover:scale-105 active:scale-95 transition-all">
+              <PiggyBank className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Tabungan
+            </span>
+          </Link>
 
-          {/* 4. Laporan Keuangan */}
-          {prefs.showShortcutReports && (
-            <Link
-              to="/app/reports"
-              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                  <PieChart className="w-4 h-4 text-amber-900 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Laporan Keuangan</span>
-                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                    Analisis & arus kas
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
-            </Link>
-          )}
+          {/* 4. Kantong */}
+          <Link
+            to="/app/budget"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Alokasi Kantong Belanja"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-emerald-100 to-emerald-50 dark:from-emerald-950/60 dark:to-emerald-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-105 active:scale-95 transition-all">
+              <PieChart className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Kantong
+            </span>
+          </Link>
 
-          {/* 5. Planner & Belanja Pokok */}
-          {prefs.showShortcutPlanner && (
-            <Link
-              to="/app/planner"
-              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-teal-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                  <Target className="w-4 h-4 text-teal-900 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Planner & Belanja</span>
-                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                    {tasks.filter((t) => !t.is_completed).length} tugas aktif
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
-            </Link>
-          )}
+          {/* 5. Belanja */}
+          <Link
+            to="/app/planner"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Planner & Checklist Belanja Pokok"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-rose-100 to-rose-50 dark:from-rose-950/60 dark:to-rose-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-rose-600 dark:text-rose-400 group-hover:scale-105 active:scale-95 transition-all">
+              <Target className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Belanja
+            </span>
+          </Link>
 
-          {/* 6. Semua Transaksi */}
-          {prefs.showShortcutTransactions && (
-            <Link
-              to="/app/transactions"
-              className="p-3 sm:p-3.5 rounded-2xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-800 shadow-saweria-sm hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center justify-between group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-100 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-                  <Wallet className="w-4 h-4 text-purple-900 stroke-[2.3]" />
-                </div>
-                <div className="min-w-0">
-                  <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">Buku Transaksi</span>
-                  <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
-                    Semua mutasi kas
-                  </span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-brand-darkMuted group-hover:text-brand-dark shrink-0" />
-            </Link>
-          )}
+          {/* 6. Scan AI */}
+          <button
+            type="button"
+            onClick={() => {
+              showToast('Buka fitur AI Receipt Scanner di tombol Catat Transaksi!', 'info');
+            }}
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Scan Struk Belanja dengan AI Gemini"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-teal-100 to-teal-50 dark:from-teal-950/60 dark:to-teal-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-teal-600 dark:text-teal-400 group-hover:scale-105 active:scale-95 transition-all">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Scan AI
+            </span>
+          </button>
+
+          {/* 7. Laporan */}
+          <Link
+            to="/app/reports"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Laporan Keuangan & Analisis Arus Kas"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-cyan-100 to-cyan-50 dark:from-cyan-950/60 dark:to-cyan-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-cyan-600 dark:text-cyan-400 group-hover:scale-105 active:scale-95 transition-all">
+              <BarChart3 className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Laporan
+            </span>
+          </Link>
+
+          {/* 8. Mutasi */}
+          <Link
+            to="/app/transactions"
+            className="flex flex-col items-center group text-center cursor-pointer select-none"
+            title="Semua Mutasi & Buku Kas"
+          >
+            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl sm:rounded-3xl bg-gradient-to-b from-indigo-100 to-indigo-50 dark:from-indigo-950/60 dark:to-indigo-900/30 border-2 border-brand-dark/20 dark:border-slate-700 shadow-saweria-xs flex items-center justify-center text-indigo-600 dark:text-indigo-400 group-hover:scale-105 active:scale-95 transition-all">
+              <LayoutGrid className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.3]" />
+            </div>
+            <span className="text-[11px] sm:text-xs font-black text-brand-dark dark:text-slate-200 mt-1.5 tracking-tight group-hover:text-brand-primary transition-colors">
+              Mutasi
+            </span>
+          </Link>
         </div>
       </div>
 

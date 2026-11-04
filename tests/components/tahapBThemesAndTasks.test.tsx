@@ -101,7 +101,7 @@ describe('Tahap B: Theme Engine & Smart Shopping Tasks', () => {
         <NotificationProvider>
           <AuthProvider>
             <DataProvider>
-              <StatCards overview={mockOverview} />
+              <StatCards overview={mockOverview} showBudgetRemaining={true} />
             </DataProvider>
           </AuthProvider>
         </NotificationProvider>
