@@ -198,7 +198,7 @@ export const PlannerPage: React.FC = () => {
           </div>
 
           <div className="text-left sm:text-right shrink-0">
-            <span className="text-base sm:text-lg font-black text-emerald-950 dark:text-emerald-100 tabular-nums block">
+            <span className="text-base sm:text-lg font-black text-emerald-950 dark:text-emerald-300 tabular-nums block">
               {formatMoney(totalPendingShopping)}
             </span>
           </div>
@@ -280,13 +280,13 @@ export const PlannerPage: React.FC = () => {
               return (
                 <div
                   key={task.id}
-                  className="p-4 flex items-center justify-between gap-4 hover:bg-brand-cream/30 transition-colors group"
+                  className="p-3.5 sm:p-4 flex items-start justify-between gap-3 hover:bg-brand-cream/30 transition-colors group relative"
                 >
-                  <div className="flex items-center gap-3.5 overflow-hidden">
+                  <div className="flex items-start gap-3 min-w-0 flex-1">
                     <button
                       type="button"
                       onClick={() => handleCheckboxClick(task)}
-                      className={`p-1 transition-colors shrink-0 cursor-pointer ${
+                      className={`p-1 mt-0.5 transition-colors shrink-0 cursor-pointer ${
                         task.is_completed ? 'text-emerald-600' : 'text-brand-dark hover:text-brand-primary'
                       }`}
                       title={
@@ -304,7 +304,7 @@ export const PlannerPage: React.FC = () => {
                       )}
                     </button>
 
-                    <div className="overflow-hidden">
+                    <div className="min-w-0 flex-1 pr-1">
                       <div className="flex items-center gap-2 flex-wrap">
                         <h4
                           className={`text-sm font-black text-brand-dark truncate ${
@@ -315,9 +315,9 @@ export const PlannerPage: React.FC = () => {
                         </h4>
 
                         {isShopping && (
-                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 text-emerald-800 border border-emerald-300 text-xs font-black tabular-nums">
-                            <ShoppingBag className="w-3 h-3" />
-                            {formatMoney(task.amount!)}
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 text-xs font-black tabular-nums whitespace-nowrap shrink-0">
+                            <ShoppingBag className="w-3 h-3 shrink-0" />
+                            <span className="whitespace-nowrap">{formatMoney(task.amount!)}</span>
                           </span>
                         )}
                       </div>
@@ -328,55 +328,60 @@ export const PlannerPage: React.FC = () => {
                         </p>
                       )}
 
-                      <div className="flex flex-wrap items-center gap-2 mt-1 text-[11px] font-bold text-brand-darkMuted">
+                      <div className="flex flex-wrap items-center gap-2 mt-1.5 text-[11px] font-bold text-brand-darkMuted">
                         {isShopping && taskPocket && (
-                          <span className="flex items-center gap-1 text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded border border-emerald-200">
-                            <Tag className="w-2.5 h-2.5" />
-                            {taskPocket.name}
+                          <span className="flex items-center gap-1 text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 px-1.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-700">
+                            <Tag className="w-2.5 h-2.5 shrink-0" />
+                            <span>{taskPocket.name}</span>
                           </span>
                         )}
                         {task.due_date && (
-                          <span className="flex items-center gap-1">
-                            <Calendar className="w-3 h-3" />
-                            {task.due_date === todayStr ? 'Hari Ini' : task.due_date}
+                          <span className="flex items-center gap-1 whitespace-nowrap">
+                            <Calendar className="w-3 h-3 shrink-0" />
+                            <span>{task.due_date === todayStr ? 'Hari Ini' : task.due_date}</span>
                           </span>
                         )}
                         {task.start_time && (
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3 text-brand-primary" />
-                            {task.start_time}
+                          <span className="flex items-center gap-1 whitespace-nowrap">
+                            <Clock className="w-3 h-3 text-brand-primary shrink-0" />
+                            <span>{task.start_time}</span>
                           </span>
                         )}
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0">
-                    {task.priority === 'high' && (
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-red-100 text-red-700 border border-red-300">
-                        Penting
-                      </span>
-                    )}
-                    {task.priority === 'medium' && (
-                      <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-lg bg-yellow-100 text-yellow-800 border border-yellow-300">
-                        Sedang
-                      </span>
-                    )}
+                  {/* Pojok Kanan Atas: Prioritas, Bawah: Action Buttons */}
+                  <div className="flex flex-col items-end justify-between gap-2.5 shrink-0 self-stretch">
+                    <div>
+                      {task.priority === 'high' && (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 border border-red-300 dark:border-red-600 whitespace-nowrap">
+                          Penting
+                        </span>
+                      )}
+                      {task.priority === 'medium' && (
+                        <span className="text-[10px] font-black uppercase px-2 py-0.5 rounded-md bg-yellow-100 dark:bg-yellow-950/50 text-yellow-800 dark:text-yellow-300 border border-yellow-300 dark:border-yellow-600 whitespace-nowrap">
+                          Sedang
+                        </span>
+                      )}
+                    </div>
 
-                    <button
-                      onClick={() => handleEdit(task)}
-                      className="p-1.5 rounded-lg text-brand-darkMuted hover:text-brand-dark hover:bg-brand-cream cursor-pointer"
-                      title="Edit Tugas"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(task.id, task.title)}
-                      className="p-1.5 rounded-lg text-brand-darkMuted hover:text-red-600 hover:bg-red-50 cursor-pointer"
-                      title="Hapus Tugas"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
+                    <div className="flex items-center gap-1 mt-auto">
+                      <button
+                        onClick={() => handleEdit(task)}
+                        className="p-1.5 rounded-lg text-brand-darkMuted hover:text-brand-dark hover:bg-brand-cream cursor-pointer"
+                        title="Edit Tugas"
+                      >
+                        <Edit2 className="w-3.5 h-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(task.id, task.title)}
+                        className="p-1.5 rounded-lg text-brand-darkMuted hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                        title="Hapus Tugas"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );

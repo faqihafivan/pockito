@@ -103,7 +103,7 @@ export const SafeDailyLimitCard: React.FC<SafeDailyLimitCardProps> = ({ safeLimi
             </span>
             <span
               className={`text-sm sm:text-base font-black tabular-nums block mt-0.5 ${
-                isOverToday ? 'text-red-600 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-400'
+                isOverToday ? 'text-red-600 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-300'
               }`}
             >
               {formatMoney(remainingToday)}

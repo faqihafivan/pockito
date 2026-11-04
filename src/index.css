@@ -13,21 +13,21 @@
    ============================================================ */
 
 :root, :root[data-theme="teal-mint"] {
-  --color-primary: #379A8D;
-  --color-primary-hover: #2E8377;
-  --color-accent: #F7C948;
-  --color-cream: #F3FAF8;
+  --color-primary: #0D9488;
+  --color-primary-hover: #0F766E;
+  --color-accent: #F59E0B;
+  --color-cream: #EBF5F3;
   --color-dark: #132F2B;
-  --color-dark-muted: #53716B;
+  --color-dark-muted: #4B6E67;
   --color-card: #FFFFFF;
-  --color-border: #D1E7E2;
-  --color-border-dark: #132F2B;
-  --color-income-bg: #E3F6F3;
-  --color-income-text: #0D705C;
-  --color-expense-bg: #FEECEC;
-  --color-expense-text: #B91C1C;
-  --color-budget-bg: #FEF8E7;
-  --color-budget-text: #B45309;
+  --color-border: #B2DDD4;
+  --color-border-dark: #0F3B34;
+  --color-income-bg: #D1FAE5;
+  --color-income-text: #065F46;
+  --color-expense-bg: #FEE2E2;
+  --color-expense-text: #991B1B;
+  --color-budget-bg: #FEF3C7;
+  --color-budget-text: #92400E;
 }
 
 :root[data-theme="saweria"] {
@@ -94,7 +94,6 @@ html.dark,
 html.dark .bg-white,
 [data-theme="midnight"] .bg-white {
   background-color: #1E293B !important;
-  color: #F8FAFC !important;
 }
 
 /* Header and Sidebar dark backgrounds in dark mode */
@@ -113,16 +112,8 @@ html.dark aside,
 }
 
 /* Cream background adaptation in dark mode */
-html.dark .bg-brand-cream,
-html.dark .bg-brand-cream\/40,
-html.dark .bg-brand-cream\/60,
-html.dark .bg-brand-cream\/80,
-html.dark .bg-brand-cream\/90,
-[data-theme="midnight"] .bg-brand-cream,
-[data-theme="midnight"] .bg-brand-cream\/40,
-[data-theme="midnight"] .bg-brand-cream\/60,
-[data-theme="midnight"] .bg-brand-cream\/80,
-[data-theme="midnight"] .bg-brand-cream\/90 {
+html.dark [class*="bg-brand-cream"],
+[data-theme="midnight"] [class*="bg-brand-cream"] {
   background-color: #0F172A !important;
 }
 

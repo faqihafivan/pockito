@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useData } from '../context/DataContext';
+import { useTheme } from '../context/ThemeContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { formatIDR, formatPeriod } from '../domain/finance/financialEngine';
@@ -30,6 +31,7 @@ import { MonthlyStatementModal } from '../components/reports/MonthlyStatementMod
 
 export const ReportsPage: React.FC = () => {
   const { pocketSummaries, transactions, overview, selectedPeriod, formatMoney } = useData();
+  const { isDark } = useTheme();
   const [isStatementOpen, setIsStatementOpen] = useState(false);
 
   // Income vs Expense Data
@@ -200,7 +202,7 @@ export const ReportsPage: React.FC = () => {
           </div>
           <div
             className={`text-xl font-black tabular-nums mt-1 ${
-              netSavings >= 0 ? 'text-[#047857]' : 'text-red-600'
+              netSavings >= 0 ? 'text-[#047857] dark:text-emerald-300' : 'text-red-600 dark:text-red-400'
             }`}
           >
             {formatMoney(netSavings)}
@@ -228,29 +230,30 @@ export const ReportsPage: React.FC = () => {
                 data={incomeVsExpenseData}
                 margin={{ top: 25, right: 15, left: 10, bottom: 5 }}
               >
-                <CartesianGrid strokeDasharray="3 3" stroke="#E4E4E7" vertical={false} />
-                <XAxis dataKey="name" stroke="#18181B" fontSize={11} fontWeight={700} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#334155' : '#E4E4E7'} vertical={false} />
+                <XAxis dataKey="name" stroke={isDark ? '#CBD5E1' : '#18181B'} fontSize={11} fontWeight={700} />
                 <YAxis
-                  stroke="#18181B"
+                  stroke={isDark ? '#CBD5E1' : '#18181B'}
                   fontSize={11}
                   domain={[0, yAxisMax]}
                   tickFormatter={(val) => `Rp ${(val / 1000).toLocaleString('id-ID')}k`}
                 />
                 <Tooltip
+                  cursor={{ fill: isDark ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.04)' }}
                   formatter={(val: number) => formatIDR(val)}
                   contentStyle={{
-                    backgroundColor: '#18181B',
+                    backgroundColor: isDark ? '#1E293B' : '#18181B',
                     borderRadius: '12px',
-                    border: '2px solid #18181B',
+                    border: `2px solid ${isDark ? '#475569' : '#18181B'}`,
                     color: '#fff',
                     fontWeight: 700,
                   }}
                 />
-                <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 700 }} />
+                <Legend wrapperStyle={{ fontSize: '11px', fontWeight: 700, color: isDark ? '#F8FAFC' : '#18181B' }} />
                 <Bar
                   dataKey="Pemasukan"
                   fill="#10B981"
-                  stroke="#18181B"
+                  stroke={isDark ? '#475569' : '#18181B'}
                   strokeWidth={1.5}
                   radius={[6, 6, 0, 0]}
                 >
@@ -258,7 +261,7 @@ export const ReportsPage: React.FC = () => {
                     dataKey="Pemasukan"
                     position="top"
                     formatter={(val: number) => formatIDR(val)}
-                    fill="#18181B"
+                    fill={isDark ? '#F8FAFC' : '#18181B'}
                     fontSize={11}
                     fontWeight={800}
                     offset={8}
@@ -267,7 +270,7 @@ export const ReportsPage: React.FC = () => {
                 <Bar
                   dataKey="Pengeluaran"
                   fill="#EF4444"
-                  stroke="#18181B"
+                  stroke={isDark ? '#475569' : '#18181B'}
                   strokeWidth={1.5}
                   radius={[6, 6, 0, 0]}
                 >
@@ -275,7 +278,7 @@ export const ReportsPage: React.FC = () => {
                     dataKey="Pengeluaran"
                     position="top"
                     formatter={(val: number) => formatIDR(val)}
-                    fill="#18181B"
+                    fill={isDark ? '#F8FAFC' : '#18181B'}
                     fontSize={11}
                     fontWeight={800}
                     offset={8}
@@ -438,7 +441,7 @@ export const ReportsPage: React.FC = () => {
                     <td className="p-3.5 tabular-nums">{pocket.allocation_percentage}%</td>
                     <td className="p-3.5 tabular-nums">{formatMoney(pocket.plannedAmount)}</td>
                     <td className="p-3.5 tabular-nums">{formatMoney(pocket.spentAmount)}</td>
-                    <td className={`p-3.5 tabular-nums ${isOver ? 'text-red-600' : 'text-[#047857]'}`}>
+                    <td className={`p-3.5 tabular-nums ${isOver ? 'text-red-600 dark:text-red-400' : 'text-[#047857] dark:text-emerald-300'}`}>
                       {formatMoney(pocket.remainingAmount)}
                     </td>
                     <td className="p-3.5">

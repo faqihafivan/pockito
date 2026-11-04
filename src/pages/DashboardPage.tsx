@@ -187,23 +187,23 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 2. Hero Card: Total Saldo Riil (Golden Wallet Card Pass - Matching Screenshot 1) */}
-      <div className="relative rounded-3xl bg-gradient-to-br from-[#FFE366] via-[#FFD233] to-[#F5BA00] dark:from-amber-500 dark:via-amber-600 dark:to-amber-700 text-brand-dark border-2 border-brand-dark dark:border-slate-800 shadow-saweria p-5 sm:p-6 overflow-hidden transition-all">
+      {/* 2. Hero Card: Total Saldo Riil (Teal Wallet Card Pass) */}
+      <div className="relative rounded-3xl bg-gradient-to-br from-[#14B8A6] via-[#0D9488] to-[#0F766E] dark:from-teal-600 dark:via-teal-700 dark:to-teal-900 text-white border-2 border-brand-dark dark:border-teal-500/40 shadow-saweria p-5 sm:p-6 overflow-hidden transition-all">
         {/* Subtle geometric watermark/accent */}
-        <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-white/15 dark:bg-white/10 pointer-events-none" />
-        <div className="absolute -right-2 -top-12 w-28 h-28 rounded-full bg-brand-dark/5 pointer-events-none" />
+        <div className="absolute -right-8 -bottom-8 w-44 h-44 rounded-full bg-white/10 pointer-events-none" />
+        <div className="absolute -right-2 -top-12 w-28 h-28 rounded-full bg-black/10 pointer-events-none" />
 
         <div className="relative z-10 flex flex-col justify-between gap-4 sm:gap-5">
           {/* Card Top Row: Label + Info + Privacy Toggle + Period Chip */}
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-1.5">
-              <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-brand-dark/85">
+              <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-teal-100">
                 Total Saldo Riil
               </span>
               <button
                 type="button"
                 onClick={() => setIsBalanceInfoOpen(true)}
-                className="w-4 h-4 rounded-full bg-brand-dark/10 hover:bg-brand-dark/20 text-brand-dark flex items-center justify-center transition-colors cursor-pointer"
+                className="w-4 h-4 rounded-full bg-white/20 hover:bg-white/30 text-white flex items-center justify-center transition-colors cursor-pointer"
                 title="Pelajari bagaimana Saldo Riil dihitung dan diakumulasikan setiap bulan"
               >
                 <Info className="w-2.5 h-2.5 stroke-[2.5]" />
@@ -223,10 +223,10 @@ export const DashboardPage: React.FC = () => {
                     'info'
                   );
                 }}
-                className={`p-1.5 rounded-xl border border-brand-dark/30 transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
+                className={`p-1.5 rounded-xl border border-white/30 text-white transition-all active:scale-95 flex items-center justify-center cursor-pointer ${
                   isPrivacyMode
-                    ? 'bg-brand-dark text-white shadow-saweria-xs'
-                    : 'bg-white/80 hover:bg-white text-brand-dark shadow-saweria-xs'
+                    ? 'bg-black/30'
+                    : 'bg-white/20 hover:bg-white/30'
                 }`}
                 title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
                 aria-label={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
@@ -238,8 +238,8 @@ export const DashboardPage: React.FC = () => {
                 )}
               </button>
 
-              {/* Period Dropdown Chip (Like 'Year v' in Screenshot 1) */}
-              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs font-black bg-white/80 dark:bg-slate-900/40 text-brand-dark dark:text-slate-100 border border-brand-dark/30 shadow-saweria-xs flex items-center gap-1">
+              {/* Period Dropdown Chip */}
+              <span className="px-3 py-1 rounded-full text-[11px] sm:text-xs font-black bg-white/20 text-white border border-white/30 shadow-saweria-xs flex items-center gap-1 backdrop-blur-sm">
                 <span>{selectedPeriod}</span>
               </span>
             </div>
@@ -247,16 +247,16 @@ export const DashboardPage: React.FC = () => {
 
           {/* Card Center: Hero Balance Number */}
           <div className="py-0.5">
-            <div className="text-3xl sm:text-4xl md:text-5xl font-black text-brand-dark tabular-nums tracking-tight drop-shadow-sm">
+            <div className="text-3xl sm:text-4xl md:text-5xl font-black text-white tabular-nums tracking-tight drop-shadow-md">
               {formatMoney(overview.totalRecordedBalance)}
             </div>
           </div>
 
           {/* Card Bottom Row: Account Info + Catat Gaji Button */}
-          <div className="flex items-center justify-between gap-2 pt-2 border-t border-brand-dark/15 dark:border-white/15">
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-white/20">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-600 animate-pulse border border-emerald-800" />
-              <span className="text-xs font-bold text-brand-dark/90">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-300 animate-pulse border border-emerald-400" />
+              <span className="text-xs font-bold text-teal-100">
                 Kas & Bank Aktif
               </span>
             </div>
@@ -264,7 +264,7 @@ export const DashboardPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsIncomeModalOpen(true)}
-              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-brand-dark hover:bg-black text-white font-black text-xs shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-1.5 sm:px-4 sm:py-2 rounded-full bg-slate-900 hover:bg-black text-white font-black text-xs shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all flex items-center gap-1.5 cursor-pointer whitespace-nowrap border-2 border-slate-900/60 dark:border-teal-400/40"
               title="Catat Gaji Bulanan atau Pemasukan Baru"
             >
               <Plus className="w-3.5 h-3.5 stroke-[3]" />

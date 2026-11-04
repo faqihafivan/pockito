@@ -15,6 +15,8 @@ import {
   Edit2,
   Star,
   Sparkles,
+  Lock,
+  Unlock,
 } from 'lucide-react';
 
 import { useNotification } from '../context/NotificationContext';
@@ -33,6 +35,7 @@ export const BudgetPage: React.FC = () => {
   const [isPocketModalOpen, setIsPocketModalOpen] = useState(false);
   const [pocketToEdit, setPocketToEdit] = useState<Pocket | null>(null);
   const [isRecommendationOpen, setIsRecommendationOpen] = useState(false);
+  const [isSlidersLocked, setIsSlidersLocked] = useState(false);
 
   const monthlyIncome = user?.monthly_income || 0;
 
@@ -139,6 +142,25 @@ export const BudgetPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
+          {/* Slider Lock / Unlock Toggle Button */}
+          <Button
+            variant={isSlidersLocked ? 'secondary' : 'primary'}
+            size="sm"
+            onClick={() => {
+              const next = !isSlidersLocked;
+              setIsSlidersLocked(next);
+              showToast(
+                next
+                  ? 'Slider Terkunci 🔒: Aman dari sentuhan scroll pada mobile.'
+                  : 'Slider Terbuka 🔓: Mode geser alokasi aktif.',
+                'info'
+              );
+            }}
+            leftIcon={isSlidersLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+          >
+            {isSlidersLocked ? 'Kunci Slider (Aktif)' : 'Buka Slider (Edit)'}
+          </Button>
+
           {/* One-tap balance button if not balanced */}
           {overview.totalAllocationPercentage !== 100 && (
             <Button
@@ -177,17 +199,17 @@ export const BudgetPage: React.FC = () => {
       <div
         className={`p-4 rounded-2xl border-2 flex items-center justify-between gap-4 ${
           overview.isOverallocated
-            ? 'bg-red-50 border-red-500 text-red-800'
+            ? 'bg-red-50 dark:bg-red-950/40 border-red-500 text-red-800 dark:text-red-300'
             : overview.unallocatedPercentage > 0
-            ? 'bg-brand-primary/20 border-brand-dark text-brand-dark'
-            : 'bg-[#10B981]/20 border-brand-dark text-[#047857]'
+            ? 'bg-brand-primary/20 dark:bg-amber-950/40 border-brand-dark dark:border-amber-500/40 text-brand-dark dark:text-amber-200'
+            : 'bg-[#10B981]/20 dark:bg-emerald-950/40 border-brand-dark dark:border-emerald-600/40 text-[#047857] dark:text-emerald-300'
         }`}
       >
         <div className="flex items-center gap-3 min-w-0">
           {overview.isOverallocated ? (
-            <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
+            <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400 shrink-0" />
           ) : (
-            <CheckCircle2 className="w-5 h-5 text-brand-dark shrink-0" />
+            <CheckCircle2 className="w-5 h-5 text-[#047857] dark:text-emerald-300 shrink-0" />
           )}
           <div className="min-w-0">
             <p className="text-xs font-black truncate">
@@ -214,7 +236,7 @@ export const BudgetPage: React.FC = () => {
             </button>
           )}
           <div className="text-right shrink-0">
-            <span className="text-lg font-black tabular-nums">{overview.totalAllocationPercentage}%</span>
+            <span className="text-lg font-black tabular-nums text-brand-dark dark:text-emerald-300">{overview.totalAllocationPercentage}%</span>
             <span className="text-xs font-bold block">/ 100%</span>
           </div>
         </div>
@@ -295,14 +317,26 @@ export const BudgetPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Clean Live Percentage Adjuster (Sub judul dihilangkan sesuai permintaan user) */}
+              {/* Live Percentage Adjuster with Lock Protection */}
               <div className="p-3 bg-brand-cream rounded-xl border border-brand-border space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
-                  <span>Atur Alokasi:</span>
+                  <span className="flex items-center gap-1.5">
+                    {isSlidersLocked ? (
+                      <Lock className="w-3.5 h-3.5 text-brand-darkMuted" />
+                    ) : (
+                      <Unlock className="w-3.5 h-3.5 text-brand-primary" />
+                    )}
+                    <span>Atur Alokasi:</span>
+                  </span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage - 1)}
-                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform cursor-pointer"
+                      disabled={isSlidersLocked}
+                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark font-black flex items-center justify-center transition-transform ${
+                        isSlidersLocked
+                          ? 'opacity-40 cursor-not-allowed'
+                          : 'hover:bg-brand-primary active:scale-95 cursor-pointer'
+                      }`}
                       title="Kurangi 1%"
                     >
                       -
@@ -310,7 +344,12 @@ export const BudgetPage: React.FC = () => {
                     <span className="w-12 text-center font-black tabular-nums">{pocket.allocation_percentage}%</span>
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage + 1)}
-                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform cursor-pointer"
+                      disabled={isSlidersLocked}
+                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark font-black flex items-center justify-center transition-transform ${
+                        isSlidersLocked
+                          ? 'opacity-40 cursor-not-allowed'
+                          : 'hover:bg-brand-primary active:scale-95 cursor-pointer'
+                      }`}
                       title="Tambah 1%"
                     >
                       +
@@ -322,9 +361,12 @@ export const BudgetPage: React.FC = () => {
                   type="range"
                   min="0"
                   max="100"
+                  disabled={isSlidersLocked}
                   value={pocket.allocation_percentage}
                   onChange={(e) => handlePercentageChange(pocket.id, Number(e.target.value))}
-                  className="w-full accent-brand-primary h-2 bg-white rounded-lg border border-brand-dark/20 cursor-pointer"
+                  className={`w-full accent-brand-primary h-2 bg-white rounded-lg border border-brand-dark/20 ${
+                    isSlidersLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
+                  }`}
                 />
               </div>
 
