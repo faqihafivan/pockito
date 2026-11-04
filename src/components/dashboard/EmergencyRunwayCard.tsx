@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useData } from '../../context/DataContext';
-import { ShieldCheck, ArrowRight, Sparkles, Info, HelpCircle } from 'lucide-react';
+import { ShieldCheck, ArrowRight, Info, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const EmergencyRunwayCard: React.FC = () => {
@@ -13,60 +13,58 @@ export const EmergencyRunwayCard: React.FC = () => {
     runwayMonths,
     status,
     statusLabel,
-    adviceMessage,
     targetAmount,
     progressPercentage,
-    isEstimate,
     calculationMethod,
   } = emergencyRunway;
 
   const isInsufficient = status === 'insufficient_data';
 
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border-2 border-brand-dark shadow-saweria p-4 sm:p-6 space-y-4 relative overflow-hidden transition-all">
+    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria p-4 sm:p-5 flex flex-col justify-between transition-all relative overflow-hidden">
       {/* Decorative background accent */}
-      <div className="absolute -top-12 -right-12 w-28 h-28 rounded-full bg-brand-primary/10 pointer-events-none" />
+      <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full bg-brand-primary/10 dark:bg-brand-primary/5 pointer-events-none" />
 
-      {/* Header */}
+      {/* Header: Title, Icon & Status Badge */}
       <div className="flex items-center justify-between gap-2 relative">
-        <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl sm:rounded-2xl bg-brand-primary/20 border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-xs">
-            <ShieldCheck className="w-5 h-5 text-brand-dark" />
+        <div className="flex items-center gap-2.5 min-w-0">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-brand-primary/20 dark:bg-brand-primary/30 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center shrink-0 shadow-saweria-xs">
+            <ShieldCheck className="w-4 h-4 text-brand-dark dark:text-slate-100" />
           </div>
-          <div>
+          <div className="min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="text-sm sm:text-base font-black text-brand-dark tracking-tight leading-tight">
+              <h3 className="text-sm sm:text-base font-black text-brand-dark dark:text-slate-100 tracking-tight leading-tight truncate">
                 Ketahanan Dana Darurat
               </h3>
               <button
                 type="button"
                 onClick={() => setShowFormulaModal(!showFormulaModal)}
-                className="text-brand-darkMuted hover:text-brand-dark transition-colors"
+                className="text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200 transition-colors shrink-0"
                 title="Lihat Rumus Perhitungan"
               >
                 <HelpCircle className="w-3.5 h-3.5" />
               </button>
             </div>
-            <p className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted">
-              Berapa lama kamu bisa bertahan tanpa pemasukan
+            <p className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 truncate">
+              Kas Likuid: {formatMoney(totalLiquidCash)}
             </p>
           </div>
         </div>
 
         {/* Status Badge */}
         <span
-          className={`px-2.5 py-1 rounded-full text-[11px] font-black border-2 shrink-0 ${
+          className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-black border-2 shrink-0 ${
             isInsufficient
-              ? 'bg-gray-100 text-gray-700 border-gray-400'
+              ? 'bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 border-gray-400'
               : statusLabel.includes('Tahap Awal')
-              ? 'bg-amber-100 text-amber-900 border-amber-400'
+              ? 'bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-600'
               : status === 'critical'
-              ? 'bg-rose-50 text-rose-800 border-rose-400'
+              ? 'bg-rose-50 text-rose-800 border-rose-400 dark:bg-rose-950/50 dark:text-rose-300 dark:border-rose-600'
               : status === 'warning'
-              ? 'bg-amber-50 text-amber-800 border-amber-400'
+              ? 'bg-amber-50 text-amber-800 border-amber-400 dark:bg-amber-950/50 dark:text-amber-300 dark:border-amber-600'
               : status === 'safe'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-400'
-              : 'bg-emerald-100 text-emerald-900 border-emerald-600'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-400 dark:bg-emerald-950/50 dark:text-emerald-300 dark:border-emerald-600'
+              : 'bg-emerald-100 text-emerald-900 border-emerald-600 dark:bg-emerald-900/60 dark:text-emerald-200 dark:border-emerald-500'
           }`}
         >
           {statusLabel}
@@ -75,69 +73,63 @@ export const EmergencyRunwayCard: React.FC = () => {
 
       {/* Formula Explanation Banner (Toggleable) */}
       {showFormulaModal && (
-        <div className="p-3.5 rounded-2xl bg-brand-cream border-2 border-brand-dark text-xs space-y-1.5 animate-in fade-in">
-          <div className="flex items-center justify-between font-black text-brand-dark">
-            <span className="flex items-center gap-1">
+        <div className="my-2 p-3 rounded-xl bg-brand-cream dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 text-xs space-y-1 animate-in fade-in">
+          <div className="flex items-center justify-between font-black text-brand-dark dark:text-slate-100">
+            <span className="flex items-center gap-1 text-[11px]">
               <Info className="w-3.5 h-3.5 text-brand-primary" />
-              Rumus Transparan Pockito
+              Rumus: Kas Likuid ÷ Biaya Pokok Bulanan
             </span>
             <button
               onClick={() => setShowFormulaModal(false)}
-              className="text-[10px] uppercase font-bold text-brand-darkMuted hover:text-brand-dark"
+              className="text-[10px] uppercase font-bold text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark"
             >
               Tutup
             </button>
           </div>
-          <p className="text-[11px] text-brand-dark font-medium leading-relaxed">
-            <strong>Runway (Bulan) = Kas Likuid Siap Pakai ÷ Biaya Esensial Bulanan</strong>
+          <p className="text-[10px] text-brand-darkMuted dark:text-slate-400 leading-tight">
+            Metode:{' '}
+            {calculationMethod === 'budget_starred'
+              ? 'Alokasi kantong bertanda ⭐'
+              : calculationMethod === 'manual_input'
+              ? 'Input manual'
+              : calculationMethod === 'actual_expenses'
+              ? 'Estimasi pendapatan dasar'
+              : 'Belum cukup data'}
           </p>
-          <ul className="text-[10px] text-brand-darkMuted space-y-0.5 list-disc pl-3.5">
-            <li>Hanya menghitung rekening kas, bank, dan e-wallet aktif (investasi & akun arsip dikecualikan).</li>
-            <li>
-              Metode saat ini:{' '}
-              {calculationMethod === 'budget_starred'
-                ? 'Estimasi dari alokasi kantong bertanda ⭐'
-                : calculationMethod === 'manual_input'
-                ? 'Input manual pengguna'
-                : calculationMethod === 'actual_expenses'
-                ? 'Pendekatan 50% pendapatan dasar'
-                : 'Belum cukup data (perlu isi gaji / kantong ⭐)'}
-            </li>
-          </ul>
         </div>
       )}
 
-      {/* Hero Metric Strip (Clean, single surface, no box-in-a-box clutter) */}
-      <div className="p-4 rounded-2xl bg-brand-cream/80 border-2 border-brand-dark/40 space-y-3">
-        <div className="flex items-end justify-between">
+      {/* Sleek Hero Metric Strip (Glanceable, no nested card bloat) */}
+      <div className="my-3 p-3 sm:p-3.5 rounded-xl sm:rounded-2xl bg-brand-cream/70 dark:bg-slate-800/70 border-2 border-brand-dark/25 dark:border-slate-700/80 space-y-2.5">
+        <div className="flex items-baseline justify-between gap-2">
           <div>
-            <span className="text-[10px] sm:text-[11px] font-black text-brand-darkMuted uppercase tracking-wider block">
+            <span className="text-[10px] font-black text-brand-darkMuted dark:text-slate-400 uppercase tracking-wider block">
               Daya Tahan Kas Riil
             </span>
-            <div className="flex items-baseline gap-1.5 mt-0.5">
-              <span className="text-3xl sm:text-4xl font-black text-brand-dark tabular-nums tracking-tight">
+            <div className="flex items-baseline gap-1 mt-0.5">
+              <span className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark dark:text-slate-100 tabular-nums tracking-tight">
                 {isInsufficient ? '-' : runwayMonths}
               </span>
-              <span className="text-xs sm:text-sm font-black text-brand-darkMuted">
+              <span className="text-xs sm:text-sm font-black text-brand-darkMuted dark:text-slate-400">
                 {isInsufficient ? 'Data Kurang' : 'Bulan'}
               </span>
             </div>
           </div>
 
           <div className="text-right">
-            <span className="text-[10px] font-black text-brand-darkMuted uppercase tracking-wider block">
+            <span className="text-[10px] font-black text-brand-darkMuted dark:text-slate-400 uppercase tracking-wider block">
               Target 6 Bulan Aman
             </span>
-            <span className="text-xs sm:text-sm font-black text-brand-dark tabular-nums">
+            <span className="text-xs sm:text-sm font-black text-brand-dark dark:text-slate-100 tabular-nums block mt-0.5">
               {isInsufficient ? '-' : formatMoney(targetAmount)}
             </span>
           </div>
         </div>
 
-        {/* Milestone Progress Track with 1 bln, 3 bln, 6 bln labels */}
-        {!isInsufficient && (
-          <div className="space-y-1.5 pt-1">
-            <div className="w-full h-3 bg-white rounded-full border border-brand-dark/30 overflow-hidden p-0.5 relative">
+        {/* Milestone Progress Track with 0 bln, 1 bln, 3 bln, 6 bln labels */}
+        {!isInsufficient ? (
+          <div className="space-y-1">
+            <div className="w-full h-2.5 bg-white dark:bg-slate-900 rounded-full border border-brand-dark/30 dark:border-slate-600 overflow-hidden p-0.5">
               <div
                 className={`h-full rounded-full transition-all duration-500 ${
                   progressPercentage >= 100
@@ -149,62 +141,29 @@ export const EmergencyRunwayCard: React.FC = () => {
                 style={{ width: `${Math.min(100, Math.max(4, progressPercentage))}%` }}
               />
             </div>
-            <div className="flex items-center justify-between text-[9px] font-black text-brand-darkMuted uppercase tracking-tight">
+            <div className="flex items-center justify-between text-[9px] font-black text-brand-darkMuted dark:text-slate-400 uppercase tracking-tight">
               <span>0 Bln</span>
-              <span className={runwayMonths >= 1 ? 'text-brand-dark font-black' : ''}>1 Bln Min</span>
-              <span className={runwayMonths >= 3 ? 'text-brand-dark font-black' : ''}>3 Bln Wajar</span>
-              <span className={runwayMonths >= 6 ? 'text-emerald-700 font-black' : ''}>6 Bln Aman 🎯</span>
+              <span className={runwayMonths >= 1 ? 'text-brand-dark dark:text-slate-200 font-black' : ''}>1 Bln Min</span>
+              <span className={runwayMonths >= 3 ? 'text-brand-dark dark:text-slate-200 font-black' : ''}>3 Bln Wajar</span>
+              <span className={runwayMonths >= 6 ? 'text-emerald-700 dark:text-emerald-400 font-black' : ''}>6 Bln Aman 🎯</span>
             </div>
+          </div>
+        ) : (
+          <div className="text-[10px] text-brand-darkMuted dark:text-slate-400 font-bold py-1">
+            Isi pemasukan dan alokasi kantong untuk menghitung daya tahan kas.
           </div>
         )}
       </div>
 
-      {/* Breakdown Details Strip (Unified 2-column card with subtle divider instead of nested border boxes) */}
-      <div className="grid grid-cols-2 divide-x divide-brand-border bg-brand-cream/40 rounded-xl p-2.5 border border-brand-border text-xs">
-        <div className="px-2 space-y-0.5">
-          <span className="text-[10px] font-black text-brand-darkMuted uppercase tracking-wider block">
-            Kas Siap Pakai:
-          </span>
-          <p className="font-black text-brand-dark tabular-nums text-xs sm:text-sm">
-            {formatMoney(totalLiquidCash)}
-          </p>
-          <span className="text-[9px] text-gray-500 font-bold block">
-            (Kas & bank aktif)
-          </span>
-        </div>
-
-        <div className="px-2 space-y-0.5">
-          <span className="text-[10px] font-black text-brand-darkMuted uppercase tracking-wider block">
-            Biaya Pokok / Bln (⭐):
-          </span>
-          <p className="font-black text-brand-dark tabular-nums text-xs sm:text-sm">
-            {isInsufficient ? '-' : formatMoney(monthlyEssentialExpense)}
-          </p>
-          <span className="text-[9px] text-gray-500 font-bold block">
-            {isEstimate ? '(Estimasi Alokasi)' : '(Data Aktual)'}
-          </span>
-        </div>
-      </div>
-
-      {/* Practical Advice Banner */}
-      <div className="p-3 rounded-xl bg-amber-50/60 border border-amber-200 text-xs flex items-start gap-2.5">
-        <Sparkles className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" />
-        <div className="flex-1">
-          <p className="font-bold text-brand-dark text-[11px] leading-relaxed">
-            {adviceMessage}
-          </p>
-        </div>
-      </div>
-
-      {/* Footer Link */}
-      <div className="flex items-center justify-between pt-1">
-        <span className="text-[10px] font-bold text-brand-darkMuted flex items-center gap-1">
-          <Info className="w-3 h-3" />
-          Dihitung otomatis dari kas likuid & pos bertanda ⭐
+      {/* Footer: Compact 1-liner with inline micro hint and link */}
+      <div className="flex items-center justify-between pt-1 border-t border-brand-border/60 dark:border-slate-800 text-xs">
+        <span className="text-[10px] sm:text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 flex items-center gap-1 min-w-0 pr-2 truncate">
+          <Info className="w-3 h-3 shrink-0" />
+          <span className="truncate">Pokok: {isInsufficient ? '-' : `${formatMoney(monthlyEssentialExpense)}/bln`}</span>
         </span>
         <Link
           to="/app/budget"
-          className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 transition-colors"
+          className="text-xs font-black text-brand-dark dark:text-slate-200 hover:text-brand-primary flex items-center gap-1 transition-colors shrink-0"
         >
           <span>Atur Kantong ⭐</span>
           <ArrowRight className="w-3.5 h-3.5" />
