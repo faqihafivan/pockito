@@ -425,31 +425,45 @@ export const DashboardPage: React.FC = () => {
       {/* 4. Financial Guardrails: Tabbed Folder Card (Matching Screenshot 4) */}
       {prefs.showGuardrails && (
         <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria overflow-hidden transition-all">
-          {/* Top Folder Tab Header (Side-by-side like Screenshot 4) */}
-          <div className="flex items-center border-b-2 border-brand-dark dark:border-slate-800 bg-brand-cream/60 dark:bg-slate-950/40 p-1.5 sm:p-2 gap-2">
+          {/* Top Folder Tab Header (Side-by-side Folder Tabs with Bullet Ring like Screenshot 4) */}
+          <div className="flex items-end border-b-2 border-brand-dark dark:border-slate-800 bg-brand-cream/70 dark:bg-slate-950/60 px-2 pt-2.5 sm:px-3 sm:pt-3 gap-2">
             <button
               type="button"
               onClick={() => setGuardrailTab('daily_limit')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-t-xl sm:rounded-t-2xl text-xs sm:text-sm font-black transition-all cursor-pointer relative -mb-[2px] ${
                 guardrailTab === 'daily_limit'
-                  ? 'bg-[#FFD233] text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
-                  : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white/60 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 border-2 border-brand-dark dark:border-slate-700 border-b-white dark:border-b-slate-900 shadow-saweria-xs z-10'
+                  : 'bg-brand-cream/50 dark:bg-slate-800/40 text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:bg-brand-cream hover:text-brand-dark'
               }`}
             >
-              <CalendarCheck className="w-4 h-4 stroke-[2.3]" />
+              <div
+                className={`w-2.5 h-2.5 rounded-full border-2 shrink-0 ${
+                  guardrailTab === 'daily_limit'
+                    ? 'border-brand-dark bg-[#FFD233]'
+                    : 'border-brand-dark/40 bg-transparent'
+                }`}
+              />
+              <CalendarCheck className="w-4 h-4 stroke-[2.3] shrink-0" />
               <span className="truncate">Batas Belanja Harian</span>
             </button>
 
             <button
               type="button"
               onClick={() => setGuardrailTab('runway')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-t-xl sm:rounded-t-2xl text-xs sm:text-sm font-black transition-all cursor-pointer relative -mb-[2px] ${
                 guardrailTab === 'runway'
-                  ? 'bg-[#FFD233] text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
-                  : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white/60 dark:hover:bg-slate-800'
+                  ? 'bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 border-2 border-brand-dark dark:border-slate-700 border-b-white dark:border-b-slate-900 shadow-saweria-xs z-10'
+                  : 'bg-brand-cream/50 dark:bg-slate-800/40 text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:bg-brand-cream hover:text-brand-dark'
               }`}
             >
-              <ShieldCheck className="w-4 h-4 stroke-[2.3]" />
+              <div
+                className={`w-2.5 h-2.5 rounded-full border-2 shrink-0 ${
+                  guardrailTab === 'runway'
+                    ? 'border-brand-dark bg-[#FFD233]'
+                    : 'border-brand-dark/40 bg-transparent'
+                }`}
+              />
+              <ShieldCheck className="w-4 h-4 stroke-[2.3] shrink-0" />
               <span className="truncate">Ketahanan Kas Darurat</span>
             </button>
           </div>
