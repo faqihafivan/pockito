@@ -422,59 +422,58 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Financial Guardrails: Tabbed Folder Card (Matching Screenshot 4) */}
+      {/* 4. Financial Guardrails: Sleek Tabbed Folder Card (Matching Image 3: No bottom border, no circle bullets, responsive labels & smooth transitions) */}
       {prefs.showGuardrails && (
-        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria overflow-hidden transition-all">
-          {/* Top Folder Tab Header (Side-by-side Folder Tabs with Bullet Ring like Screenshot 4) */}
-          <div className="flex items-end border-b-2 border-brand-dark dark:border-slate-800 bg-brand-cream/70 dark:bg-slate-950/60 px-2 pt-2.5 sm:px-3 sm:pt-3 gap-2">
-            <button
-              type="button"
-              onClick={() => setGuardrailTab('daily_limit')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-t-xl sm:rounded-t-2xl text-xs sm:text-sm font-black transition-all cursor-pointer relative -mb-[2px] ${
-                guardrailTab === 'daily_limit'
-                  ? 'bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 border-2 border-brand-dark dark:border-slate-700 border-b-white dark:border-b-slate-900 shadow-saweria-xs z-10'
-                  : 'bg-brand-cream/50 dark:bg-slate-800/40 text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:bg-brand-cream hover:text-brand-dark'
-              }`}
-            >
-              <div
-                className={`w-2.5 h-2.5 rounded-full border-2 shrink-0 ${
+        <div className="bg-white dark:bg-slate-900 rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria overflow-hidden transition-all">
+          {/* Top Folder Tab Header (Seamless like Image 3: No dividing line, no bullets) */}
+          <div className="p-2 sm:p-2.5 bg-brand-cream/60 dark:bg-slate-950/40">
+            <div className="grid grid-cols-2 gap-1.5 sm:gap-2 p-1 bg-white/70 dark:bg-slate-900/60 rounded-2xl border-2 border-brand-dark/15 dark:border-slate-800">
+              <button
+                type="button"
+                onClick={() => setGuardrailTab('daily_limit')}
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer ${
                   guardrailTab === 'daily_limit'
-                    ? 'border-brand-dark bg-[#FFD233]'
-                    : 'border-brand-dark/40 bg-transparent'
+                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs scale-[1.01]'
+                    : 'text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:text-brand-dark dark:hover:text-slate-200 hover:bg-white/50'
                 }`}
-              />
-              <CalendarCheck className="w-4 h-4 stroke-[2.3] shrink-0" />
-              <span className="truncate">Batas Belanja Harian</span>
-            </button>
+              >
+                <CalendarCheck className="w-4 h-4 stroke-[2.3] shrink-0" />
+                <span className="whitespace-nowrap">
+                  <span className="sm:hidden">Batas Belanja</span>
+                  <span className="hidden sm:inline">Batas Belanja Harian</span>
+                </span>
+              </button>
 
-            <button
-              type="button"
-              onClick={() => setGuardrailTab('runway')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-t-xl sm:rounded-t-2xl text-xs sm:text-sm font-black transition-all cursor-pointer relative -mb-[2px] ${
-                guardrailTab === 'runway'
-                  ? 'bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 border-2 border-brand-dark dark:border-slate-700 border-b-white dark:border-b-slate-900 shadow-saweria-xs z-10'
-                  : 'bg-brand-cream/50 dark:bg-slate-800/40 text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:bg-brand-cream hover:text-brand-dark'
-              }`}
-            >
-              <div
-                className={`w-2.5 h-2.5 rounded-full border-2 shrink-0 ${
+              <button
+                type="button"
+                onClick={() => setGuardrailTab('runway')}
+                className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer ${
                   guardrailTab === 'runway'
-                    ? 'border-brand-dark bg-[#FFD233]'
-                    : 'border-brand-dark/40 bg-transparent'
+                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs scale-[1.01]'
+                    : 'text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:text-brand-dark dark:hover:text-slate-200 hover:bg-white/50'
                 }`}
-              />
-              <ShieldCheck className="w-4 h-4 stroke-[2.3] shrink-0" />
-              <span className="truncate">Ketahanan Kas Darurat</span>
-            </button>
+              >
+                <ShieldCheck className="w-4 h-4 stroke-[2.3]" />
+                <span className="whitespace-nowrap">
+                  <span className="sm:hidden">Dana Darurat</span>
+                  <span className="hidden sm:inline">Ketahanan Kas Darurat</span>
+                </span>
+              </button>
+            </div>
           </div>
 
-          {/* Active Tab Content Display (Rendered cleanly embedded inside) */}
+          {/* Active Tab Content Display with Smooth Animated Transition */}
           <div className="p-3.5 sm:p-5">
-            {guardrailTab === 'daily_limit' ? (
-              <SafeDailyLimitCard safeLimit={dailySafeLimit} embedded={true} />
-            ) : (
-              <EmergencyRunwayCard embedded={true} />
-            )}
+            <div
+              key={guardrailTab}
+              className="animate-in fade-in slide-in-from-top-1 duration-250"
+            >
+              {guardrailTab === 'daily_limit' ? (
+                <SafeDailyLimitCard safeLimit={dailySafeLimit} embedded={true} />
+              ) : (
+                <EmergencyRunwayCard embedded={true} />
+              )}
+            </div>
           </div>
         </div>
       )}
@@ -592,12 +591,12 @@ export const DashboardPage: React.FC = () => {
       {prefs.showFinancialHub && (
         <Card variant="saweria" className="bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-brand-border">
-            {/* Tab Selector (Image 2 - Fixed to stay horizontal / menyamping without vertical stacking) */}
-            <div className="flex items-center gap-1 p-1 bg-brand-cream/80 dark:bg-slate-800 rounded-2xl border-2 border-brand-dark/20 dark:border-slate-700 w-full sm:w-fit overflow-x-auto no-scrollbar">
+            {/* Tab Selector (Fixed to grid grid-cols-3 so Hutang (2) is never cut off on mobile) */}
+            <div className="grid grid-cols-3 gap-1 p-1 bg-brand-cream/80 dark:bg-slate-800 rounded-2xl border-2 border-brand-dark/20 dark:border-slate-700 w-full sm:w-auto">
               <button
                 type="button"
                 onClick={() => setFinancialHubTab('goals')}
-                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black whitespace-nowrap transition-all cursor-pointer ${
                   financialHubTab === 'goals'
                     ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
@@ -610,7 +609,7 @@ export const DashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFinancialHubTab('subscriptions')}
-                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black whitespace-nowrap transition-all cursor-pointer ${
                   financialHubTab === 'subscriptions'
                     ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
@@ -623,7 +622,7 @@ export const DashboardPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setFinancialHubTab('debts')}
-                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 cursor-pointer ${
+                className={`flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black whitespace-nowrap transition-all cursor-pointer ${
                   financialHubTab === 'debts'
                     ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'

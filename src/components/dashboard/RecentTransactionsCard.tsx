@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Card } from '../ui/Card';
 import { Transaction, Pocket } from '../../types';
 import { useData } from '../../context/DataContext';
-import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight, ChevronRight } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, ArrowLeftRight, ChevronRight, ArrowRight } from 'lucide-react';
 
 interface RecentTransactionsCardProps {
   transactions: Transaction[];
@@ -16,26 +16,27 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
 }) => {
   const { formatMoney } = useData();
   const pocketMap = new Map(pockets.map((p) => [p.id, p]));
-  const recent = transactions.slice(0, 5);
+  const recent = transactions.slice(0, 3);
+  const remainingTxCount = Math.max(0, transactions.length - 3);
 
   return (
     <Card variant="saweria" className="bg-white h-full flex flex-col justify-between">
       <div>
-        <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
-        <div>
-          <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
-            Aktivitas Transaksi Terbaru
+        <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border gap-2">
+        <div className="min-w-0 pr-1">
+          <h3 className="text-xs sm:text-sm font-black text-brand-dark uppercase tracking-wider truncate">
+            Aktivitas Transaksi
           </h3>
-          <p className="text-[11px] text-brand-darkMuted mt-0.5">
+          <p className="text-[11px] text-brand-darkMuted mt-0.5 truncate">
             Arus kas riil yang baru saja dicatat
           </p>
         </div>
         <Link
           to="/app/transactions"
-          className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+          className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group whitespace-nowrap shrink-0"
         >
           <span>Lihat Semua</span>
-          <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform shrink-0" />
         </Link>
       </div>
 
@@ -95,6 +96,25 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
           })
         )}
       </div>
+
+      {remainingTxCount > 0 && (
+        <Link
+          to="/app/transactions"
+          className="mt-2.5 block text-center py-2 px-3 rounded-xl bg-brand-cream/70 dark:bg-slate-800/60 border border-brand-dark/20 text-xs font-black text-brand-dark hover:bg-brand-cream transition-colors"
+        >
+          + {remainingTxCount} transaksi lainnya (Klik Lihat Semua)
+        </Link>
+      )}
+      </div>
+
+      <div className="pt-3 border-t border-brand-border flex items-center justify-between">
+        <Link
+          to="/app/transactions"
+          className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
+        >
+          <span>Buku Kas Lengkap</span>
+          <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+        </Link>
       </div>
     </Card>
   );

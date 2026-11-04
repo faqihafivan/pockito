@@ -33,7 +33,9 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Active / uncompleted tasks
-  const activeTasks = tasks.filter((t) => !t.is_completed).slice(0, 5);
+  const uncompletedTasks = tasks.filter((t) => !t.is_completed);
+  const activeTasks = uncompletedTasks.slice(0, 3);
+  const remainingCount = Math.max(0, uncompletedTasks.length - 3);
   const completedTodayCount = tasks.filter((t) => t.is_completed).length;
 
   const handleCheckboxClick = (task: Task) => {
@@ -100,28 +102,29 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
     <>
       <Card variant="saweria" className="bg-white h-full flex flex-col justify-between">
         <div>
-          <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border">
-            <div>
-              <div className="flex items-center gap-2">
-                <h3 className="text-sm font-black text-brand-dark uppercase tracking-wider">
-                  Belanja Pokok & To-Do List
+          <div className="flex items-center justify-between pb-3 border-b-2 border-brand-border gap-2">
+            <div className="min-w-0 pr-1">
+              <div className="flex items-center gap-1.5 flex-nowrap">
+                <h3 className="text-xs sm:text-sm font-black text-brand-dark uppercase tracking-wider truncate">
+                  <span className="hidden sm:inline">Belanja Pokok & To-Do List</span>
+                  <span className="sm:hidden">Belanja & To-Do</span>
                 </h3>
                 {completedTodayCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
-                    {completedTodayCount} Selesai
+                  <span className="px-2 py-0.5 rounded-full text-[9px] sm:text-[10px] font-black bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-700 whitespace-nowrap shrink-0">
+                    ✓ {completedTodayCount} Selesai
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-brand-darkMuted mt-0.5">
+              <p className="text-[11px] text-brand-darkMuted mt-0.5 truncate">
                 Checklist kebutuhan harian & potong saldo otomatis
               </p>
             </div>
             <Link
               to="/app/planner"
-              className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group"
+              className="text-xs font-black text-brand-dark hover:text-brand-primaryHover flex items-center gap-1 group whitespace-nowrap shrink-0"
             >
-              <span>Semua</span>
-              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              <span>Lihat Semua</span>
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform shrink-0" />
             </Link>
           </div>
 
@@ -221,6 +224,15 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
               })
             )}
           </div>
+
+          {remainingCount > 0 && (
+            <Link
+              to="/app/planner"
+              className="mt-2.5 block text-center py-2 px-3 rounded-xl bg-brand-cream/70 dark:bg-slate-800/60 border border-brand-dark/20 text-xs font-black text-brand-dark hover:bg-brand-cream transition-colors"
+            >
+              + {remainingCount} tugas lainnya (Klik Lihat Semua)
+            </Link>
+          )}
         </div>
 
         <div className="pt-3 border-t border-brand-border flex items-center justify-between">
@@ -229,9 +241,15 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
             onClick={onOpenNewTask}
             className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group cursor-pointer"
           >
-            <span>+ Catat Belanja Pokok / Tugas</span>
+            <span>+ Catat Belanja / Tugas</span>
             <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
           </button>
+          <Link
+            to="/app/planner"
+            className="text-xs font-bold text-brand-darkMuted hover:text-brand-dark whitespace-nowrap"
+          >
+            Buka Planner
+          </Link>
         </div>
       </Card>
 
