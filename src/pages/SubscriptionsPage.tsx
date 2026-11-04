@@ -120,9 +120,9 @@ export const SubscriptionsPage: React.FC = () => {
         <Card variant="saweria" className="p-5 bg-white">
           <div className="flex items-center justify-between text-brand-darkMuted">
             <span className="text-xs font-bold uppercase tracking-wider">Sudah Terbayar ({periodLabel})</span>
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 stroke-[2.5]" />
+            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 stroke-[2.5]" />
           </div>
-          <div className="text-2xl font-black text-emerald-700 tabular-nums mt-1.5">
+          <div className="text-2xl font-black text-emerald-700 dark:text-emerald-300 tabular-nums mt-1.5">
             {formatMoney(stats.paidAmount)}
           </div>
           <p className="text-[11px] font-bold text-brand-darkMuted mt-1">

@@ -57,10 +57,10 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
                   <div
                     className={`w-9 h-9 rounded-xl border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm ${
                       isIncome
-                        ? 'bg-[#10B981]/20 text-[#047857]'
+                        ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
                         : isExpense
-                        ? 'bg-red-500/15 text-red-600'
-                        : 'bg-brand-primary/20 text-brand-dark'
+                        ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                        : 'bg-brand-primary/20 text-brand-dark dark:text-slate-200'
                     }`}
                   >
                     {isIncome && <ArrowDownLeft className="w-4 h-4 stroke-[2.5]" />}
@@ -86,7 +86,7 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
 
                 <div
                   className={`text-xs font-black tabular-nums shrink-0 ${
-                    isIncome ? 'text-[#047857]' : isExpense ? 'text-red-600' : 'text-brand-dark'
+                    isIncome ? 'text-emerald-700 dark:text-emerald-300' : isExpense ? 'text-red-600 dark:text-red-400' : 'text-brand-dark dark:text-slate-100'
                   }`}
                 >
                   {isIncome ? `+${formatMoney(tx.amount)}` : isExpense ? `-${formatMoney(tx.amount)}` : formatMoney(tx.amount)}

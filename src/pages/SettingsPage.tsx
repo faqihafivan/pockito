@@ -223,10 +223,9 @@ export const SettingsPage: React.FC = () => {
               </p>
             </div>
             <div className="flex items-center gap-1.5 pt-1">
-              <span className="w-4 h-4 rounded-full bg-[#379A8D] border border-black/20" title="Teal Mint" />
-              <span className="w-4 h-4 rounded-full bg-[#F7C948] border border-black/20" title="Honey Gold" />
-              <span className="w-4 h-4 rounded-full bg-[#EBF6F4] border border-black/20" title="Soft Mint" />
-              <span className="w-4 h-4 rounded-full bg-[#FDF2F2] border border-black/20" title="Soft Rose" />
+              <span className="w-4 h-4 rounded-full bg-[#0D9488] border border-black/20" title="Teal Mint" />
+              <span className="w-4 h-4 rounded-full bg-[#D8EFEA] border border-black/20" title="Soft Mint Canvas" />
+              <span className="w-4 h-4 rounded-full bg-[#0F2E28] border border-black/20" title="Deep Spruce Text" />
             </div>
           </button>
 
@@ -255,7 +254,7 @@ export const SettingsPage: React.FC = () => {
             </div>
             <div className="flex items-center gap-1.5 pt-1">
               <span className="w-4 h-4 rounded-full bg-[#FAAE2B] border border-black/20" title="Saweria Gold" />
-              <span className="w-4 h-4 rounded-full bg-[#FFFDF8] border border-black/20" title="Cream Canvas" />
+              <span className="w-4 h-4 rounded-full bg-[#FFFDF0] border border-black/20" title="Warm Cream Canvas" />
               <span className="w-4 h-4 rounded-full bg-[#18181B] border border-black/20" title="Solid Ink" />
             </div>
           </button>
@@ -347,7 +346,7 @@ export const SettingsPage: React.FC = () => {
           <div className="flex items-center gap-3">
             <div
               className={`w-10 h-10 rounded-xl border-2 border-brand-dark flex items-center justify-center ${
-                isCloudMode ? 'bg-[#10B981]/20 text-[#047857]' : 'bg-brand-primary/20 text-brand-dark'
+                isCloudMode ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300' : 'bg-brand-primary/20 text-brand-dark dark:text-slate-200'
               }`}
             >
               <Database className="w-5 h-5" />
@@ -381,7 +380,7 @@ export const SettingsPage: React.FC = () => {
             <span>Profil Pengguna & Pemasukan Pokok</span>
           </h3>
           {isSaved && (
-            <span className="flex items-center gap-1 text-xs font-black text-[#047857]">
+            <span className="flex items-center gap-1 text-xs font-black text-emerald-700 dark:text-emerald-300">
               <CheckCircle2 className="w-4 h-4" /> Berhasil Disimpan
             </span>
           )}

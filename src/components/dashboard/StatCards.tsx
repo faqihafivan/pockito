@@ -28,52 +28,7 @@ export const StatCards: React.FC<StatCardsProps> = ({
           : 'grid grid-cols-2 gap-3 sm:gap-4'
       }
     >
-      {/* 1. Pemasukan Bulanan (Income - Left Card) */}
-      <div
-        role="button"
-        tabIndex={0}
-        onClick={() => onSelectType?.('income')}
-        onKeyDown={(e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            onSelectType?.('income');
-          }
-        }}
-        className="group block text-left outline-none cursor-pointer select-none"
-        title="Klik untuk melihat riwayat uang masuk bulan ini"
-        aria-label="Lihat Riwayat Pemasukan"
-      >
-        <Card
-          variant="saweria"
-          className="h-full bg-[#EBF6F4] dark:bg-emerald-950/40 border-2 border-emerald-800/30 dark:border-emerald-600/40 p-3 sm:p-4 md:p-5 flex flex-col justify-between group-hover:border-emerald-700 dark:group-hover:border-emerald-400 group-hover:shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all"
-        >
-          <div className="flex items-center justify-between gap-1.5">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-200/80 dark:bg-emerald-800/50 border border-emerald-800/40 dark:border-emerald-600/60 flex items-center justify-center text-emerald-900 dark:text-emerald-200 shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
-              <TrendingUp className="w-4 h-4 stroke-[2.5]" />
-            </div>
-            <span className="text-[10px] sm:text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-0.5">
-              <span>Pemasukan</span>
-              <ChevronRight className="w-3 h-3 text-emerald-600 dark:text-emerald-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
-            </span>
-          </div>
-
-          <div className="mt-3">
-            <div className="text-base sm:text-xl lg:text-2xl font-black text-emerald-950 dark:text-emerald-100 tabular-nums tracking-tight truncate">
-              +{formatMoney(overview.monthlyIncome)}
-            </div>
-            <div className="flex items-center justify-between mt-1">
-              <p className="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                <span>●</span> Kas Masuk Bulan Ini
-              </p>
-              <span className="text-[9px] font-black text-emerald-800 dark:text-emerald-300 underline underline-offset-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">
-                Riwayat
-              </span>
-            </div>
-          </div>
-        </Card>
-      </div>
-
-      {/* 2. Total Pengeluaran (Expenses - Right Card) */}
+      {/* 1. Total Pengeluaran (Expenses - Left Card) */}
       <div
         role="button"
         tabIndex={0}
@@ -111,6 +66,51 @@ export const StatCards: React.FC<StatCardsProps> = ({
                 <span>●</span> Kas Keluar Aktual
               </p>
               <span className="text-[9px] font-black text-rose-800 dark:text-rose-300 underline underline-offset-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">
+                Riwayat
+              </span>
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      {/* 2. Pemasukan Bulanan (Income - Right Card) */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => onSelectType?.('income')}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            onSelectType?.('income');
+          }
+        }}
+        className="group block text-left outline-none cursor-pointer select-none"
+        title="Klik untuk melihat riwayat uang masuk bulan ini"
+        aria-label="Lihat Riwayat Pemasukan"
+      >
+        <Card
+          variant="saweria"
+          className="h-full bg-[#EBF6F4] dark:bg-emerald-950/40 border-2 border-emerald-800/30 dark:border-emerald-600/40 p-3 sm:p-4 md:p-5 flex flex-col justify-between group-hover:border-emerald-700 dark:group-hover:border-emerald-400 group-hover:shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all"
+        >
+          <div className="flex items-center justify-between gap-1.5">
+            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-emerald-200/80 dark:bg-emerald-800/50 border border-emerald-800/40 dark:border-emerald-600/60 flex items-center justify-center text-emerald-900 dark:text-emerald-200 shrink-0 shadow-saweria-xs group-hover:scale-105 transition-transform">
+              <TrendingUp className="w-4 h-4 stroke-[2.5]" />
+            </div>
+            <span className="text-[10px] sm:text-xs font-black text-emerald-800 dark:text-emerald-300 uppercase tracking-wider flex items-center gap-0.5">
+              <span>Pemasukan</span>
+              <ChevronRight className="w-3 h-3 text-emerald-600 dark:text-emerald-400 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all" />
+            </span>
+          </div>
+
+          <div className="mt-3">
+            <div className="text-base sm:text-xl lg:text-2xl font-black text-emerald-950 dark:text-emerald-100 tabular-nums tracking-tight truncate">
+              +{formatMoney(overview.monthlyIncome)}
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <p className="text-[10px] sm:text-xs font-bold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
+                <span>●</span> Kas Masuk Bulan Ini
+              </p>
+              <span className="text-[9px] font-black text-emerald-800 dark:text-emerald-300 underline underline-offset-2 opacity-0 group-hover:opacity-100 transition-opacity hidden sm:inline">
                 Riwayat
               </span>
             </div>

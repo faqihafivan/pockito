@@ -8,6 +8,7 @@ export default {
         brand: {
           primary: 'var(--color-primary, #379A8D)',
           primaryHover: 'var(--color-primary-hover, #2E8377)',
+          primaryText: 'var(--color-primary-text, #18181B)',
           dark: 'var(--color-dark, #1E293B)',
           darkMuted: 'var(--color-dark-muted, #64748B)',
           cream: 'var(--color-cream, #F8FBFB)',

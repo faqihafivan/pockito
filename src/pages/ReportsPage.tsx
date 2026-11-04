@@ -178,7 +178,7 @@ export const ReportsPage: React.FC = () => {
         <Card variant="saweria" className="bg-white">
           <div className="flex items-center justify-between text-xs font-bold text-brand-darkMuted uppercase">
             <span>Total Pemasukan</span>
-            <TrendingUp className="w-4 h-4 text-[#047857]" />
+            <TrendingUp className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
           </div>
           <div className="text-xl font-black text-brand-dark tabular-nums mt-1">
             {formatMoney(overview.monthlyIncome)}
@@ -449,7 +449,7 @@ export const ReportsPage: React.FC = () => {
                         className={`px-2 py-0.5 rounded-lg text-[10px] font-black uppercase ${
                           isOver
                             ? 'bg-red-100 text-red-700 border border-red-300'
-                            : 'bg-green-100 text-green-700 border border-green-300'
+                            : 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border border-emerald-300 dark:border-emerald-800'
                         }`}
                       >
                         {isOver ? 'Overbudget' : 'Terkendali'}

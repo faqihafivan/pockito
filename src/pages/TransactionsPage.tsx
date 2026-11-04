@@ -246,10 +246,10 @@ export const TransactionsPage: React.FC = () => {
                   <div className="flex items-center gap-3.5 overflow-hidden">
                     <div
                       className={`w-10 h-10 rounded-xl border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm ${isIncome
-                          ? 'bg-[#10B981]/20 text-[#047857]'
+                          ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
                           : isExpense
-                            ? 'bg-red-500/15 text-red-600'
-                            : 'bg-brand-primary/20 text-brand-dark'
+                            ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300'
+                            : 'bg-brand-primary/20 text-brand-dark dark:text-slate-200'
                         }`}
                     >
                       {isIncome && <ArrowDownLeft className="w-5 h-5 stroke-[2.5]" />}
@@ -290,7 +290,7 @@ export const TransactionsPage: React.FC = () => {
 
                   <div className="flex items-center gap-3 shrink-0">
                     <div
-                      className={`text-sm font-black tabular-nums text-right ${isIncome ? 'text-[#047857]' : isExpense ? 'text-red-600' : 'text-brand-dark'
+                      className={`text-sm font-black tabular-nums text-right ${isIncome ? 'text-emerald-700 dark:text-emerald-300' : isExpense ? 'text-red-600 dark:text-red-400' : 'text-brand-dark dark:text-slate-100'
                         }`}
                     >
                       {isIncome

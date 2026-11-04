@@ -200,7 +200,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
           transform: 'translate(-50%, -50%)',
         }}
       >
-        <div className="w-12 h-12 rounded-full bg-brand-primary text-brand-dark border-2 border-brand-dark dark:border-slate-700 shadow-[3px_3px_0px_#18181B] dark:shadow-[3px_3px_0px_#020617] flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full bg-brand-primary text-brand-primaryText border-2 border-brand-dark dark:border-slate-700 shadow-[3px_3px_0px_#18181B] dark:shadow-[3px_3px_0px_#020617] flex items-center justify-center">
           <ActiveIcon className="w-5 h-5 stroke-[2.5]" />
         </div>
       </div>

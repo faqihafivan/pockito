@@ -159,7 +159,7 @@ export const PocketDetailPage: React.FC = () => {
               Sisa Kuota Anggaran
             </span>
             <div
-              className={`text-lg font-black tabular-nums mt-0.5 ${isOverBudget ? 'text-red-600' : 'text-[#047857]'
+              className={`text-lg font-black tabular-nums mt-0.5 ${isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-emerald-700 dark:text-emerald-300'
                 }`}
             >
               {isOverBudget
