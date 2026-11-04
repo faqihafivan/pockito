@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useData } from '../context/DataContext';
 import { useAuth } from '../context/AuthContext';
 import { Card } from '../components/ui/Card';
@@ -14,8 +14,7 @@ import {
   Trash2,
   Edit2,
   Star,
-  Lock,
-  Unlock,
+  Sparkles,
 } from 'lucide-react';
 
 import { useNotification } from '../context/NotificationContext';
@@ -34,9 +33,70 @@ export const BudgetPage: React.FC = () => {
   const [isPocketModalOpen, setIsPocketModalOpen] = useState(false);
   const [pocketToEdit, setPocketToEdit] = useState<Pocket | null>(null);
   const [isRecommendationOpen, setIsRecommendationOpen] = useState(false);
-  const [isSlidersLocked, setIsSlidersLocked] = useState(true);
 
   const monthlyIncome = user?.monthly_income || 0;
+
+  // Auto-balance remaining percentage to reach exactly 100%
+  const handleAutoBalance = async () => {
+    if (pocketSummaries.length === 0) return;
+    const currentTotal = overview.totalAllocationPercentage;
+    if (currentTotal === 100) return;
+
+    if (currentTotal === 0) {
+      const share = Math.floor(100 / pocketSummaries.length);
+      const remainder = 100 - share * pocketSummaries.length;
+      for (let i = 0; i < pocketSummaries.length; i++) {
+        await updatePocket(pocketSummaries[i].id, {
+          allocation_percentage: share + (i === 0 ? remainder : 0),
+        });
+      }
+    } else {
+      let allocatedSoFar = 0;
+      for (let i = 0; i < pocketSummaries.length; i++) {
+        const p = pocketSummaries[i];
+        if (i === pocketSummaries.length - 1) {
+          const finalShare = Math.max(0, 100 - allocatedSoFar);
+          await updatePocket(p.id, { allocation_percentage: finalShare });
+        } else {
+          const scaled = Math.round((p.allocation_percentage / currentTotal) * 100);
+          allocatedSoFar += scaled;
+          await updatePocket(p.id, { allocation_percentage: scaled });
+        }
+      }
+    }
+    showToast('Alokasi berhasil diseimbangkan tepat 100%! ⚖️', 'success');
+  };
+
+  // Guard: User cannot leave BudgetPage if total allocation is not 100% (Menjawab feedback user)
+  useEffect(() => {
+    if (pocketSummaries.length === 0 || overview.totalAllocationPercentage === 100) return;
+
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+      e.returnValue = 'Alokasi kantong belum 100%. Yakin ingin keluar?';
+      return e.returnValue;
+    };
+
+    const handleLinkClick = (e: MouseEvent) => {
+      const target = (e.target as HTMLElement).closest('a');
+      if (target && target.href && !target.href.includes('/app/budget')) {
+        e.preventDefault();
+        e.stopPropagation();
+        showToast(
+          `⚠️ Alokasi belum seimbang (${overview.totalAllocationPercentage}% dari 100%). Mohon seimbangkan alokasi kantong hingga pas 100% sebelum meninggalkan halaman ini!`,
+          'error'
+        );
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    document.addEventListener('click', handleLinkClick, true);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      document.removeEventListener('click', handleLinkClick, true);
+    };
+  }, [pocketSummaries.length, overview.totalAllocationPercentage, showToast]);
 
   const handleEdit = (pocket: Pocket) => {
     setPocketToEdit(pocket);
@@ -79,24 +139,17 @@ export const BudgetPage: React.FC = () => {
         </div>
 
         <div className="flex flex-wrap items-center gap-2.5">
-          {/* Slider Lock / Unlock Toggle Button (P1-05 & P2-04) */}
-          <Button
-            variant={isSlidersLocked ? 'secondary' : 'primary'}
-            size="sm"
-            onClick={() => {
-              const next = !isSlidersLocked;
-              setIsSlidersLocked(next);
-              showToast(
-                next
-                  ? 'Slider Terkunci 🔒: Aman dari sentuhan scroll pada mobile.'
-                  : 'Slider Terbuka 🔓: Mode ubah alokasi cepat aktif.',
-                'info'
-              );
-            }}
-            leftIcon={isSlidersLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
-          >
-            {isSlidersLocked ? 'Kunci Slider (Aktif)' : 'Buka Slider (Edit)'}
-          </Button>
+          {/* One-tap balance button if not balanced */}
+          {overview.totalAllocationPercentage !== 100 && (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleAutoBalance}
+              leftIcon={<Sparkles className="w-4 h-4" />}
+            >
+              Seimbangkan (100%)
+            </Button>
+          )}
 
           <Button
             variant="secondary"
@@ -130,47 +183,66 @@ export const BudgetPage: React.FC = () => {
             : 'bg-[#10B981]/20 border-brand-dark text-[#047857]'
         }`}
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 min-w-0">
           {overview.isOverallocated ? (
             <AlertTriangle className="w-5 h-5 text-red-600 shrink-0" />
           ) : (
             <CheckCircle2 className="w-5 h-5 text-brand-dark shrink-0" />
           )}
-          <div>
-            <p className="text-xs font-black">
+          <div className="min-w-0">
+            <p className="text-xs font-black truncate">
               {overview.isOverallocated
                 ? `Alokasi Melebihi 100% (${overview.totalAllocationPercentage}% terpakai)! Mohon kurangi persentase kantong.`
                 : overview.unallocatedPercentage > 0
                 ? `Ada sisa ${overview.unallocatedPercentage}% (${formatMoney(overview.unallocatedIncome)}) yang belum dialokasikan.`
                 : 'Alokasi Seimbang Sempurna (100% Gaji Terbagi)!'}
             </p>
-            <p className="text-[11px] opacity-80 mt-0.5">
+            <p className="text-[11px] opacity-80 mt-0.5 truncate">
               Dasar perhitungan: Gaji bulanan {formatMoney(monthlyIncome)}
             </p>
           </div>
         </div>
 
-        <div className="text-right shrink-0">
-          <span className="text-lg font-black tabular-nums">{overview.totalAllocationPercentage}%</span>
-          <span className="text-xs font-bold block">/ 100%</span>
+        <div className="flex items-center gap-3 shrink-0">
+          {overview.totalAllocationPercentage !== 100 && (
+            <button
+              type="button"
+              onClick={handleAutoBalance}
+              className="hidden sm:inline-flex px-2.5 py-1 rounded-xl bg-white border border-brand-dark text-[11px] font-black hover:bg-brand-primary transition-colors cursor-pointer shadow-saweria-xs"
+            >
+              Pas 100%
+            </button>
+          )}
+          <div className="text-right shrink-0">
+            <span className="text-lg font-black tabular-nums">{overview.totalAllocationPercentage}%</span>
+            <span className="text-xs font-bold block">/ 100%</span>
+          </div>
         </div>
       </div>
+
+      {/* Persistent Navigation Barrier if not balanced (Menjawab feedback user: tidak bisa pergi sebelum seimbang) */}
+      {overview.totalAllocationPercentage !== 100 && pocketSummaries.length > 0 && (
+        <div className="p-3.5 bg-amber-500/15 border-2 border-amber-600 rounded-2xl flex items-center justify-between gap-3 text-amber-950 text-xs font-bold">
+          <div className="flex items-center gap-2 min-w-0">
+            <AlertTriangle className="w-4 h-4 text-amber-700 shrink-0" />
+            <span className="truncate">
+              🔒 Halaman terkunci: Harap seimbangkan alokasi kantong ke 100% sebelum berpindah ke halaman lain.
+            </span>
+          </div>
+          <button
+            type="button"
+            onClick={handleAutoBalance}
+            className="px-3 py-1 bg-amber-600 hover:bg-amber-700 text-white font-black text-xs rounded-xl shadow-saweria-xs transition-colors shrink-0 cursor-pointer"
+          >
+            Seimbangkan Otomatis
+          </button>
+        </div>
+      )}
 
       {/* Detailed Pocket Control List */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <h3 className="text-base font-black text-brand-dark">Daftar Kantong Aktif</h3>
-          <span className="text-xs font-bold text-brand-darkMuted">
-            {isSlidersLocked ? (
-              <span className="flex items-center gap-1 text-emerald-700">
-                <Lock className="w-3.5 h-3.5" /> Slider dikunci untuk kenyamanan scrolling
-              </span>
-            ) : (
-              <span className="flex items-center gap-1 text-amber-700">
-                <Unlock className="w-3.5 h-3.5" /> Mode ubah slider aktif
-              </span>
-            )}
-          </span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -223,17 +295,14 @@ export const BudgetPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Live Percentage Adjuster */}
+              {/* Clean Live Percentage Adjuster (Sub judul dihilangkan sesuai permintaan user) */}
               <div className="p-3 bg-brand-cream rounded-xl border border-brand-border space-y-2">
                 <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
-                  <span className="flex items-center gap-1">
-                    {isSlidersLocked && <Lock className="w-3 h-3 text-brand-darkMuted" />}
-                    Atur Alokasi:
-                  </span>
+                  <span>Atur Alokasi:</span>
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage - 1)}
-                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform"
+                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform cursor-pointer"
                       title="Kurangi 1%"
                     >
                       -
@@ -241,7 +310,7 @@ export const BudgetPage: React.FC = () => {
                     <span className="w-12 text-center font-black tabular-nums">{pocket.allocation_percentage}%</span>
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage + 1)}
-                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform"
+                      className="w-6 h-6 rounded-lg bg-white border border-brand-dark font-black flex items-center justify-center hover:bg-brand-primary active:scale-95 transition-transform cursor-pointer"
                       title="Tambah 1%"
                     >
                       +
@@ -253,18 +322,10 @@ export const BudgetPage: React.FC = () => {
                   type="range"
                   min="0"
                   max="100"
-                  disabled={isSlidersLocked}
                   value={pocket.allocation_percentage}
                   onChange={(e) => handlePercentageChange(pocket.id, Number(e.target.value))}
-                  className={`w-full accent-brand-primary h-2 bg-white rounded-lg border border-brand-dark/20 transition-opacity ${
-                    isSlidersLocked ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
-                  }`}
+                  className="w-full accent-brand-primary h-2 bg-white rounded-lg border border-brand-dark/20 cursor-pointer"
                 />
-                {isSlidersLocked && (
-                  <p className="text-[10px] text-brand-darkMuted font-medium">
-                    Sentuhan slider dinonaktifkan agar scroll lancar. Gunakan tombol +/- atau klik "Buka Slider".
-                  </p>
-                )}
               </div>
 
               {/* Spending progress indicator */}

@@ -132,13 +132,13 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                   >
                     <Icon className="w-5 h-5 text-brand-dark stroke-[2.3]" />
                   </div>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-black text-brand-dark">
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1.5 flex-nowrap whitespace-nowrap">
+                      <span className="text-xs sm:text-sm font-black text-brand-dark">
                         {item.title}
                       </span>
                       {item.tag && (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-brand-primary border border-brand-dark">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-brand-primary border border-brand-dark shrink-0">
                           {item.tag}
                         </span>
                       )}

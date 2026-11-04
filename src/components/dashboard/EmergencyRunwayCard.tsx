@@ -3,7 +3,11 @@ import { useData } from '../../context/DataContext';
 import { ShieldCheck, ArrowRight, Info, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-export const EmergencyRunwayCard: React.FC = () => {
+interface EmergencyRunwayCardProps {
+  embedded?: boolean;
+}
+
+export const EmergencyRunwayCard: React.FC<EmergencyRunwayCardProps> = ({ embedded = false }) => {
   const { emergencyRunway, formatMoney } = useData();
   const [showFormulaModal, setShowFormulaModal] = useState(false);
 
@@ -21,7 +25,13 @@ export const EmergencyRunwayCard: React.FC = () => {
   const isInsufficient = status === 'insufficient_data';
 
   return (
-    <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria p-4 sm:p-5 flex flex-col justify-between transition-all relative overflow-hidden">
+    <div
+      className={`bg-white dark:bg-slate-900 flex flex-col justify-between transition-all relative overflow-hidden ${
+        embedded
+          ? 'border-0 shadow-none p-1 sm:p-2'
+          : 'rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria p-4 sm:p-5'
+      }`}
+    >
       {/* Decorative background accent */}
       <div className="absolute -top-12 -right-12 w-24 h-24 rounded-full bg-brand-primary/10 dark:bg-brand-primary/5 pointer-events-none" />
 

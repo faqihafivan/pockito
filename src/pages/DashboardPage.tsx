@@ -27,7 +27,6 @@ import {
   Wallet,
   Eye,
   EyeOff,
-  Bell,
   PiggyBank,
   PieChart,
   Plus,
@@ -37,6 +36,8 @@ import {
   Sparkles,
   BarChart3,
   LayoutGrid,
+  CalendarCheck,
+  ShieldCheck,
 } from 'lucide-react';
 
 interface DashboardPrefs {
@@ -90,8 +91,6 @@ export const DashboardPage: React.FC = () => {
     formatMoney,
     isPrivacyMode,
     togglePrivacyMode,
-    dailyBriefing,
-    openBriefing,
     selectedPeriod,
     accounts,
   } = useData();
@@ -100,6 +99,7 @@ export const DashboardPage: React.FC = () => {
   // Dashboard Modals
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [financialHubTab, setFinancialHubTab] = useState<'goals' | 'subscriptions' | 'debts'>('goals');
+  const [guardrailTab, setGuardrailTab] = useState<'daily_limit' | 'runway'>('daily_limit');
   const [isGoalModalOpen, setIsGoalModalOpen] = useState(false);
   const [isSubscriptionModalOpen, setIsSubscriptionModalOpen] = useState(false);
   const [isDebtModalOpen, setIsDebtModalOpen] = useState(false);
@@ -167,58 +167,23 @@ export const DashboardPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6">
-      {/* 1. Top Header Row: User Avatar & Greeting (Left) + Notification & Customize Pill (Right) - Matching Screenshot 1 */}
-      <div className="flex items-center justify-between gap-3">
-        {/* Left: User Avatar + Welcome Greeting */}
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-brand-primary/25 dark:bg-brand-primary/30 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center font-black text-brand-dark dark:text-slate-100 shadow-saweria-xs shrink-0 overflow-hidden">
-            {user?.avatar_url ? (
-              <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <span className="text-base sm:text-lg font-black">{getUserDisplayName().charAt(0).toUpperCase()}</span>
-            )}
-          </div>
-          <div className="min-w-0">
-            <span className="text-[11px] sm:text-xs font-bold text-brand-darkMuted dark:text-slate-400 block leading-tight">
-              {getGreeting()},
-            </span>
-            <h2 className="text-base sm:text-lg md:text-xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-tight truncate">
-              {getUserDisplayName()}! 👋
-            </h2>
-          </div>
+    <div className="space-y-3 sm:space-y-5">
+      {/* 1. Top Header Row: User Avatar & Greeting (Clean & Compact without Redundant Pills) */}
+      <div className="flex items-center gap-2.5 min-w-0 pt-0.5">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-primary/25 dark:bg-brand-primary/30 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center font-black text-brand-dark dark:text-slate-100 shadow-saweria-xs shrink-0 overflow-hidden">
+          {user?.avatar_url ? (
+            <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
+          ) : (
+            <span className="text-sm sm:text-base font-black">{getUserDisplayName().charAt(0).toUpperCase()}</span>
+          )}
         </div>
-
-        {/* Right: Pill container with Notification Bell & Customize Settings (Screenshot 1 Pill Style) */}
-        <div className="flex items-center bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-700 rounded-full p-1 shadow-saweria-xs shrink-0">
-          {/* Bell / Daily Briefing */}
-          <button
-            type="button"
-            onClick={openBriefing}
-            className={`w-9 h-9 rounded-full flex items-center justify-center transition-all cursor-pointer relative ${
-              dailyBriefing.hasUrgentItems
-                ? 'bg-red-500 text-white animate-pulse'
-                : 'hover:bg-brand-cream dark:hover:bg-slate-800 text-brand-dark dark:text-slate-200'
-            }`}
-            title="Buka Briefing & Agenda Harian"
-            aria-label="Notifikasi Agenda"
-          >
-            <Bell className="w-4 h-4 stroke-[2.3]" />
-            {dailyBriefing.items.length > 0 && !dailyBriefing.hasUrgentItems && (
-              <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-brand-primary border border-brand-dark" />
-            )}
-          </button>
-
-          {/* Atur Tampilan / Customize View */}
-          <button
-            type="button"
-            onClick={() => setIsCustomizeOpen(true)}
-            className="w-9 h-9 rounded-full hover:bg-brand-cream dark:hover:bg-slate-800 text-brand-dark dark:text-slate-200 flex items-center justify-center transition-all cursor-pointer"
-            title="Atur Tampilan Dashboard"
-            aria-label="Atur Tampilan Dashboard"
-          >
-            <SlidersHorizontal className="w-4 h-4 stroke-[2.3]" />
-          </button>
+        <div className="min-w-0">
+          <span className="text-[11px] sm:text-xs font-bold text-brand-darkMuted dark:text-slate-400 block leading-tight">
+            {getGreeting()},
+          </span>
+          <h2 className="text-base sm:text-lg md:text-xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-tight truncate">
+            {getUserDisplayName()}! 👋
+          </h2>
         </div>
       </div>
 
@@ -457,11 +422,46 @@ export const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* 4. Financial Guardrails: Safe Daily Spend Limit & Emergency Runway (Show/Hide configurable) */}
+      {/* 4. Financial Guardrails: Tabbed Folder Card (Matching Screenshot 4) */}
       {prefs.showGuardrails && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 items-stretch">
-          <SafeDailyLimitCard safeLimit={dailySafeLimit} />
-          <EmergencyRunwayCard />
+        <div className="bg-white dark:bg-slate-900 rounded-2xl sm:rounded-3xl border-2 border-brand-dark dark:border-slate-800 shadow-saweria overflow-hidden transition-all">
+          {/* Top Folder Tab Header (Side-by-side like Screenshot 4) */}
+          <div className="flex items-center border-b-2 border-brand-dark dark:border-slate-800 bg-brand-cream/60 dark:bg-slate-950/40 p-1.5 sm:p-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setGuardrailTab('daily_limit')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+                guardrailTab === 'daily_limit'
+                  ? 'bg-[#FFD233] text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                  : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white/60 dark:hover:bg-slate-800'
+              }`}
+            >
+              <CalendarCheck className="w-4 h-4 stroke-[2.3]" />
+              <span className="truncate">Batas Belanja Harian</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setGuardrailTab('runway')}
+              className={`flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-xl sm:rounded-2xl text-xs sm:text-sm font-black transition-all cursor-pointer ${
+                guardrailTab === 'runway'
+                  ? 'bg-[#FFD233] text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                  : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white/60 dark:hover:bg-slate-800'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 stroke-[2.3]" />
+              <span className="truncate">Ketahanan Kas Darurat</span>
+            </button>
+          </div>
+
+          {/* Active Tab Content Display (Rendered cleanly embedded inside) */}
+          <div className="p-3.5 sm:p-5">
+            {guardrailTab === 'daily_limit' ? (
+              <SafeDailyLimitCard safeLimit={dailySafeLimit} embedded={true} />
+            ) : (
+              <EmergencyRunwayCard embedded={true} />
+            )}
+          </div>
         </div>
       )}
 
@@ -578,45 +578,45 @@ export const DashboardPage: React.FC = () => {
       {prefs.showFinancialHub && (
         <Card variant="saweria" className="bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b-2 border-brand-border">
-            {/* Tab Selector */}
-            <div className="flex items-center gap-1 p-1 bg-brand-cream/80 rounded-2xl border-2 border-brand-dark/20 w-fit">
+            {/* Tab Selector (Image 2 - Fixed to stay horizontal / menyamping without vertical stacking) */}
+            <div className="flex items-center gap-1 p-1 bg-brand-cream/80 dark:bg-slate-800 rounded-2xl border-2 border-brand-dark/20 dark:border-slate-700 w-full sm:w-fit overflow-x-auto no-scrollbar">
               <button
                 type="button"
                 onClick={() => setFinancialHubTab('goals')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                   financialHubTab === 'goals'
                     ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
-                    : 'text-brand-darkMuted hover:text-brand-dark'
+                    : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
-                <Target className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Target ({goals.length})</span>
+                <Target className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+                <span className="whitespace-nowrap">Target ({goals.length})</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setFinancialHubTab('subscriptions')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                   financialHubTab === 'subscriptions'
                     ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
-                    : 'text-brand-darkMuted hover:text-brand-dark'
+                    : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
-                <CalendarClock className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Tagihan ({subscriptions.length})</span>
+                <CalendarClock className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+                <span className="whitespace-nowrap">Tagihan ({subscriptions.length})</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setFinancialHubTab('debts')}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black transition-all ${
+                className={`flex-1 sm:flex-initial flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black whitespace-nowrap transition-all shrink-0 cursor-pointer ${
                   financialHubTab === 'debts'
                     ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
-                    : 'text-brand-darkMuted hover:text-brand-dark'
+                    : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
-                <HandCoins className="w-3.5 h-3.5 stroke-[2.5]" />
-                <span>Hutang ({debts.filter((d) => !d.is_settled).length})</span>
+                <HandCoins className="w-3.5 h-3.5 stroke-[2.5] shrink-0" />
+                <span className="whitespace-nowrap">Hutang ({debts.filter((d) => !d.is_settled).length})</span>
               </button>
             </div>
 

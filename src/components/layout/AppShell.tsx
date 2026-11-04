@@ -140,7 +140,7 @@ export const AppShell: React.FC = () => {
           onOpenNewTask={() => setIsTaskOpen(true)}
         />
 
-        <main className="flex-1 p-4 sm:p-6 lg:p-8 pb-36 sm:pb-40 lg:pb-8 max-w-7xl w-full mx-auto">
+        <main className="flex-1 px-3.5 sm:px-6 lg:px-8 pt-2 sm:pt-6 pb-32 sm:pb-36 lg:pb-8 max-w-7xl w-full mx-auto">
           <Suspense fallback={<PageLoader message="Memuat modul..." />}>
             <Outlet />
           </Suspense>
