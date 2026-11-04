@@ -4,6 +4,7 @@ import App from '../../src/App';
 
 describe('Pockito End-to-End Navigation & Render Test', () => {
   it('renders landing page with headline and Saweria branding', () => {
+    window.history.pushState({}, 'Landing', '/landing');
     render(<App />);
     expect(screen.getByText(/One Workspace for Your Money & Your Life/i)).toBeInTheDocument();
     expect(screen.getByText(/Tanpa Ribet Akuntansi/i)).toBeInTheDocument();

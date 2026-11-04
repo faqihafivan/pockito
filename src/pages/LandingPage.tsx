@@ -3,6 +3,7 @@ import { Link, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
+import { PWAInstallButton } from '../components/common/PWAInstallButton';
 import {
   Wallet,
   CheckSquare,
@@ -36,6 +37,7 @@ export const LandingPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
+          <PWAInstallButton label="Download App" className="text-xs" />
           <Link to="/welcome">
             <Button variant="ghost" size="sm" leftIcon={<Smartphone className="w-4 h-4 text-brand-primary" />}>
               <span className="hidden sm:inline">Tour</span> Walkthrough
@@ -86,6 +88,11 @@ export const LandingPage: React.FC = () => {
               Mulai Pakai Pockito Sekarang
             </Button>
           </Link>
+          <PWAInstallButton
+            variant="button"
+            className="w-full sm:w-auto text-sm px-4 py-3 justify-center"
+            label="Download di HP (Android & iOS)"
+          />
           <Link to="/welcome" className="w-full sm:w-auto">
             <Button variant="secondary" size="lg" className="w-full sm:w-auto" leftIcon={<Sparkles className="w-4 h-4 text-brand-dark dark:text-brand-primary" />}>
               Lihat Tour Play Store (3 Slide)

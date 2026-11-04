@@ -2,6 +2,7 @@ import React, { createContext, useContext, useEffect, useState } from 'react';
 import { AuthStatus, UserProfile } from '../types';
 import { DataService } from '../services/dataService';
 import { isSupabaseConfigured, supabase } from '../services/supabaseClient';
+import { useTheme } from './ThemeContext';
 
 export function getDeterministicLocalUserId(email: string): string {
   const cleanEmail = (email || '').toLowerCase().trim();
@@ -24,6 +25,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { loadUserTheme } = useTheme();
   const [user, setUser] = useState<UserProfile | null>(null);
   const [authStatus, setAuthStatus] = useState<AuthStatus>('initializing');
   const [isDemo, setIsDemo] = useState<boolean>(false);
@@ -42,8 +44,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const demoProfile = await DataService.getProfile();
     setUser(demoProfile);
+    loadUserTheme('demo-user', demoProfile.theme);
+
     try {
       sessionStorage.setItem('pockito_active_mode', 'demo');
+      localStorage.setItem('pockito_active_mode', 'demo');
     } catch {
       // ignore storage error
     }
@@ -52,10 +57,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   useEffect(() => {
     const initializeAuth = async () => {
       try {
-        // 1. Check if user previously opened demo session in this browser tab
+        // 1. Check if user previously opened demo session in this browser tab/localStorage
         let isSessionDemo = false;
         try {
-          isSessionDemo = sessionStorage.getItem('pockito_active_mode') === 'demo';
+          isSessionDemo =
+            sessionStorage.getItem('pockito_active_mode') === 'demo' ||
+            localStorage.getItem('pockito_active_mode') === 'demo';
         } catch {
           // ignore
         }
@@ -82,6 +89,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           try {
             const profile = await DataService.getProfile();
             setUser(profile);
+            loadUserTheme(session.user.id, profile.theme);
             setIsDemo(false);
             setAuthStatus('authenticated');
           } catch (profileErr) {
@@ -97,6 +105,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             };
             const created = await DataService.updateProfile(initialProfile);
             setUser(created);
+            loadUserTheme(session.user.id, created.theme);
             setIsDemo(false);
             setAuthStatus('authenticated');
           }
@@ -122,6 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const localAccounts = await DataService.getAccounts();
           if (localProfile && (localAccounts.length > 0 || localProfile.email)) {
             setUser(localProfile);
+            loadUserTheme(activeUserId, localProfile.theme);
             setIsDemo(false);
             setAuthStatus('authenticated');
             return;
@@ -133,6 +143,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (localAccounts.length > 0) {
           const localProfile = await DataService.getProfile();
           setUser(localProfile);
+          loadUserTheme(localProfile.id, localProfile.theme);
           setIsDemo(false);
           setAuthStatus('authenticated');
         } else {
@@ -286,6 +297,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } finally {
       try {
         sessionStorage.removeItem('pockito_active_mode');
+        localStorage.removeItem('pockito_active_mode');
         localStorage.removeItem('pockito_active_local_user_id');
         localStorage.removeItem('pockito_active_local_user_email');
       } catch {

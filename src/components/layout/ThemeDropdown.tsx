@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Palette, Moon, Sun, Check, Sparkles } from 'lucide-react';
 import { useTheme, ThemeMode } from '../../context/ThemeContext';
 import { useNotification } from '../../context/NotificationContext';
+import { useAuth } from '../../context/AuthContext';
 
 interface ThemeOption {
   id: ThemeMode;
@@ -18,6 +19,15 @@ interface ThemeOption {
 
 export const ThemeDropdown: React.FC = () => {
   const { theme, setTheme } = useTheme();
+  let user: any = null;
+  let updateUser: any = null;
+  try {
+    const auth = useAuth();
+    user = auth.user;
+    updateUser = auth.updateUser;
+  } catch {
+    // Safe fallback if rendered outside AuthProvider in unit tests
+  }
   const { showToast } = useNotification();
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -88,7 +98,10 @@ export const ThemeDropdown: React.FC = () => {
 
   const handleSelectTheme = (selectedId: ThemeMode, themeName: string) => {
     if (selectedId !== theme) {
-      setTheme(selectedId);
+      setTheme(selectedId, user?.id);
+      if (user && updateUser) {
+        updateUser({ theme: selectedId }).catch(() => {});
+      }
       showToast(`Tema aktif: ${themeName} ✨`, 'info');
     }
     setIsOpen(false);

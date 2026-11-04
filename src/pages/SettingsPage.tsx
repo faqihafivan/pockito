@@ -203,7 +203,8 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setTheme('teal-mint');
+              setTheme('teal-mint', user?.id);
+              if (user && updateUser) updateUser({ theme: 'teal-mint' }).catch(() => {});
               showToast('Tema Teal Mint diaktifkan! 🌿', 'success');
             }}
             className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
@@ -233,7 +234,8 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setTheme('saweria');
+              setTheme('saweria', user?.id);
+              if (user && updateUser) updateUser({ theme: 'saweria' }).catch(() => {});
               showToast('Tema Saweria Emas diaktifkan! 🍯', 'success');
             }}
             className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${
@@ -262,7 +264,8 @@ export const SettingsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => {
-              setTheme('midnight');
+              setTheme('midnight', user?.id);
+              if (user && updateUser) updateUser({ theme: 'midnight' }).catch(() => {});
               showToast('Tema Midnight Dark diaktifkan! 🌙', 'success');
             }}
             className={`p-3.5 rounded-2xl border-2 text-left transition-all cursor-pointer flex flex-col justify-between space-y-3 ${

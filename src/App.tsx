@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { ThemeProvider } from './context/ThemeContext';
 import { NotificationProvider } from './context/NotificationContext';
-import { AuthProvider } from './context/AuthContext';
+import { AuthProvider, useAuth } from './context/AuthContext';
 import { DataProvider } from './context/DataContext';
 import { AppShell } from './components/layout/AppShell';
 import { ErrorBoundary } from './components/ui/ErrorBoundary';
@@ -10,6 +10,35 @@ import { PageLoader } from './components/ui/PageLoader';
 
 // Root Entry Page (Eagerly loaded for instant LCP & zero landing layout shift)
 import { LandingPage } from './pages/LandingPage';
+
+// Smart Root Resolver: Directs user seamlessly to Dashboard, Login, or Tour based on state
+function SmartAppEntry() {
+  const { user, authStatus, isDemo, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <PageLoader fullScreen message="Membuka Pockito..." />;
+  }
+
+  // 1. If user is logged in or in demo mode -> go straight to Dashboard
+  if (authStatus === 'authenticated' || isDemo || (user && user.id)) {
+    return <Navigate to="/app/dashboard" replace />;
+  }
+
+  // 2. If user has previously seen or skipped the tour -> go straight to Login
+  let hasSeenTour = false;
+  try {
+    hasSeenTour = localStorage.getItem('pockito_has_seen_tour') === 'true';
+  } catch {
+    // ignore
+  }
+
+  if (hasSeenTour) {
+    return <Navigate to="/login" replace />;
+  }
+
+  // 3. Brand new user opening for the first time -> Tour Play (3 slides)
+  return <Navigate to="/welcome" replace />;
+}
 
 // Public Pages (Code-split dynamic imports)
 const WelcomePage = lazy(() => import('./pages/WelcomePage').then(m => ({ default: m.WelcomePage })));
@@ -42,8 +71,9 @@ export function App() {
               <DataProvider>
                 <Suspense fallback={<PageLoader fullScreen message="Memuat Pockito..." />}>
                   <Routes>
-                    {/* Public Routes */}
-                    <Route path="/" element={<LandingPage />} />
+                    {/* Public Routes with Smart Entry */}
+                    <Route path="/" element={<SmartAppEntry />} />
+                    <Route path="/landing" element={<LandingPage />} />
                     <Route path="/welcome" element={<WelcomePage />} />
                     <Route path="/login" element={<LoginPage />} />
                     <Route path="/register" element={<RegisterPage />} />

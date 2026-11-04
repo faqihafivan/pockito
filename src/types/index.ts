@@ -12,6 +12,7 @@ export interface UserProfile {
   currency: string;
   timezone: string;
   monthly_income: number; // Stored as integer IDR
+  theme?: 'teal-mint' | 'saweria' | 'midnight';
   onboarding_completed: boolean;
   created_at?: string;
   updated_at?: string;

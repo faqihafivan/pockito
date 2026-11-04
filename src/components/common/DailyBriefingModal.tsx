@@ -116,91 +116,80 @@ export const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({
 
       {/* Modal Dialog Box */}
       <div
-        className="relative w-full max-w-lg bg-[#FFFDF8] rounded-3xl border-3 border-brand-dark shadow-saweria-lg z-10 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150 my-auto"
+        className="relative w-full max-w-lg bg-[#FFFDF8] dark:bg-slate-900 rounded-3xl border-3 border-brand-dark dark:border-slate-700 shadow-saweria-lg z-10 overflow-hidden transform transition-all animate-in fade-in zoom-in-95 duration-150 my-auto"
         role="dialog"
         aria-modal="true"
       >
         {/* Header with Warm Indonesian Greeting & Mascot */}
-        <div className="p-4 sm:p-5 border-b-2 border-brand-dark bg-brand-cream relative">
+        <div className="p-4 sm:p-5 border-b-2 border-brand-dark dark:border-slate-700 bg-brand-cream dark:bg-slate-800 relative">
           <button
             onClick={handleDismiss}
-            className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-brand-dark bg-white hover:bg-brand-cream active:translate-x-0.5 active:translate-y-0.5 shadow-saweria-sm transition-all"
+            className="absolute top-4 right-4 p-1.5 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-white dark:bg-slate-800 hover:bg-brand-cream dark:hover:bg-slate-700 active:translate-x-0.5 active:translate-y-0.5 shadow-saweria-sm transition-all"
             title="Tutup Briefing"
           >
-            <X className="w-4 h-4 text-brand-dark" />
+            <X className="w-4 h-4 text-brand-dark dark:text-slate-200" />
           </button>
 
           <div className="flex items-center gap-2 mb-2">
             <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary text-brand-dark text-[11px] font-black border-2 border-brand-dark shadow-saweria-sm uppercase tracking-wider">
               <Bell className="w-3.5 h-3.5 fill-brand-dark stroke-brand-dark" />
-              Briefing Finansial Hari Ini
+              Notifikasi Finansial
             </span>
-            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-darkMuted bg-white px-2.5 py-0.5 rounded-full border border-brand-dark/20">
+            <span className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-full border border-brand-dark/20 dark:border-slate-700">
               <Calendar className="w-3 h-3" />
               {briefing.dateLabel}
             </span>
           </div>
 
-          <h2 className="text-xl sm:text-2xl font-black text-brand-dark tracking-tight">
+          <h2 className="text-xl sm:text-2xl font-black text-brand-dark dark:text-slate-100 tracking-tight">
             {briefing.greeting}
           </h2>
-          <p className="text-xs sm:text-sm font-bold text-brand-darkMuted mt-1">
-            {briefing.summaryHeadline}
-          </p>
         </div>
 
         {/* Content: Consolidated Briefing Items */}
         <div className="p-4 sm:p-5 max-h-[60vh] overflow-y-auto space-y-3">
           {briefing.items.length === 0 ? (
-            <div className="p-6 text-center space-y-3 bg-white rounded-2xl border-2 border-brand-dark shadow-saweria-sm">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-100 border-2 border-brand-dark flex items-center justify-center text-emerald-600 shadow-saweria-sm">
+            <div className="p-6 text-center space-y-2 bg-white dark:bg-slate-800 rounded-2xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm">
+              <div className="w-12 h-12 mx-auto rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shadow-saweria-sm">
                 <CheckCircle2 className="w-7 h-7 stroke-[2.5]" />
               </div>
-              <div>
-                <h4 className="text-base font-black text-brand-dark">Semuanya Aman & Terkendali!</h4>
-                <p className="text-xs text-brand-darkMuted mt-1">
-                  Tidak ada tagihan mendesak, hutang jatuh tempo, atau tugas terlewat hari ini.
-                  Terus pertahankan kebiasaan finansial sehatmu!
-                </p>
-              </div>
+              <h4 className="text-base font-black text-brand-dark dark:text-slate-100">Semua Beres & Aman!</h4>
+              <p className="text-xs text-brand-darkMuted dark:text-slate-400 font-medium">
+                Tidak ada tagihan atau hutang mendesak hari ini.
+              </p>
             </div>
           ) : (
             briefing.items.map((item) => (
               <div
                 key={item.id}
-                className={`p-3.5 sm:p-4 rounded-2xl border-2 border-brand-dark shadow-saweria-sm transition-all bg-white hover:bg-[#FFFDF5] flex flex-col justify-between gap-3 ${
+                className={`p-3.5 rounded-2xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm transition-all bg-white dark:bg-slate-800 flex flex-col justify-between gap-2.5 ${
                   item.urgency === 'high' ? 'border-l-6 border-l-red-500' : ''
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-brand-cream border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm mt-0.5">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-xl bg-brand-cream dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center shrink-0 shadow-saweria-sm">
                     {getItemIcon(item.type)}
                   </div>
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between gap-2 flex-wrap">
-                      <h4 className="text-sm font-black text-brand-dark tracking-tight leading-snug">
-                        {item.title}
-                      </h4>
-                      {item.badge && (
-                        <span
-                          className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-saweria-sm shrink-0 uppercase tracking-wider ${getUrgencyBadgeClass(
-                            item.urgency
-                          )}`}
-                        >
-                          {item.badge}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs font-medium text-brand-darkMuted mt-1 leading-relaxed">
-                      {item.message}
-                    </p>
+                  <div className="flex-1 min-w-0 flex items-center justify-between gap-2 flex-wrap">
+                    <h4 className="text-sm font-black text-brand-dark dark:text-slate-100 tracking-tight leading-snug">
+                      {item.title}
+                    </h4>
+                    {item.badge && (
+                      <span
+                        className={`text-[10px] font-black px-2 py-0.5 rounded-full border shadow-saweria-sm shrink-0 uppercase tracking-wider ${getUrgencyBadgeClass(
+                          item.urgency
+                        )}`}
+                      >
+                        {item.badge}
+                      </span>
+                    )}
                   </div>
                 </div>
 
                 {/* Direct 1-Click Action Button */}
                 {item.actionText && (
-                  <div className="flex justify-end pt-1 border-t border-brand-border/60">
+                  <div className="flex justify-end pt-1 border-t border-brand-border/40 dark:border-slate-700">
                     <button
                       type="button"
                       onClick={() => handleItemAction(item)}
@@ -217,8 +206,8 @@ export const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({
         </div>
 
         {/* Footer with "Don't show again today" and Close */}
-        <div className="p-4 sm:p-5 border-t-2 border-brand-dark bg-brand-cream flex flex-col sm:flex-row items-center justify-between gap-3">
-          <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-brand-dark self-start sm:self-center">
+        <div className="p-4 sm:p-5 border-t-2 border-brand-dark dark:border-slate-700 bg-brand-cream dark:bg-slate-800 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <label className="flex items-center gap-2 cursor-pointer select-none text-xs font-bold text-brand-dark dark:text-slate-300 self-start sm:self-center">
             <input
               type="checkbox"
               checked={dontShowToday}

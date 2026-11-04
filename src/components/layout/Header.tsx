@@ -78,8 +78,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           )}
         </button>
 
-        {/* PWA Install Button */}
-        <PWAInstallButton className="hidden lg:inline-flex" />
+        {/* PWA Install Button: Accessible on all devices (Android & iOS) */}
+        <PWAInstallButton className="inline-flex" />
 
         {/* Notification Bell -> Opens Consolidated Daily Briefing */}
         <div className="relative shrink-0">
