@@ -182,25 +182,37 @@ export const PlannerPage: React.FC = () => {
 
       {/* Shopping Budget Summary Pill Banner */}
       {groupedTasks.shopping.length > 0 && (
-        <div className="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-2xl border-2 border-emerald-300 dark:border-emerald-700/50 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-saweria-xs">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-emerald-200/80 border border-emerald-800/40 flex items-center justify-center text-emerald-900 shrink-0">
-              <ShoppingBag className="w-5 h-5 stroke-[2.3]" />
+        <div className="bg-emerald-50/90 dark:bg-emerald-950/40 p-4 sm:p-5 rounded-3xl border-2 border-emerald-300/80 dark:border-emerald-700/60 shadow-saweria-xs space-y-3">
+          {/* Header Row: Icon, Title with Badge, Subtitle */}
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-emerald-200/80 dark:bg-emerald-900/60 border border-emerald-700/30 dark:border-emerald-500/40 flex items-center justify-center text-emerald-900 dark:text-emerald-200 shrink-0 mt-0.5 shadow-xs">
+              <ShoppingBag className="w-5 h-5 stroke-[2.4]" />
             </div>
-            <div>
-              <span className="text-xs font-black text-emerald-900 dark:text-emerald-200 block">
-                Total Estimasi Kebutuhan Belanja Pokok ({groupedTasks.shopping.length} Barang)
-              </span>
-              <p className="text-[11px] text-emerald-800 dark:text-emerald-400 font-medium mt-0.5">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <h4 className="text-xs sm:text-sm font-black text-emerald-950 dark:text-emerald-100 tracking-tight">
+                  Total Estimasi Kebutuhan Belanja Pokok
+                </h4>
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-200/80 dark:bg-emerald-900/80 text-emerald-900 dark:text-emerald-200 border border-emerald-400/40 whitespace-nowrap">
+                  {groupedTasks.shopping.length} Barang
+                </span>
+              </div>
+              <p className="text-[11px] sm:text-xs text-emerald-800/90 dark:text-emerald-300/80 font-medium leading-relaxed mt-1">
                 Centang barang belanjaan saat selesai untuk otomatis mencatat pengeluaran dan memotong Saldo Riil.
               </p>
             </div>
           </div>
 
-          <div className="text-left sm:text-right shrink-0">
-            <span className="text-base sm:text-lg font-black text-emerald-950 dark:text-emerald-300 tabular-nums block">
-              {formatMoney(totalPendingShopping)}
+          {/* Dedicated Bottom Bar for Nominal Rp: Aligned & Structured */}
+          <div className="pt-2.5 border-t border-emerald-200/70 dark:border-emerald-800/50 flex items-center justify-between gap-3">
+            <span className="text-[11px] sm:text-xs font-bold text-emerald-800 dark:text-emerald-300">
+              Estimasi Pengeluaran:
             </span>
+            <div className="inline-flex items-center px-3 py-1 rounded-xl bg-white dark:bg-slate-900 border border-emerald-300 dark:border-emerald-700 shadow-xs">
+              <span className="text-sm sm:text-base font-black text-emerald-950 dark:text-emerald-200 tabular-nums">
+                {formatMoney(totalPendingShopping)}
+              </span>
+            </div>
           </div>
         </div>
       )}

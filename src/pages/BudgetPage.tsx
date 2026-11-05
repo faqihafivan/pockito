@@ -35,39 +35,86 @@ export const BudgetPage: React.FC = () => {
   const [isPocketModalOpen, setIsPocketModalOpen] = useState(false);
   const [pocketToEdit, setPocketToEdit] = useState<Pocket | null>(null);
   const [isRecommendationOpen, setIsRecommendationOpen] = useState(false);
-  const [isSlidersLocked, setIsSlidersLocked] = useState(false);
+
+  // Per-pocket lock system persisted in localStorage
+  const [lockedPocketIds, setLockedPocketIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem('pockito_locked_pockets');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+
+  // Global toggle lock for all sliders
+  const [isGlobalLocked, setIsGlobalLocked] = useState(false);
+
+  const isPocketLocked = (pocketId: string) => {
+    return isGlobalLocked || lockedPocketIds.includes(pocketId);
+  };
+
+  const handleToggleLockPocket = (pocketId: string, pocketName: string) => {
+    setLockedPocketIds((prev) => {
+      const isLocked = prev.includes(pocketId);
+      const updated = isLocked ? prev.filter((id) => id !== pocketId) : [...prev, pocketId];
+      try {
+        localStorage.setItem('pockito_locked_pockets', JSON.stringify(updated));
+      } catch {
+        // ignore
+      }
+      showToast(
+        !isLocked
+          ? `Kantong "${pocketName}" dikunci 🔒 (alokasi aman dari perubahan).`
+          : `Kantong "${pocketName}" dibuka 🔓 (dapat diedit kembali).`,
+        'info'
+      );
+      return updated;
+    });
+  };
 
   const monthlyIncome = user?.monthly_income || 0;
 
-  // Auto-balance remaining percentage to reach exactly 100%
+  // Auto-balance remaining percentage to reach exactly 100% (respects locked pockets)
   const handleAutoBalance = async () => {
     if (pocketSummaries.length === 0) return;
     const currentTotal = overview.totalAllocationPercentage;
     if (currentTotal === 100) return;
 
-    if (currentTotal === 0) {
-      const share = Math.floor(100 / pocketSummaries.length);
-      const remainder = 100 - share * pocketSummaries.length;
-      for (let i = 0; i < pocketSummaries.length; i++) {
-        await updatePocket(pocketSummaries[i].id, {
+    const unlocked = pocketSummaries.filter((p) => !isPocketLocked(p.id));
+    const locked = pocketSummaries.filter((p) => isPocketLocked(p.id));
+
+    if (unlocked.length === 0) {
+      showToast('Semua kantong sedang terkunci! Buka kunci minimal satu kantong untuk menyeimbangkan.', 'error');
+      return;
+    }
+
+    const lockedSum = locked.reduce((acc, p) => acc + p.allocation_percentage, 0);
+    const availablePercentage = Math.max(0, 100 - lockedSum);
+    const unlockedTotal = unlocked.reduce((acc, p) => acc + p.allocation_percentage, 0);
+
+    if (unlockedTotal === 0) {
+      const share = Math.floor(availablePercentage / unlocked.length);
+      const remainder = availablePercentage - share * unlocked.length;
+      for (let i = 0; i < unlocked.length; i++) {
+        await updatePocket(unlocked[i].id, {
           allocation_percentage: share + (i === 0 ? remainder : 0),
         });
       }
     } else {
       let allocatedSoFar = 0;
-      for (let i = 0; i < pocketSummaries.length; i++) {
-        const p = pocketSummaries[i];
-        if (i === pocketSummaries.length - 1) {
-          const finalShare = Math.max(0, 100 - allocatedSoFar);
+      for (let i = 0; i < unlocked.length; i++) {
+        const p = unlocked[i];
+        if (i === unlocked.length - 1) {
+          const finalShare = Math.max(0, availablePercentage - allocatedSoFar);
           await updatePocket(p.id, { allocation_percentage: finalShare });
         } else {
-          const scaled = Math.round((p.allocation_percentage / currentTotal) * 100);
+          const scaled = Math.round((p.allocation_percentage / unlockedTotal) * availablePercentage);
           allocatedSoFar += scaled;
           await updatePocket(p.id, { allocation_percentage: scaled });
         }
       }
     }
-    showToast('Alokasi berhasil diseimbangkan tepat 100%! ⚖️', 'success');
+    showToast('Alokasi berhasil diseimbangkan tepat 100% (kantong terkunci tetap aman)! ⚖️', 'success');
   };
 
   // Guard: User cannot leave BudgetPage if total allocation is not 100% (Menjawab feedback user)
@@ -144,21 +191,21 @@ export const BudgetPage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Slider Lock / Unlock Toggle Button */}
           <Button
-            variant={isSlidersLocked ? 'secondary' : 'primary'}
+            variant={isGlobalLocked ? 'secondary' : 'outline'}
             size="sm"
             onClick={() => {
-              const next = !isSlidersLocked;
-              setIsSlidersLocked(next);
+              const next = !isGlobalLocked;
+              setIsGlobalLocked(next);
               showToast(
                 next
-                  ? 'Slider Terkunci 🔒: Aman dari sentuhan scroll pada mobile.'
-                  : 'Slider Terbuka 🔓: Mode geser alokasi aktif.',
+                  ? 'Semua Slider Terkunci 🔒: Aman dari sentuhan scroll pada mobile.'
+                  : 'Semua Slider Terbuka 🔓: Mode geser alokasi aktif.',
                 'info'
               );
             }}
-            leftIcon={isSlidersLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
+            leftIcon={isGlobalLocked ? <Lock className="w-4 h-4 text-amber-600" /> : <Unlock className="w-4 h-4" />}
           >
-            {isSlidersLocked ? 'Kunci Slider (Aktif)' : 'Buka Slider (Edit)'}
+            {isGlobalLocked ? 'Buka Kunci Semua' : 'Kunci Semua Slider'}
           </Button>
 
           {/* One-tap balance button if not balanced */}
@@ -317,40 +364,62 @@ export const BudgetPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Live Percentage Adjuster with Lock Protection */}
-              <div className="p-3 bg-brand-cream rounded-xl border border-brand-border space-y-2">
-                <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
-                  <span className="flex items-center gap-1.5">
-                    {isSlidersLocked ? (
-                      <Lock className="w-3.5 h-3.5 text-brand-darkMuted" />
+              {/* Live Percentage Adjuster with Interactive Lock Protection */}
+              <div className="p-3 bg-brand-cream dark:bg-slate-800/60 rounded-xl border border-brand-border dark:border-slate-700/80 space-y-2">
+                <div className="flex items-center justify-between text-xs font-bold text-brand-dark dark:text-slate-100">
+                  {/* Interactive Lock Button on Pocket Card */}
+                  <button
+                    type="button"
+                    onClick={() => handleToggleLockPocket(pocket.id, pocket.name)}
+                    className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-lg border text-xs font-black transition-all cursor-pointer ${
+                      isPocketLocked(pocket.id)
+                        ? 'bg-amber-100 dark:bg-amber-950/70 text-amber-950 dark:text-amber-200 border-amber-400 dark:border-amber-600 shadow-saweria-xs'
+                        : 'bg-white/90 dark:bg-slate-700/80 text-brand-dark dark:text-slate-200 border-brand-dark/20 dark:border-slate-600 hover:border-brand-dark hover:bg-brand-primary/10'
+                    }`}
+                    title={
+                      isPocketLocked(pocket.id)
+                        ? 'Klik untuk membuka kunci alokasi kantong ini'
+                        : 'Klik untuk mengunci alokasi kantong ini agar tidak sengaja bergeser'
+                    }
+                  >
+                    {isPocketLocked(pocket.id) ? (
+                      <>
+                        <Lock className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 stroke-[2.5]" />
+                        <span>Terkunci 🔒</span>
+                      </>
                     ) : (
-                      <Unlock className="w-3.5 h-3.5 text-brand-primary" />
+                      <>
+                        <Unlock className="w-3.5 h-3.5 text-brand-primary stroke-[2.2]" />
+                        <span>Kunci</span>
+                      </>
                     )}
-                    <span>Atur Alokasi:</span>
-                  </span>
+                  </button>
+
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage - 1)}
-                      disabled={isSlidersLocked}
-                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark font-black flex items-center justify-center transition-transform ${
-                        isSlidersLocked
-                          ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:bg-brand-primary active:scale-95 cursor-pointer'
+                      disabled={isPocketLocked(pocket.id)}
+                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark dark:border-slate-600 font-black flex items-center justify-center transition-transform ${
+                        isPocketLocked(pocket.id)
+                          ? 'opacity-30 cursor-not-allowed text-gray-400'
+                          : 'hover:bg-brand-primary active:scale-95 cursor-pointer text-brand-dark dark:text-slate-100'
                       }`}
-                      title="Kurangi 1%"
+                      title={isPocketLocked(pocket.id) ? 'Buka kunci untuk mengubah' : 'Kurangi 1%'}
                     >
                       -
                     </button>
-                    <span className="w-12 text-center font-black tabular-nums">{pocket.allocation_percentage}%</span>
+                    <span className="w-12 text-center font-black tabular-nums text-brand-dark dark:text-slate-100">
+                      {pocket.allocation_percentage}%
+                    </span>
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage + 1)}
-                      disabled={isSlidersLocked}
-                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark font-black flex items-center justify-center transition-transform ${
-                        isSlidersLocked
-                          ? 'opacity-40 cursor-not-allowed'
-                          : 'hover:bg-brand-primary active:scale-95 cursor-pointer'
+                      disabled={isPocketLocked(pocket.id)}
+                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark dark:border-slate-600 font-black flex items-center justify-center transition-transform ${
+                        isPocketLocked(pocket.id)
+                          ? 'opacity-30 cursor-not-allowed text-gray-400'
+                          : 'hover:bg-brand-primary active:scale-95 cursor-pointer text-brand-dark dark:text-slate-100'
                       }`}
-                      title="Tambah 1%"
+                      title={isPocketLocked(pocket.id) ? 'Buka kunci untuk mengubah' : 'Tambah 1%'}
                     >
                       +
                     </button>
@@ -361,11 +430,11 @@ export const BudgetPage: React.FC = () => {
                   type="range"
                   min="0"
                   max="100"
-                  disabled={isSlidersLocked}
+                  disabled={isPocketLocked(pocket.id)}
                   value={pocket.allocation_percentage}
                   onChange={(e) => handlePercentageChange(pocket.id, Number(e.target.value))}
-                  className={`w-full accent-brand-primary h-2 bg-white rounded-lg border border-brand-dark/20 ${
-                    isSlidersLocked ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer'
+                  className={`w-full accent-brand-primary h-2 bg-white dark:bg-slate-700 rounded-lg border border-brand-dark/20 dark:border-slate-600 ${
+                    isPocketLocked(pocket.id) ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer'
                   }`}
                 />
               </div>
