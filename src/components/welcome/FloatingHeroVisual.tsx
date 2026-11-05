@@ -4,7 +4,6 @@ import {
   ShieldCheck,
   Zap,
   Laptop,
-  CheckCircle2,
 } from 'lucide-react';
 
 interface FloatingHeroVisualProps {
@@ -12,7 +11,6 @@ interface FloatingHeroVisualProps {
 }
 
 export const FloatingHeroVisual: React.FC<FloatingHeroVisualProps> = ({ className = '' }) => {
-  // Graceful fallback states: If user has placed PNG in /welcome/, use it; otherwise show pixel-perfect neobrutalist cards
   const [imgError, setImgError] = useState<Record<string, boolean>>({});
 
   const handleImageError = (key: string) => {
@@ -21,187 +19,139 @@ export const FloatingHeroVisual: React.FC<FloatingHeroVisualProps> = ({ classNam
 
   return (
     <div
-      className={`relative w-full max-w-lg mx-auto aspect-[4/3] sm:aspect-[16/11] flex items-center justify-center select-none overflow-visible pointer-events-none ${className}`}
+      className={`relative w-full max-w-lg mx-auto aspect-[4/3.8] sm:aspect-[16/12] flex items-center justify-center select-none overflow-visible pointer-events-none ${className}`}
     >
-      {/* Background Soft Glow Accents */}
+      {/* Background Ambient Radial Glow */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <div className="w-64 h-64 sm:w-80 sm:h-80 rounded-full bg-gradient-to-tr from-teal-300/30 via-emerald-200/25 to-amber-200/20 dark:from-teal-900/30 dark:via-emerald-950/20 dark:to-transparent blur-3xl pointer-events-none" />
+        <div className="w-72 h-72 sm:w-96 sm:h-96 rounded-full bg-gradient-to-tr from-teal-200/40 via-emerald-100/35 to-amber-100/30 dark:from-teal-950/40 dark:via-slate-900/30 dark:to-transparent blur-3xl pointer-events-none" />
       </div>
 
-      {/* Watermark Branding Behind */}
-      <span className="absolute text-5xl sm:text-7xl font-black text-brand-dark/5 dark:text-white/5 tracking-widest uppercase select-none pointer-events-none">
+      {/* Watermark Brand Title Behind */}
+      <span className="absolute top-1/2 -translate-y-1/2 text-5xl sm:text-7xl font-black text-brand-dark/[0.04] dark:text-white/[0.04] tracking-widest uppercase select-none pointer-events-none">
         POCKITO
       </span>
 
       {/* ============================================================
-          1. KANTONG CERDAS (Smart Pocket Card) - Top Left, Tilted
-          Slot Image: /welcome/pocket-card.png
+          1. KOIN EMAS & BINTANG MASKOT (Top-Left Accent)
+          File: /welcome/coins-star.jpg
           ============================================================ */}
-      <div className="absolute -top-1 sm:top-2 left-1 sm:left-4 z-20 animate-float-1 transform -rotate-6 hover:rotate-0 transition-transform duration-300">
-        {!imgError['pocket-card'] ? (
-          <img
-            src="/welcome/pocket-card.png"
-            alt="Kantong Cerdas Pockito"
-            onError={() => handleImageError('pocket-card')}
-            className="w-36 sm:w-48 h-auto object-contain drop-shadow-xl"
-          />
-        ) : null}
-
-        {/* Fallback Live CSS Card if image not yet dropped */}
-        {imgError['pocket-card'] && (
-          <div className="w-36 sm:w-44 p-2.5 sm:p-3 rounded-2xl bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm space-y-1.5 backdrop-blur-sm">
-            <div className="flex items-center justify-between">
-              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 dark:bg-amber-950/50 text-[9px] font-black text-amber-900 dark:text-amber-300 border border-amber-300/60">
-                <Utensils className="w-2.5 h-2.5" />
-                Makan & Ngopi
-              </span>
-              <span className="text-[9px] font-extrabold text-brand-darkMuted dark:text-slate-400">30%</span>
-            </div>
-            <div>
-              <span className="text-[8px] font-bold text-brand-darkMuted dark:text-slate-400 block uppercase">
-                Sisa Kantong
-              </span>
-              <div className="text-xs sm:text-sm font-black text-brand-dark dark:text-slate-100 tabular-nums">
-                Rp 850.000
-              </div>
-            </div>
-            <div className="w-full h-1.5 bg-gray-100 dark:bg-slate-700 rounded-full overflow-hidden border border-brand-dark/20">
-              <div className="w-[65%] h-full bg-brand-primary rounded-full" />
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ============================================================
-          2. JATAH BELANJA AMAN (Daily Safe Limit) - Top Right, Pill Badge
-          Slot Image: /welcome/daily-limit.png
-          ============================================================ */}
-      <div className="absolute top-0 sm:top-3 right-1 sm:right-4 z-20 animate-float-2 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-        {!imgError['daily-limit'] ? (
-          <img
-            src="/welcome/daily-limit.png"
-            alt="Jatah Belanja Aman Harian"
-            onError={() => handleImageError('daily-limit')}
-            className="w-36 sm:w-48 h-auto object-contain drop-shadow-xl"
-          />
-        ) : null}
-
-        {/* Fallback Live CSS Pill */}
-        {imgError['daily-limit'] && (
-          <div className="p-2 sm:p-2.5 rounded-2xl bg-[#E2F5F0] dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm flex items-center gap-2">
-            <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl bg-brand-primary border border-brand-dark flex items-center justify-center text-white shrink-0 shadow-saweria-xs">
-              <ShieldCheck className="w-4 h-4 stroke-[2.4]" />
-            </div>
-            <div className="min-w-0 pr-1">
-              <div className="flex items-center gap-1">
-                <span className="text-[8px] sm:text-[9px] font-bold text-brand-darkMuted dark:text-slate-400 uppercase leading-none">
-                  Jatah Aman Hari Ini
-                </span>
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping shrink-0" />
-              </div>
-              <div className="text-xs sm:text-sm font-black text-brand-dark dark:text-slate-100 tabular-nums leading-tight">
-                Rp 125.000<span className="text-[9px] font-bold text-brand-darkMuted">/hr</span>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ============================================================
-          3. TAGIHAN RUTIN BEBAS DENDA (Bill Guard) - Center Right, Ticket
-          Slot Image: /welcome/bill-guard.png
-          ============================================================ */}
-      <div className="absolute top-1/2 -translate-y-4 right-0 sm:right-2 z-10 animate-float-3 transform rotate-2 hover:rotate-0 transition-transform duration-300">
-        {!imgError['bill-guard'] ? (
-          <img
-            src="/welcome/bill-guard.png"
-            alt="Tagihan Bebas Denda"
-            onError={() => handleImageError('bill-guard')}
-            className="w-32 sm:w-44 h-auto object-contain drop-shadow-xl"
-          />
-        ) : null}
-
-        {/* Fallback Live CSS Ticket */}
-        {imgError['bill-guard'] && (
-          <div className="p-2 sm:p-2.5 rounded-xl sm:rounded-2xl bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-amber-400 border border-brand-dark flex items-center justify-center text-brand-dark shrink-0">
-              <Zap className="w-3.5 h-3.5 fill-brand-dark" />
-            </div>
-            <div>
-              <div className="text-[10px] font-black text-brand-dark dark:text-slate-100 leading-tight">
-                Wifi & Listrik
-              </div>
-              <span className="inline-flex items-center gap-0.5 text-[8px] font-black text-emerald-700 dark:text-emerald-300">
-                <CheckCircle2 className="w-2.5 h-2.5" />
-                Lunas Bebas Denda!
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ============================================================
-          4. TARGET TABUNGAN IMPIAN (Goal Progress Ring) - Bottom Left
-          Slot Image: /welcome/goal-ring.png
-          ============================================================ */}
-      <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-6 z-20 animate-float-2 transform -rotate-3 hover:rotate-0 transition-transform duration-300">
-        {!imgError['goal-ring'] ? (
-          <img
-            src="/welcome/goal-ring.png"
-            alt="Target Tabungan Impian"
-            onError={() => handleImageError('goal-ring')}
-            className="w-32 sm:w-44 h-auto object-contain drop-shadow-xl"
-          />
-        ) : null}
-
-        {/* Fallback Live CSS Ring */}
-        {imgError['goal-ring'] && (
-          <div className="p-2 sm:p-2.5 rounded-2xl bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm flex items-center gap-2.5">
-            <div className="relative w-8 h-8 rounded-full border-2 border-brand-dark flex items-center justify-center bg-teal-50 dark:bg-teal-950/40 text-brand-primary shrink-0">
-              <Laptop className="w-4 h-4 stroke-[2.2]" />
-              <div className="absolute -bottom-1 -right-1 px-1 rounded bg-brand-primary text-white text-[7px] font-black border border-brand-dark">
-                75%
-              </div>
-            </div>
-            <div>
-              <div className="text-[10px] font-black text-brand-dark dark:text-slate-100 leading-tight">
-                Laptop Baru 💻
-              </div>
-              <div className="text-[9px] font-bold text-brand-darkMuted dark:text-slate-400 tabular-nums">
-                Rp 4,5jt / 6jt
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {/* ============================================================
-          5. KOIN EMAS & BINTANG SAWERIA - Floating Decorative Accents
-          Slot Image: /welcome/coins-star.png
-          ============================================================ */}
-      <div className="absolute top-1/3 left-1/4 z-10 animate-float-1 pointer-events-none">
+      <div className="absolute top-1 sm:top-2 left-2 sm:left-4 z-10 animate-float-2 transform -rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300">
         {!imgError['coins-star'] ? (
           <img
-            src="/welcome/coins-star.png"
-            alt="Koin Emas Pockito"
+            src="/welcome/coins-star.jpg"
+            alt="Koin Emas 500 Rupiah & Bintang Pockito"
             onError={() => handleImageError('coins-star')}
-            className="w-16 sm:w-24 h-auto object-contain drop-shadow-md"
+            className="w-20 sm:w-28 md:w-32 h-auto object-contain mix-blend-multiply drop-shadow-md select-none"
           />
-        ) : null}
-
-        {/* Fallback Floating Badge */}
-        {imgError['coins-star'] && (
-          <div className="w-8 h-8 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-brand-dark shadow-saweria-xs flex items-center justify-center text-amber-950 font-black text-xs animate-bounce duration-1000">
+        ) : (
+          <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-amber-400 to-amber-200 border-2 border-brand-dark shadow-saweria-xs flex items-center justify-center text-amber-950 font-black text-sm">
             ⭐
           </div>
         )}
       </div>
 
-      {/* Subtle Mini Floating Coin Bottom Right */}
-      <div className="absolute bottom-6 right-1/4 z-10 animate-float-3 pointer-events-none">
-        <div className="w-6 h-6 rounded-full bg-amber-400 border border-brand-dark shadow-saweria-xs flex items-center justify-center text-[10px] font-black text-amber-950">
-          🪙
-        </div>
+      {/* ============================================================
+          2. KANTONG CERDAS MAKAN & NGOPI (Top-Right / Center Hero Card)
+          File: /welcome/pocket-card.jpg
+          ============================================================ */}
+      <div className="absolute top-0 sm:top-2 right-2 sm:right-6 z-20 animate-float-1 transform -rotate-6 hover:rotate-0 hover:scale-105 transition-all duration-300">
+        {!imgError['pocket-card'] ? (
+          <img
+            src="/welcome/pocket-card.jpg"
+            alt="Kartu Kantong Cerdas Makan & Ngopi"
+            onError={() => handleImageError('pocket-card')}
+            className="w-44 sm:w-56 md:w-64 h-auto object-contain mix-blend-multiply drop-shadow-2xl select-none"
+          />
+        ) : (
+          <div className="w-40 sm:w-48 p-3 rounded-2xl bg-white dark:bg-slate-800 border-2 border-brand-dark shadow-saweria space-y-1.5">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-100 text-[10px] font-black text-amber-900 border border-amber-300">
+                <Utensils className="w-3 h-3" />
+                Makan & Ngopi
+              </span>
+              <span className="text-[10px] font-extrabold text-brand-darkMuted">30%</span>
+            </div>
+            <div>
+              <span className="text-[8px] font-bold text-brand-darkMuted uppercase">Sisa Kantong</span>
+              <div className="text-sm font-black text-brand-dark">Rp 850.000</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================
+          3. TARGET TABUNGAN LAPTOP (Mid-Left Progress Ring)
+          File: /welcome/goal-ring.jpg
+          ============================================================ */}
+      <div className="absolute top-[38%] left-1 sm:left-3 z-20 animate-float-3 transform rotate-3 hover:rotate-0 hover:scale-105 transition-all duration-300">
+        {!imgError['goal-ring'] ? (
+          <img
+            src="/welcome/goal-ring.jpg"
+            alt="Target Tabungan Laptop Baru"
+            onError={() => handleImageError('goal-ring')}
+            className="w-32 sm:w-40 md:w-44 h-auto object-contain mix-blend-multiply drop-shadow-xl select-none"
+          />
+        ) : (
+          <div className="p-2.5 rounded-2xl bg-white dark:bg-slate-800 border-2 border-brand-dark shadow-saweria flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-teal-50 border border-brand-dark flex items-center justify-center text-brand-primary">
+              <Laptop className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[10px] font-black text-brand-dark">Laptop Baru 💻</div>
+              <div className="text-[9px] font-bold text-brand-darkMuted">75% Terkumpul</div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================
+          4. TAGIHAN RUTIN BEBAS DENDA (Mid-Right Receipt Ticket)
+          File: /welcome/bill-guard.jpg
+          ============================================================ */}
+      <div className="absolute top-[42%] right-1 sm:right-3 z-10 animate-float-2 transform rotate-6 hover:rotate-0 hover:scale-105 transition-all duration-300">
+        {!imgError['bill-guard'] ? (
+          <img
+            src="/welcome/bill-guard.jpg"
+            alt="Tagihan Wifi & Listrik Bebas Denda"
+            onError={() => handleImageError('bill-guard')}
+            className="w-36 sm:w-48 md:w-52 h-auto object-contain mix-blend-multiply drop-shadow-xl select-none"
+          />
+        ) : (
+          <div className="p-2.5 rounded-xl bg-white dark:bg-slate-800 border-2 border-brand-dark shadow-saweria flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-amber-400 border border-brand-dark flex items-center justify-center text-brand-dark">
+              <Zap className="w-3.5 h-3.5 fill-brand-dark" />
+            </div>
+            <div>
+              <div className="text-[10px] font-black text-brand-dark">Wifi & Listrik</div>
+              <span className="text-[8px] font-black text-emerald-700">Lunas Bebas Denda! ✅</span>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* ============================================================
+          5. JATAH BELANJA AMAN HARI INI (Bottom Center Guardrail Pill)
+          File: /welcome/daily-limit.jpg
+          ============================================================ */}
+      <div className="absolute bottom-0 sm:bottom-1 left-1/2 -translate-x-1/2 z-30 animate-float-1 transform -rotate-2 hover:rotate-0 hover:scale-105 transition-all duration-300">
+        {!imgError['daily-limit'] ? (
+          <img
+            src="/welcome/daily-limit.jpg"
+            alt="Jatah Belanja Aman Hari Ini Rp 125.000/hari"
+            onError={() => handleImageError('daily-limit')}
+            className="w-48 sm:w-60 md:w-68 h-auto object-contain mix-blend-multiply drop-shadow-2xl select-none"
+          />
+        ) : (
+          <div className="p-2.5 rounded-2xl bg-[#E2F5F0] border-2 border-brand-dark shadow-saweria flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-brand-primary border border-brand-dark flex items-center justify-center text-white">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-[9px] font-bold text-brand-darkMuted uppercase">Jatah Aman Hari Ini</div>
+              <div className="text-sm font-black text-brand-dark">Rp 125.000/hari 🟢</div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
