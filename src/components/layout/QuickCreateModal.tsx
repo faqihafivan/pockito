@@ -86,29 +86,32 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-brand-dark/60 backdrop-blur-sm animate-in fade-in duration-200">
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center px-4 pb-24 sm:pb-4 sm:p-4 bg-brand-dark/60 backdrop-blur-sm animate-in fade-in duration-200"
+      onClick={onClose}
+    >
       <div
-        className="w-full sm:max-w-md bg-white rounded-t-3xl sm:rounded-3xl border-2 border-brand-dark shadow-saweria-lg p-5 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto animate-in slide-in-from-bottom-8 duration-200"
+        className="w-full max-w-sm sm:max-w-md bg-white dark:bg-slate-900 rounded-3xl border-2 border-brand-dark dark:border-slate-700 shadow-saweria-lg p-5 sm:p-6 space-y-4 max-h-[calc(100vh-140px)] overflow-y-auto animate-in slide-in-from-bottom-6 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b-2 border-brand-dark pb-3">
+        <div className="flex items-center justify-between border-b-2 border-brand-dark dark:border-slate-700 pb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-brand-primary border-2 border-brand-dark flex items-center justify-center shadow-saweria-sm">
+            <div className="w-8 h-8 rounded-xl bg-brand-primary border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center shadow-saweria-sm">
               <Sparkles className="w-4 h-4 text-brand-primaryText" />
             </div>
             <div>
-              <h3 className="text-base font-black text-brand-dark leading-tight">
+              <h3 className="text-base font-black text-brand-dark dark:text-slate-100 leading-tight">
                 Buat Catatan Baru
               </h3>
-              <p className="text-[11px] font-bold text-brand-darkMuted">
+              <p className="text-[11px] font-bold text-brand-darkMuted dark:text-slate-400">
                 Pilih jenis pencatatan finansialmu:
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-xl border-2 border-brand-dark hover:bg-brand-cream text-brand-dark transition-colors shadow-saweria-sm"
+            className="p-1.5 rounded-xl border-2 border-brand-dark dark:border-slate-700 hover:bg-brand-cream dark:hover:bg-slate-800 text-brand-dark dark:text-slate-200 transition-colors shadow-saweria-sm cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -123,32 +126,32 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
                 key={idx}
                 type="button"
                 onClick={item.onClick}
-                className="w-full flex items-center justify-between p-3.5 rounded-2xl border-2 border-brand-dark bg-white hover:bg-brand-cream/80 active:translate-x-0.5 active:translate-y-0.5 shadow-saweria-sm transition-all text-left group"
+                className="w-full flex items-center justify-between p-3.5 rounded-2xl border-2 border-brand-dark dark:border-slate-700 bg-white dark:bg-slate-800/90 hover:bg-brand-cream/80 dark:hover:bg-slate-800 active:translate-x-0.5 active:translate-y-0.5 shadow-saweria-sm transition-all text-left group cursor-pointer"
               >
                 <div className="flex items-center gap-3">
                   <div
-                    className="w-11 h-11 rounded-xl border-2 border-brand-dark flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform"
+                    className="w-11 h-11 rounded-xl border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center shrink-0 shadow-saweria-sm group-hover:scale-105 transition-transform"
                     style={{ backgroundColor: item.color }}
                   >
                     <Icon className="w-5 h-5 text-brand-dark stroke-[2.3]" />
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5 flex-nowrap whitespace-nowrap">
-                      <span className="text-xs sm:text-sm font-black text-brand-dark">
+                      <span className="text-xs sm:text-sm font-black text-brand-dark dark:text-slate-100">
                         {item.title}
                       </span>
                       {item.tag && (
-                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-brand-primary border border-brand-dark shrink-0">
+                        <span className="px-1.5 py-0.5 rounded text-[9px] font-black uppercase bg-brand-primary text-brand-primaryText border border-brand-dark dark:border-slate-700 shrink-0">
                           {item.tag}
                         </span>
                       )}
                     </div>
-                    <p className="text-[11px] font-bold text-brand-darkMuted leading-tight mt-0.5">
+                    <p className="text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 leading-tight mt-0.5">
                       {item.desc}
                     </p>
                   </div>
                 </div>
-                <ChevronRight className="w-5 h-5 text-brand-darkMuted group-hover:text-brand-dark group-hover:translate-x-0.5 transition-all shrink-0" />
+                <ChevronRight className="w-5 h-5 text-brand-darkMuted dark:text-slate-400 group-hover:text-brand-dark dark:group-hover:text-slate-200 group-hover:translate-x-0.5 transition-all shrink-0" />
               </button>
             );
           })}
@@ -159,7 +162,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
           <button
             type="button"
             onClick={onClose}
-            className="w-full py-2.5 rounded-xl border-2 border-brand-dark bg-brand-cream font-black text-xs text-brand-dark hover:bg-brand-dark hover:text-white transition-colors"
+            className="w-full py-2.5 rounded-xl border-2 border-brand-dark dark:border-slate-700 bg-brand-cream dark:bg-slate-800 font-black text-xs text-brand-dark dark:text-slate-200 hover:bg-brand-dark hover:text-white dark:hover:bg-slate-700 transition-colors cursor-pointer"
           >
             Batal
           </button>
