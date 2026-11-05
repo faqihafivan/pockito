@@ -73,7 +73,7 @@ export const LandingPage: React.FC = () => {
 
         <h1 className="text-4xl sm:text-6xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-[1.1]">
           Kelola Uang & Hari-Harimu <br />
-          <span className="bg-brand-primary px-3 py-1 rounded-2xl border-2 border-brand-dark inline-block shadow-saweria mt-2 text-brand-dark">
+          <span className="bg-brand-primary px-3 py-1 rounded-2xl border-2 border-brand-dark inline-block shadow-saweria mt-2 text-brand-primaryText">
             Tanpa Ribet Akuntansi.
           </span>
         </h1>

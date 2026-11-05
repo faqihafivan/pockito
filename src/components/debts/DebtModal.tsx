@@ -135,7 +135,7 @@ export const DebtModal: React.FC<DebtModalProps> = ({
               onClick={() => setType('receivable')}
               className={`py-2.5 px-3 rounded-xl border-2 font-black text-xs transition-all flex flex-col items-center justify-center gap-0.5 ${
                 type === 'receivable'
-                  ? 'bg-emerald-400 border-brand-dark text-brand-dark shadow-saweria-sm'
+                  ? 'bg-emerald-600 border-brand-dark text-white shadow-saweria-sm'
                   : 'bg-white border-brand-border text-brand-darkMuted hover:bg-brand-cream'
               }`}
             >

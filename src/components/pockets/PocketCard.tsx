@@ -5,7 +5,7 @@ import { ProgressBar } from '../ui/ProgressBar';
 import { PocketSummary } from '../../types';
 import { useData } from '../../context/DataContext';
 import { Star, ChevronRight } from 'lucide-react';
-import { getPocketIcon } from '../../domain/finance/pocketIcons';
+import { getPocketIcon, isColorLight } from '../../domain/finance/pocketIcons';
 
 interface PocketCardProps {
   pocket: PocketSummary;
@@ -30,7 +30,7 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-3">
             <div
-              className="w-12 h-12 rounded-2xl border-2 border-brand-dark flex items-center justify-center text-brand-dark shrink-0 shadow-saweria-sm"
+              className={`w-12 h-12 rounded-2xl border-2 border-brand-dark flex items-center justify-center ${isColorLight(pocket.color) ? "text-brand-dark" : "text-white"} shrink-0 shadow-saweria-sm`}
               style={{ backgroundColor: pocket.color }}
             >
               <IconComponent className="w-6 h-6 stroke-[2.2]" />

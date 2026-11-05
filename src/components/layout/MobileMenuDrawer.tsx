@@ -110,7 +110,7 @@ export const MobileMenuDrawer: React.FC<MobileMenuDrawerProps> = ({ isOpen, onCl
         <div className="flex items-center justify-between border-b-2 border-brand-dark pb-3">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-brand-primary border-2 border-brand-dark flex items-center justify-center shadow-saweria-sm">
-              <Compass className="w-5 h-5 text-brand-dark" />
+              <Compass className="w-5 h-5 text-brand-primaryText" />
             </div>
             <div>
               <h3 className="text-base font-black text-brand-dark leading-tight">

@@ -211,7 +211,7 @@ export const PlannerPage: React.FC = () => {
           onClick={() => setActiveTab('today')}
           className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
             activeTab === 'today'
-              ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
           }`}
         >
@@ -222,7 +222,7 @@ export const PlannerPage: React.FC = () => {
           onClick={() => setActiveTab('shopping')}
           className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer flex items-center gap-1.5 ${
             activeTab === 'shopping'
-              ? 'bg-emerald-500 text-brand-dark border-brand-dark shadow-saweria-sm'
+              ? 'bg-emerald-600 text-white border-brand-dark shadow-saweria-sm'
               : 'bg-white text-emerald-800 border-emerald-300 hover:border-emerald-500'
           }`}
         >
@@ -234,7 +234,7 @@ export const PlannerPage: React.FC = () => {
           onClick={() => setActiveTab('upcoming')}
           className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
             activeTab === 'upcoming'
-              ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
           }`}
         >
@@ -245,7 +245,7 @@ export const PlannerPage: React.FC = () => {
           onClick={() => setActiveTab('later')}
           className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
             activeTab === 'later'
-              ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
           }`}
         >
@@ -256,7 +256,7 @@ export const PlannerPage: React.FC = () => {
           onClick={() => setActiveTab('completed')}
           className={`px-4 py-2 rounded-xl text-xs font-black border-2 transition-all shrink-0 cursor-pointer ${
             activeTab === 'completed'
-              ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-brand-dark shadow-saweria-sm'
               : 'bg-white text-brand-darkMuted border-brand-border hover:border-brand-dark'
           }`}
         >
@@ -465,7 +465,7 @@ export const PlannerPage: React.FC = () => {
                 size="sm"
                 isLoading={isProcessing}
                 onClick={handleConfirmDeduct}
-                className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 border-brand-dark text-brand-dark font-black"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 border-brand-dark text-white font-black"
               >
                 Ya, Potong Saldo ({formatMoney(pendingTask.amount || 0)})
               </Button>

@@ -121,7 +121,7 @@ export const AppShell: React.FC = () => {
         {isDemo && (
           <div className="bg-amber-100 dark:bg-slate-900 border-b-2 border-amber-900/30 dark:border-amber-500/30 px-3.5 sm:px-4 py-2 flex items-center justify-between text-xs font-bold text-amber-950 dark:text-amber-200 z-30 transition-colors">
             <div className="flex items-center gap-2 min-w-0 pr-2">
-              <span className="px-2 py-0.5 rounded-full bg-teal-500 dark:bg-teal-400 text-slate-950 text-[10px] font-black uppercase border border-amber-900/30 dark:border-teal-300 shadow-saweria-xs shrink-0">
+              <span className="px-2 py-0.5 rounded-full bg-teal-600 dark:bg-teal-500 text-white text-[10px] font-black uppercase border border-teal-800/30 dark:border-teal-300 shadow-saweria-xs shrink-0">
                 Mode Demo
               </span>
               <span className="truncate sm:whitespace-normal">

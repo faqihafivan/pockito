@@ -88,7 +88,7 @@ export const Sidebar: React.FC = () => {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-sm transition-all duration-150 ${
                   isActive
-                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm'
+                    ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-100 hover:bg-brand-cream dark:hover:bg-slate-800 border-2 border-transparent'
                 }`
               }
@@ -107,7 +107,7 @@ export const Sidebar: React.FC = () => {
           className={({ isActive }) =>
             `flex items-center gap-3 px-3.5 py-2.5 rounded-xl font-bold text-xs transition-all ${
               isActive
-                ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm'
+                ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm'
                 : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-100 hover:bg-white dark:hover:bg-slate-800'
             }`
           }

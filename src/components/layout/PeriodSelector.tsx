@@ -147,7 +147,7 @@ export const PeriodSelector: React.FC = () => {
           </span>
 
           {isCurrentMonth && (
-            <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-black bg-brand-primary text-brand-dark border border-brand-dark uppercase tracking-wider">
+            <span className="hidden md:inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-black bg-brand-primary text-brand-primaryText border border-brand-dark uppercase tracking-wider">
               Bulan Ini
             </span>
           )}
@@ -276,7 +276,7 @@ export const PeriodSelector: React.FC = () => {
                       onClick={() => handleSelectMonth(m.idx)}
                       className={`py-2 px-1 rounded-xl text-xs font-black transition-all border-2 cursor-pointer ${
                         isSelected
-                          ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm'
+                          ? 'bg-brand-primary text-brand-primaryText border-brand-dark shadow-saweria-sm'
                           : 'bg-brand-cream/60 dark:bg-slate-800 border-brand-border dark:border-slate-700 text-brand-dark dark:text-slate-100 hover:border-brand-dark hover:bg-white dark:hover:bg-slate-700'
                       }`}
                     >
@@ -299,7 +299,7 @@ export const PeriodSelector: React.FC = () => {
                       onClick={() => handleSelectMonth(index)}
                       className={`relative py-2 px-1 rounded-xl text-xs font-black transition-all border-2 cursor-pointer ${
                         isSelected
-                          ? 'bg-brand-primary text-brand-dark border-brand-dark shadow-saweria-sm scale-[1.02]'
+                          ? 'bg-brand-primary text-brand-primaryText border-brand-dark shadow-saweria-sm scale-[1.02]'
                           : hasTransactions
                           ? 'bg-brand-cream dark:bg-slate-800 border-brand-border dark:border-slate-700 text-brand-dark dark:text-slate-100 hover:border-brand-dark hover:bg-white dark:hover:bg-slate-700'
                           : 'bg-white dark:bg-slate-900 border-transparent text-brand-darkMuted dark:text-slate-400 hover:border-brand-border hover:bg-brand-cream/40 dark:hover:bg-slate-800/40'
@@ -325,7 +325,7 @@ export const PeriodSelector: React.FC = () => {
               className={`w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl border-2 border-brand-dark dark:border-slate-700 font-black text-xs transition-all cursor-pointer ${
                 isCurrentMonth
                   ? 'bg-brand-cream/60 dark:bg-slate-800 text-brand-darkMuted dark:text-slate-400 cursor-default'
-                  : 'bg-brand-primary hover:bg-brand-primaryHover text-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5'
+                  : 'bg-brand-primary hover:bg-brand-primaryHover text-brand-primaryText shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5'
               }`}
             >
               <RotateCcw className="w-3.5 h-3.5" />

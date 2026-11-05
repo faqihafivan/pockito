@@ -328,7 +328,7 @@ export const TodayTasksCard: React.FC<TodayTasksCardProps> = ({ tasks, onOpenNew
                 size="sm"
                 isLoading={isProcessing}
                 onClick={handleConfirmDeduct}
-                className="w-full sm:w-auto bg-emerald-500 hover:bg-emerald-600 border-brand-dark text-brand-dark font-black"
+                className="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 border-brand-dark text-white font-black"
               >
                 Ya, Potong Saldo ({formatMoney(pendingTask.amount || 0)})
               </Button>

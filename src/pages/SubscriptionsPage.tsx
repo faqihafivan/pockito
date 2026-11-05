@@ -151,7 +151,7 @@ export const SubscriptionsPage: React.FC = () => {
           onClick={() => setFilterStatus('all')}
           className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all ${
             filterStatus === 'all'
-              ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-sm'
               : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
           }`}
         >
@@ -161,7 +161,7 @@ export const SubscriptionsPage: React.FC = () => {
           onClick={() => setFilterStatus('pending')}
           className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all ${
             filterStatus === 'pending'
-              ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-sm'
               : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
           }`}
         >
@@ -171,7 +171,7 @@ export const SubscriptionsPage: React.FC = () => {
           onClick={() => setFilterStatus('paid')}
           className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all ${
             filterStatus === 'paid'
-              ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-sm'
               : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
           }`}
         >

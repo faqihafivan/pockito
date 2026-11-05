@@ -172,7 +172,7 @@ export const DashboardPage: React.FC = () => {
     <div className="space-y-3 sm:space-y-5">
       {/* 1. Top Header Row: User Avatar & Greeting (Clean & Compact without Redundant Pills) */}
       <div className="flex items-center gap-2.5 min-w-0 pt-0.5">
-        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-primary/25 dark:bg-brand-primary/30 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center font-black text-brand-dark dark:text-slate-100 shadow-saweria-xs shrink-0 overflow-hidden">
+        <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-brand-primary/25 dark:bg-brand-primary/30 border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center font-black text-teal-950 dark:text-teal-100 shadow-saweria-xs shrink-0 overflow-hidden">
           {user?.avatar_url ? (
             <img src={user.avatar_url} alt="Profile" className="w-full h-full object-cover" />
           ) : (
@@ -219,7 +219,7 @@ export const DashboardPage: React.FC = () => {
             footerBorder: 'border-white/20',
             statusDot: 'bg-emerald-300 border-emerald-400',
             statusText: 'text-teal-100 font-bold',
-            catatBtn: 'bg-slate-900 hover:bg-black text-white border-2 border-slate-900/60 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5',
+            catatBtn: 'bg-[#0F2E28] hover:bg-black text-teal-100 hover:text-white border-2 border-teal-300/40 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 font-black',
           },
           midnight: {
             card: 'bg-gradient-to-br from-teal-900 via-slate-900 to-slate-950 text-white border-2 border-teal-500/50 shadow-saweria',
@@ -233,7 +233,7 @@ export const DashboardPage: React.FC = () => {
             footerBorder: 'border-teal-500/30',
             statusDot: 'bg-teal-400 border-teal-300',
             statusText: 'text-teal-200 font-bold',
-            catatBtn: 'bg-teal-400 hover:bg-teal-300 text-slate-950 border-2 border-teal-200 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 font-black',
+            catatBtn: 'bg-teal-500 hover:bg-teal-400 text-white border-2 border-teal-300 shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 font-black',
           },
         }[activeHeroTheme];
 
@@ -481,7 +481,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => setGuardrailTab('daily_limit')}
                 className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer ${
                   guardrailTab === 'daily_limit'
-                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs scale-[1.01]'
+                    ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-xs scale-[1.01]'
                     : 'text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:text-brand-dark dark:hover:text-slate-200 hover:bg-white/50'
                 }`}
               >
@@ -497,7 +497,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => setGuardrailTab('runway')}
                 className={`flex items-center justify-center gap-1.5 sm:gap-2 py-2 px-2 sm:px-4 rounded-xl text-xs sm:text-sm font-black transition-all duration-300 cursor-pointer ${
                   guardrailTab === 'runway'
-                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs scale-[1.01]'
+                    ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-xs scale-[1.01]'
                     : 'text-brand-darkMuted dark:text-slate-400 border-2 border-transparent hover:text-brand-dark dark:hover:text-slate-200 hover:bg-white/50'
                 }`}
               >
@@ -589,7 +589,7 @@ export const DashboardPage: React.FC = () => {
                   </div>
                   <Link
                     to="/app/budget"
-                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-primary border-2 border-brand-dark text-xs font-black shadow-saweria-sm hover:bg-brand-primaryHover transition-all active:translate-x-0.5 active:translate-y-0.5"
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-brand-primary text-brand-primaryText border-2 border-brand-dark text-xs font-black shadow-saweria-sm hover:bg-brand-primaryHover transition-all active:translate-x-0.5 active:translate-y-0.5"
                   >
                     <span>Mulai Buat Kantong Pertamamu</span>
                     <ArrowRight className="w-3.5 h-3.5" />
@@ -646,7 +646,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => setFinancialHubTab('goals')}
                 className={`flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black whitespace-nowrap transition-all cursor-pointer ${
                   financialHubTab === 'goals'
-                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                    ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-xs'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
@@ -659,7 +659,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => setFinancialHubTab('subscriptions')}
                 className={`flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black whitespace-nowrap transition-all cursor-pointer ${
                   financialHubTab === 'subscriptions'
-                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                    ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-xs'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
@@ -672,7 +672,7 @@ export const DashboardPage: React.FC = () => {
                 onClick={() => setFinancialHubTab('debts')}
                 className={`flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-1.5 rounded-xl text-[11px] sm:text-xs font-black whitespace-nowrap transition-all cursor-pointer ${
                   financialHubTab === 'debts'
-                    ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-xs'
+                    ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-xs'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >

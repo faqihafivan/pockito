@@ -95,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
                 className={`absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-full border border-brand-dark text-[9px] font-black flex items-center justify-center shadow-saweria-sm ${
                   dailyBriefing.hasUrgentItems
                     ? 'bg-red-500 text-white animate-pulse'
-                    : 'bg-brand-primary text-brand-dark'
+                    : 'bg-brand-primary text-brand-primaryText'
                 }`}
               >
                 {totalNotificationCount}
@@ -125,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
           {user?.avatar_url ? (
             <img src={user.avatar_url} alt="" className="w-5 h-5 rounded-md object-cover" />
           ) : (
-            <div className="w-5 h-5 rounded-md bg-brand-primary border border-brand-dark flex items-center justify-center text-[10px] font-black text-brand-dark">
+            <div className="w-5 h-5 rounded-md bg-brand-primary border border-brand-dark flex items-center justify-center text-[10px] font-black text-brand-primaryText">
               {user?.full_name && user.full_name !== 'Pengguna Pockito'
                 ? user.full_name.charAt(0).toUpperCase()
                 : 'P'}

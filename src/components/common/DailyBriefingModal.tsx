@@ -98,7 +98,7 @@ export const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({
       case 'high':
         return 'bg-red-500 text-white border-brand-dark animate-pulse';
       case 'medium':
-        return 'bg-brand-primary text-brand-dark border-brand-dark';
+        return 'bg-brand-primary text-white border-brand-dark';
       case 'info':
       default:
         return 'bg-emerald-100 text-emerald-800 border-emerald-400';
@@ -131,8 +131,8 @@ export const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({
           </button>
 
           <div className="flex items-center gap-2 mb-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary text-brand-dark text-[11px] font-black border-2 border-brand-dark shadow-saweria-sm uppercase tracking-wider">
-              <Bell className="w-3.5 h-3.5 fill-brand-dark stroke-brand-dark" />
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary text-white text-[11px] font-black border-2 border-brand-dark shadow-saweria-sm uppercase tracking-wider">
+              <Bell className="w-3.5 h-3.5 fill-white stroke-white" />
               Notifikasi Finansial
             </span>
             <span className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 bg-white dark:bg-slate-900 px-2.5 py-0.5 rounded-full border border-brand-dark/20 dark:border-slate-700">
@@ -193,7 +193,7 @@ export const DailyBriefingModal: React.FC<DailyBriefingModalProps> = ({
                     <button
                       type="button"
                       onClick={() => handleItemAction(item)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-brand-primary hover:bg-brand-primaryHover text-brand-dark border-2 border-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-brand-primary hover:bg-brand-primaryHover text-white border-2 border-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
                     >
                       <span>{item.actionText}</span>
                       <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />

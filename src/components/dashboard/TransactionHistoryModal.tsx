@@ -97,7 +97,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
             }}
             className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-xl border-2 font-black text-xs shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer ${
               isIncome
-                ? 'bg-emerald-500 hover:bg-emerald-600 text-brand-dark border-brand-dark'
+                ? 'bg-emerald-600 hover:bg-emerald-700 text-white border-brand-dark'
                 : 'bg-rose-500 hover:bg-rose-600 text-white border-brand-dark'
             }`}
           >
@@ -129,7 +129,7 @@ export const TransactionHistoryModal: React.FC<TransactionHistoryModalProps> = (
                   onClose();
                   onOpenNewTransaction();
                 }}
-                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-primary text-brand-dark font-black text-xs border-2 border-brand-dark shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-brand-primary text-white font-black text-xs border-2 border-brand-dark shadow-saweria-xs active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer"
               >
                 <Plus className="w-4 h-4 stroke-[2.5]" />
                 <span>{isIncome ? 'Catat Pemasukan Sekarang' : 'Catat Pengeluaran Sekarang'}</span>

@@ -176,7 +176,7 @@ export const DebtsPage: React.FC = () => {
           onClick={() => setFilterTab('all')}
           className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all ${
             filterTab === 'all'
-              ? 'bg-brand-primary text-brand-dark border-2 border-brand-dark shadow-saweria-sm'
+              ? 'bg-brand-primary text-brand-primaryText border-2 border-brand-dark shadow-saweria-sm'
               : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
           }`}
         >
@@ -186,7 +186,7 @@ export const DebtsPage: React.FC = () => {
           onClick={() => setFilterTab('receivable')}
           className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all ${
             filterTab === 'receivable'
-              ? 'bg-emerald-300 text-brand-dark border-2 border-brand-dark shadow-saweria-sm'
+              ? 'bg-emerald-600 text-white border-2 border-brand-dark shadow-saweria-sm'
               : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
           }`}
         >
@@ -196,7 +196,7 @@ export const DebtsPage: React.FC = () => {
           onClick={() => setFilterTab('payable')}
           className={`px-3.5 py-1.5 rounded-xl font-black text-xs transition-all ${
             filterTab === 'payable'
-              ? 'bg-rose-300 text-brand-dark border-2 border-brand-dark shadow-saweria-sm'
+              ? 'bg-rose-600 text-white border-2 border-brand-dark shadow-saweria-sm'
               : 'text-brand-darkMuted hover:text-brand-dark hover:bg-white'
           }`}
         >

@@ -16,7 +16,7 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from 'lucide-react';
-import { getPocketIcon } from '../domain/finance/pocketIcons';
+import { getPocketIcon, isColorLight } from '../domain/finance/pocketIcons';
 import { useNotification } from '../context/NotificationContext';
 
 export const PocketDetailPage: React.FC = () => {
@@ -99,7 +99,7 @@ export const PocketDetailPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-4">
             <div
-              className="w-16 h-16 rounded-2xl border-2 border-brand-dark flex items-center justify-center text-brand-dark shadow-saweria shrink-0"
+              className={`w-16 h-16 rounded-2xl border-2 border-brand-dark flex items-center justify-center ${isColorLight(pocket.color) ? "text-brand-dark" : "text-white"} shadow-saweria shrink-0`}
               style={{ backgroundColor: pocket.color }}
             >
               {React.createElement(getPocketIcon(pocket.icon), {

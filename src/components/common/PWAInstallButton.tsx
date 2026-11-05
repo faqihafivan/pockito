@@ -49,7 +49,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
         <div className={`p-4 rounded-3xl bg-brand-cream dark:bg-slate-800/80 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm space-y-3 ${className}`}>
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-brand-primary border-2 border-brand-dark dark:border-slate-700 flex items-center justify-center shrink-0 shadow-saweria-sm">
-              <Smartphone className="w-5 h-5 text-brand-dark" />
+              <Smartphone className="w-5 h-5 text-white" />
             </div>
             <div>
               <h4 className="text-xs font-black text-brand-dark dark:text-slate-100 uppercase tracking-wider">
@@ -75,7 +75,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
         <button
           type="button"
           onClick={handleInstallClick}
-          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black border-2 border-brand-dark dark:border-slate-700 bg-brand-primary hover:bg-brand-primaryDark text-brand-dark shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer ${className}`}
+          className={`inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black border-2 border-brand-dark dark:border-slate-700 bg-brand-primary hover:bg-brand-primaryHover text-white shadow-saweria-sm active:translate-x-0.5 active:translate-y-0.5 transition-all cursor-pointer ${className}`}
           title="Pasang Pockito di Layar Utama HP (Android & iOS)"
           aria-label="Download Aplikasi Pockito"
         >
@@ -118,7 +118,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 onClick={() => setActiveTab('android')}
                 className={`flex-1 py-1.5 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'android'
-                    ? 'bg-brand-primary text-brand-dark shadow-saweria-sm'
+                    ? 'bg-brand-primary text-white shadow-saweria-sm'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
@@ -129,7 +129,7 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                 onClick={() => setActiveTab('ios')}
                 className={`flex-1 py-1.5 text-xs font-black rounded-lg transition-all flex items-center justify-center gap-1.5 ${
                   activeTab === 'ios'
-                    ? 'bg-brand-primary text-brand-dark shadow-saweria-sm'
+                    ? 'bg-brand-primary text-white shadow-saweria-sm'
                     : 'text-brand-darkMuted dark:text-slate-400 hover:text-brand-dark dark:hover:text-slate-200'
                 }`}
               >
@@ -156,19 +156,19 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
                   </Button>
                 )}
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     1
                   </span>
                   <span>Buka menu browser Chrome / Edge (ketuk titik tiga <strong>⋮</strong> di kanan atas).</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     2
                   </span>
                   <span>Pilih <strong>"Pasang aplikasi"</strong> atau <strong>"Tambahkan ke Layar Utama"</strong>.</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     3
                   </span>
                   <span>Pockito otomatis terpasang dengan ikon resmi di menu aplikasi Android kamu!</span>
@@ -180,25 +180,25 @@ export const PWAInstallButton: React.FC<PWAInstallButtonProps> = ({
             {activeTab === 'ios' && (
               <div className="p-3.5 rounded-2xl bg-brand-cream dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 space-y-2.5 text-xs font-bold text-brand-dark dark:text-slate-200">
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     1
                   </span>
                   <span>Buka Pockito di browser <strong>Safari</strong> iPhone kamu.</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     2
                   </span>
                   <span>Ketuk tombol <strong>Bagikan / Share</strong> (ikon kotak panah ke atas 📤 di navigasi bawah).</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     3
                   </span>
                   <span>Gulir ke bawah dan pilih <strong>"Tambah ke Layar Utama"</strong> (Add to Home Screen ➕).</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-brand-dark flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="w-5 h-5 rounded-full bg-brand-primary border border-brand-dark text-[10px] font-black text-white flex items-center justify-center shrink-0 mt-0.5">
                     4
                   </span>
                   <span>Ketuk <strong>"Tambah"</strong> di kanan atas. Pockito siap dibuka seperti aplikasi App Store!</span>

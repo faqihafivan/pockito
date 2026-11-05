@@ -90,7 +90,7 @@ export const OnboardingPage: React.FC = () => {
         <div className="flex items-center justify-center gap-2">
           <span
             className={`w-8 h-8 rounded-full border-2 border-brand-dark flex items-center justify-center font-black text-xs ${
-              step >= 1 ? 'bg-brand-primary text-brand-dark' : 'bg-white text-gray-400'
+              step >= 1 ? 'bg-brand-primary text-white' : 'bg-white text-gray-400'
             }`}
           >
             1
@@ -98,7 +98,7 @@ export const OnboardingPage: React.FC = () => {
           <div className="w-12 h-1 bg-brand-dark" />
           <span
             className={`w-8 h-8 rounded-full border-2 border-brand-dark flex items-center justify-center font-black text-xs ${
-              step === 2 ? 'bg-brand-primary text-brand-dark' : 'bg-white text-gray-400'
+              step === 2 ? 'bg-brand-primary text-white' : 'bg-white text-gray-400'
             }`}
           >
             2

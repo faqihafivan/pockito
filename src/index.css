@@ -17,13 +17,13 @@
   --color-primary-hover: #0F766E;
   --color-primary-text: #FFFFFF;
   --color-accent: #F59E0B;
-  --color-cream: #D8EFEA;
-  --color-dark: #0F2E28;
-  --color-dark-muted: #335952;
-  --color-card: #FFFFFF;
-  --color-border: #9DD0C7;
+  --color-cream: #CCEBE3; /* Soft, refreshing pastel mint background */
+  --color-dark: #0B2923; /* Deep spruce for crisp readability */
+  --color-dark-muted: #245048;
+  --color-card: #E2F5F0; /* Visible fresh mint card background */
+  --color-border: #97CEBF;
   --color-border-dark: #0F3B34;
-  --color-income-bg: #D1FAE5;
+  --color-income-bg: #C1F0E4;
   --color-income-text: #065F46;
   --color-expense-bg: #FEE2E2;
   --color-expense-text: #991B1B;
@@ -256,4 +256,66 @@ html.dark [role="dialog"],
     size: A4 portrait;
     margin: 1.5cm;
   }
+}
+
+
+/* ============================================================
+   TEAL-MINT THEME: MINT CARDS & WHITE/MINT TEXT ON TEAL
+   Eliminates black-on-teal overlap and ensures soft mint cards
+   ============================================================ */
+
+/* 1. All cards in teal-mint theme have mint background */
+[data-theme="teal-mint"] .bg-white,
+[data-theme="teal-mint"] .bg-brand-card {
+  background-color: var(--color-card) !important;
+}
+
+/* Modals & Dialogs surface in teal-mint mode */
+[data-theme="teal-mint"] [role="dialog"] {
+  background-color: var(--color-card) !important;
+  color: var(--color-dark) !important;
+  border-color: var(--color-border-dark) !important;
+}
+
+/* Form controls inside mint cards stay pure crisp white with dark border for affordance */
+[data-theme="teal-mint"] input:not([type="checkbox"]):not([type="radio"]),
+[data-theme="teal-mint"] select,
+[data-theme="teal-mint"] textarea {
+  background-color: #FFFFFF !important;
+  color: #0F2E28 !important;
+  border-color: #0F3B34 !important;
+}
+
+/* 2. Any teal/emerald background in teal-mint or globally must have crisp white or mint text (NEVER black/dark) */
+.bg-brand-primary,
+[class*="bg-brand-primary"]:not([class*="/"]):not([class*="-hover"]),
+[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]),
+[class*="bg-emerald-500"]:not([class*="/"]),
+[class*="bg-emerald-600"]:not([class*="/"]),
+.bg-\[\#0D9488\],
+.bg-\[\#14B8A6\],
+.bg-\[\#0F766E\] {
+  color: #FFFFFF !important;
+}
+
+.bg-brand-primary.text-brand-dark,
+.bg-brand-primary .text-brand-dark,
+[class*="bg-brand-primary"]:not([class*="/"]).text-brand-dark,
+[class*="bg-brand-primary"]:not([class*="/"]) .text-brand-dark,
+[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]).text-brand-dark,
+[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]) .text-brand-dark,
+[class*="bg-emerald-500"]:not([class*="/"]).text-brand-dark,
+[class*="bg-emerald-500"]:not([class*="/"]) .text-brand-dark,
+[class*="bg-emerald-600"]:not([class*="/"]).text-brand-dark,
+[class*="bg-emerald-600"]:not([class*="/"]) .text-brand-dark {
+  color: #FFFFFF !important;
+}
+
+/* Ensure SVG icons inside teal backgrounds inherit white/mint color */
+.bg-brand-primary svg,
+[class*="bg-brand-primary"]:not([class*="/"]) svg,
+[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]) svg,
+[class*="bg-emerald-500"]:not([class*="/"]) svg,
+[class*="bg-emerald-600"]:not([class*="/"]) svg {
+  stroke: currentColor;
 }

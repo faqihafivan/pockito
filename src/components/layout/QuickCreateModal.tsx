@@ -95,7 +95,7 @@ export const QuickCreateModal: React.FC<QuickCreateModalProps> = ({
         <div className="flex items-center justify-between border-b-2 border-brand-dark pb-3">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-brand-primary border-2 border-brand-dark flex items-center justify-center shadow-saweria-sm">
-              <Sparkles className="w-4 h-4 text-brand-dark" />
+              <Sparkles className="w-4 h-4 text-brand-primaryText" />
             </div>
             <div>
               <h3 className="text-base font-black text-brand-dark leading-tight">

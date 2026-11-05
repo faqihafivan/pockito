@@ -73,7 +73,7 @@ export const RegisterPage: React.FC = () => {
                   />
                 </div>
                 <div className="space-y-1">
-                  <div className="inline-block bg-brand-primary px-2 py-0.5 rounded-md border border-brand-dark dark:border-slate-700 text-[10px] font-black uppercase tracking-wider text-brand-dark">
+                  <div className="inline-block bg-brand-primary px-2 py-0.5 rounded-md border border-brand-dark dark:border-slate-700 text-[10px] font-black uppercase tracking-wider text-brand-primaryText">
                     Ajakan Pockito
                   </div>
                   <h3 className="text-base font-black text-brand-dark dark:text-slate-100 leading-snug">
