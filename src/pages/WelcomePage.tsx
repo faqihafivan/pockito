@@ -8,7 +8,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Smartphone,
 } from 'lucide-react';
 
 interface SlideData {
@@ -57,7 +56,7 @@ export const WelcomePage: React.FC = () => {
   const navigate = useNavigate();
   const { enterDemoMode } = useAuth();
 
-  // Mode: 'hero' (Layar visual elemen melayang seperti acuan gambar) vs 'tour' (3-slide walkthrough)
+  // Mode: 'hero' (Matching Image 2 Reference) vs 'tour' (3-slide walkthrough)
   const [viewMode, setViewMode] = useState<'hero' | 'tour'>('hero');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -85,15 +84,6 @@ export const WelcomePage: React.FC = () => {
     }
   };
 
-  const handleSkipTour = () => {
-    try {
-      localStorage.setItem('pockito_has_seen_tour', 'true');
-    } catch {
-      // ignore
-    }
-    navigate('/login');
-  };
-
   const handleGetStarted = () => {
     try {
       localStorage.setItem('pockito_has_seen_tour', 'true');
@@ -101,6 +91,11 @@ export const WelcomePage: React.FC = () => {
       // ignore
     }
     navigate('/register');
+  };
+
+  const handleGuestDemo = async () => {
+    await enterDemoMode();
+    navigate('/app/dashboard');
   };
 
   // Keyboard navigation on tour
@@ -136,33 +131,34 @@ export const WelcomePage: React.FC = () => {
     }
   };
 
-  const handleGuestDemo = async () => {
-    await enterDemoMode();
-    navigate('/app/dashboard');
-  };
-
   return (
     <div
-      className="min-h-screen bg-brand-cream dark:bg-slate-900 text-brand-dark dark:text-slate-100 flex flex-col justify-between select-none relative overflow-x-hidden transition-colors duration-200"
+      className="min-h-screen bg-gradient-to-b from-[#EBF3FC] via-[#E2EEFB] to-[#D5E5F7] text-slate-900 flex flex-col justify-between select-none relative overflow-x-hidden transition-colors duration-300"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
       {/* ============================================================
-          TOP NAVBAR: Brand Header & Skip / Login Action
+          TOP WATERMARK: Subtle "FINANCE" text matching Image 2
           ============================================================ */}
-      <header className="px-5 sm:px-8 py-3.5 sm:py-4 flex items-center justify-between z-20 max-w-5xl mx-auto w-full">
-        <div className="flex items-center gap-2.5">
+      <div className="absolute top-0 left-0 right-0 flex justify-center pointer-events-none select-none overflow-hidden z-0">
+        <span className="text-[12vw] sm:text-7xl md:text-8xl font-black text-sky-900/[0.04] tracking-widest uppercase leading-none transform -translate-y-2">
+          FINANCE
+        </span>
+      </div>
+
+      {/* ============================================================
+          MINIMALIST TOP BAR: Clean, unobtrusive header
+          ============================================================ */}
+      <header className="px-5 sm:px-8 pt-4 pb-1 flex items-center justify-between z-20 max-w-sm sm:max-w-md mx-auto w-full">
+        <div className="flex items-center gap-2">
           <img
             src="/pockito.png"
             alt="Pockito"
-            className="w-9 h-9 rounded-xl object-contain bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 shadow-saweria-sm dark:shadow-none"
+            className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl object-contain bg-white/80 border border-slate-300/60 shadow-xs"
           />
-          <span className="font-black text-lg text-brand-dark dark:text-slate-100 tracking-tight">
-            Pockito<span className="text-brand-primary">.</span>
-          </span>
-          <span className="hidden sm:inline-block ml-1.5 text-[10px] font-black uppercase tracking-wider bg-white dark:bg-slate-800 px-2.5 py-0.5 rounded-full border border-brand-dark dark:border-slate-700 text-brand-darkMuted dark:text-slate-300">
-            {viewMode === 'hero' ? 'Workspace Keuangan' : 'Tour Aplikasi'}
+          <span className="font-black text-base sm:text-lg text-slate-900 tracking-tight">
+            Pockito<span className="text-teal-600">.</span>
           </span>
         </div>
 
@@ -170,105 +166,83 @@ export const WelcomePage: React.FC = () => {
           {viewMode === 'tour' ? (
             <button
               onClick={() => setViewMode('hero')}
-              className="text-xs font-bold text-brand-darkMuted hover:text-brand-dark dark:text-slate-400 dark:hover:text-slate-100 px-2.5 py-1.5 rounded-xl border border-transparent hover:border-brand-dark transition-all cursor-pointer"
+              className="text-xs font-bold text-slate-500 hover:text-slate-900 px-2.5 py-1 rounded-full transition-colors cursor-pointer"
             >
               Kembali
             </button>
           ) : (
-            <button
-              onClick={handleSkipTour}
-              className="text-xs font-bold text-brand-darkMuted hover:text-brand-dark dark:text-slate-400 dark:hover:text-slate-100 px-2.5 py-1.5 rounded-xl border border-transparent hover:border-brand-dark transition-all cursor-pointer"
+            <Link
+              to="/login"
+              className="text-xs font-bold text-slate-600 hover:text-slate-900 px-3 py-1 rounded-full bg-white/60 hover:bg-white border border-slate-200/80 transition-all cursor-pointer shadow-xs"
             >
-              Lewati
-            </button>
+              Masuk
+            </Link>
           )}
-
-          <Link
-            to="/login"
-            className="text-xs font-extrabold text-brand-dark dark:text-slate-200 hover:text-brand-primary px-3 py-1.5 rounded-xl border-2 border-brand-dark/20 hover:border-brand-dark dark:border-slate-700 bg-white/70 dark:bg-slate-800 transition-all cursor-pointer shadow-saweria-xs"
-          >
-            Masuk
-          </Link>
         </div>
       </header>
 
       {/* ============================================================
-          VIEW 1: MODERN FLOATING-FINTECH ONBOARDING HERO (Seperti Gambar Acuan)
+          VIEW 1: MODERN FLOATING-FINTECH ONBOARDING HERO
+          Pixel-Perfect to Image 2 Reference
           ============================================================ */}
       {viewMode === 'hero' && (
-        <main className="flex-1 flex flex-col justify-between px-4 sm:px-8 py-3 max-w-lg mx-auto w-full z-10 animate-in fade-in duration-300">
-          {/* Top Section: Visual Playground Kartu Melayang */}
-          <div className="flex-1 flex items-center justify-center my-auto py-2">
+        <main className="flex-1 flex flex-col justify-between px-5 sm:px-8 pt-1 pb-6 max-w-sm sm:max-w-md mx-auto w-full z-10 animate-in fade-in duration-300">
+          {/* Top 60%: Floating 3D Cards Visual Stage */}
+          <div className="flex-1 flex items-center justify-center my-auto py-1">
             <FloatingHeroVisual />
           </div>
 
-          {/* Bottom Section: Headline, Subtitle & Action CTAs */}
-          <div className="space-y-4 pt-2 pb-4 text-center">
-            {/* Pill Badge */}
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-primary/15 dark:bg-brand-primary/20 border-2 border-brand-dark dark:border-slate-700 text-[11px] font-black text-brand-dark dark:text-slate-200 shadow-saweria-xs">
-              <Sparkles className="w-3.5 h-3.5 text-brand-primary" />
-              <span>Satu Workspace untuk Uang & Hari-Harimu</span>
+          {/* Bottom 40%: Clean Display Typography & Single Dominant Pill CTA Button */}
+          <div className="space-y-4 pt-1 pb-2 text-center">
+            {/* Display Headline */}
+            <div className="space-y-1">
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight leading-[1.18]">
+                Track Your Spending <br />
+                Like Never Before
+              </h1>
+
+              {/* Minimal Subtitle matching Image 2 */}
+              <p className="text-xs sm:text-sm font-medium text-slate-500 leading-relaxed">
+                your money counting starts from here
+              </p>
             </div>
 
-            {/* Main Headline */}
-            <h1 className="text-2xl sm:text-3xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-snug">
-              Pantau & Atur Finansialmu <br />
-              <span className="bg-brand-primary text-white px-2.5 py-0.5 rounded-xl border-2 border-brand-dark inline-block shadow-saweria-xs mt-1">
-                Lebih Rapi dari Sebelumnya.
-              </span>
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-xs sm:text-sm font-medium text-brand-darkMuted dark:text-slate-400 max-w-sm mx-auto leading-relaxed">
-              Bagi gajimu ke kantong cerdas, kunci jatah aman harian, dan pantau tabungan impianmu tanpa ribet akuntansi.
-            </p>
-
-            {/* Primary Action Button (Get Started) */}
-            <div className="space-y-2 pt-2">
-              <Button
-                variant="primary"
-                size="lg"
-                className="w-full text-sm font-black shadow-saweria active:translate-x-0.5 active:translate-y-0.5"
+            {/* Single Solid Black Pill Button matching Image 2 */}
+            <div className="pt-2 space-y-3">
+              <button
+                type="button"
                 onClick={handleGetStarted}
-                rightIcon={<ArrowRight className="w-4 h-4 stroke-[2.5]" />}
+                className="w-full py-3.5 sm:py-4 rounded-full bg-[#0F172A] hover:bg-black text-white font-black text-sm tracking-wide shadow-md hover:shadow-lg active:scale-[0.99] transition-all cursor-pointer"
               >
-                Mulai Sekarang — Daftar Gratis
-              </Button>
+                Get Started
+              </button>
 
-              {/* Secondary Navigation Options */}
-              <div className="grid grid-cols-2 gap-2">
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="w-full text-xs"
+              {/* Minimalist Sub-links */}
+              <div className="flex items-center justify-center gap-3 text-xs font-semibold text-slate-500">
+                <button
+                  type="button"
                   onClick={() => setViewMode('tour')}
-                  leftIcon={<Smartphone className="w-3.5 h-3.5 text-brand-primary" />}
+                  className="hover:text-slate-900 transition-colors cursor-pointer"
                 >
                   Lihat Tour (3 Slide)
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="w-full text-xs"
+                </button>
+                <span>•</span>
+                <button
+                  type="button"
                   onClick={handleGuestDemo}
-                  leftIcon={<Sparkles className="w-3.5 h-3.5 text-amber-500" />}
+                  className="hover:text-slate-900 transition-colors cursor-pointer"
                 >
-                  Coba Demo Tamu
-                </Button>
+                  Mode Demo
+                </button>
+                <span>•</span>
+                <Link
+                  to="/login"
+                  className="hover:text-slate-900 underline transition-colors cursor-pointer"
+                >
+                  Masuk
+                </Link>
               </div>
             </div>
-
-            {/* Already have an account link */}
-            <p className="text-xs font-bold text-brand-darkMuted dark:text-slate-400 pt-1">
-              Sudah punya akun?{' '}
-              <Link
-                to="/login"
-                className="text-brand-dark dark:text-brand-primary underline font-black hover:text-brand-primaryHover"
-              >
-                Masuk di sini
-              </Link>
-            </p>
           </div>
         </main>
       )}
@@ -281,7 +255,7 @@ export const WelcomePage: React.FC = () => {
           <div className="md:grid md:grid-cols-12 md:gap-8 lg:gap-12 md:items-center">
             {/* Left Column: Visual Slide Image */}
             <div className="md:col-span-6 lg:col-span-6 flex flex-col items-center">
-              <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-none aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden border-2 border-brand-dark dark:border-slate-700 shadow-saweria-lg dark:shadow-[4px_4px_0px_#0f172a] bg-white dark:bg-slate-800 mb-4 md:mb-0 transition-all duration-300">
+              <div className="relative w-full max-w-xs sm:max-w-sm md:max-w-none aspect-[3/4] sm:aspect-[4/5] rounded-3xl overflow-hidden border-2 border-slate-800 shadow-xl bg-white mb-4 md:mb-0 transition-all duration-300">
                 <img
                   key={slide.id}
                   src={slide.image}
@@ -290,16 +264,16 @@ export const WelcomePage: React.FC = () => {
                 />
 
                 {/* Badge Tag on top of image */}
-                <div className="absolute top-3 left-3 bg-white/95 dark:bg-slate-850/95 backdrop-blur-sm border-2 border-brand-dark dark:border-slate-700 px-3 py-1 rounded-full text-[10px] font-black text-brand-dark dark:text-slate-100 shadow-saweria-sm dark:shadow-none flex items-center gap-1.5">
-                  <Sparkles className="w-3 h-3 text-brand-primary" />
+                <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm border border-slate-700 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 shadow-sm flex items-center gap-1.5">
+                  <Sparkles className="w-3 h-3 text-teal-600" />
                   <span>{slide.highlight}</span>
                 </div>
 
-                {/* Slide Navigation Arrows on Image */}
+                {/* Slide Navigation Arrows */}
                 {currentSlide > 0 && (
                   <button
                     onClick={prevSlide}
-                    className="flex absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-600 items-center justify-center text-brand-dark dark:text-slate-100 shadow-saweria-sm dark:shadow-none hover:bg-brand-cream dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer"
+                    className="flex absolute left-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-slate-600 items-center justify-center text-slate-900 shadow-md hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
                     aria-label="Slide sebelumnya"
                   >
                     <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
@@ -309,7 +283,7 @@ export const WelcomePage: React.FC = () => {
                 {currentSlide < SLIDES.length - 1 && (
                   <button
                     onClick={nextSlide}
-                    className="flex absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-600 items-center justify-center text-brand-dark dark:text-slate-100 shadow-saweria-sm dark:shadow-none hover:bg-brand-cream dark:hover:bg-slate-700 active:scale-95 transition-all cursor-pointer"
+                    className="flex absolute right-2.5 top-1/2 -translate-y-1/2 w-9 h-9 rounded-full bg-white border border-slate-600 items-center justify-center text-slate-900 shadow-md hover:bg-slate-50 active:scale-95 transition-all cursor-pointer"
                     aria-label="Slide berikutnya"
                   >
                     <ChevronRight className="w-5 h-5 stroke-[2.5]" />
@@ -320,61 +294,59 @@ export const WelcomePage: React.FC = () => {
 
             {/* Right Column: Narration, Speech Bubble & Tablet Actions */}
             <div className="md:col-span-6 lg:col-span-6 flex flex-col justify-center text-center md:text-left space-y-4 md:space-y-5 px-2">
-              {/* Category Tag */}
-              <div className="hidden md:inline-flex items-center gap-2 self-start px-3 py-1 rounded-full bg-brand-primary/20 dark:bg-brand-primary/10 border-2 border-brand-dark dark:border-slate-700 text-xs font-black text-brand-dark dark:text-slate-200 shadow-saweria-sm dark:shadow-none">
-                <Sparkles className="w-3.5 h-3.5 text-brand-dark dark:text-brand-primary" />
+              <div className="hidden md:inline-flex items-center gap-2 self-start px-3 py-1 rounded-full bg-teal-500/10 border border-teal-600/30 text-xs font-black text-teal-900 shadow-xs">
+                <Sparkles className="w-3.5 h-3.5 text-teal-600" />
                 <span>Langkah {currentSlide + 1} dari 3: {slide.highlight}</span>
               </div>
 
-              {/* Title & Subtitle */}
               <div className="space-y-2">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-brand-dark dark:text-slate-100 tracking-tight leading-snug">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-black text-slate-900 tracking-tight leading-snug">
                   {slide.title}
                 </h2>
-                <p className="text-xs sm:text-sm text-brand-darkMuted dark:text-slate-400 font-medium leading-relaxed max-w-sm md:max-w-none mx-auto md:mx-0">
+                <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-sm md:max-w-none mx-auto md:mx-0">
                   {slide.subtitle}
                 </p>
               </div>
 
-              {/* Mascot Dialogue Bubble */}
-              <div className="relative bg-white dark:bg-slate-800 border-2 border-brand-dark dark:border-slate-700 p-3.5 rounded-2xl shadow-saweria dark:shadow-[4px_4px_0px_#0f172a] text-left flex items-start gap-3 mt-1">
+              {/* Mascot Bubble */}
+              <div className="relative bg-white border border-slate-300 p-3.5 rounded-2xl shadow-sm text-left flex items-start gap-3 mt-1">
                 <img
                   src="/pockito.png"
                   alt="Pockito Maskot"
-                  className="w-10 h-10 rounded-xl bg-white dark:bg-slate-900 border-2 border-brand-dark dark:border-slate-700 shrink-0 object-contain shadow-saweria-xs"
+                  className="w-10 h-10 rounded-xl bg-white border border-slate-300 shrink-0 object-contain shadow-xs"
                 />
                 <div className="space-y-0.5">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-brand-dark/60 dark:text-slate-400 block">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 block">
                     Pockito Berkata:
                   </span>
-                  <p className="text-xs font-bold text-brand-dark dark:text-slate-100 leading-snug">
+                  <p className="text-xs font-bold text-slate-900 leading-snug">
                     "{slide.mascotDialogue}"
                   </p>
                 </div>
               </div>
 
-              {/* Dots Pagination Indicator */}
+              {/* Dots Indicator */}
               <div className="flex items-center justify-center md:justify-start gap-2 pt-1">
                 {SLIDES.map((s, idx) => (
                   <button
                     key={s.id}
                     onClick={() => setCurrentSlide(idx)}
-                    className={`transition-all duration-300 rounded-full border border-brand-dark dark:border-slate-600 cursor-pointer ${
+                    className={`transition-all duration-300 rounded-full border border-slate-400 cursor-pointer ${
                       currentSlide === idx
-                        ? 'w-7 h-2.5 bg-brand-primary shadow-saweria-sm dark:shadow-none'
-                        : 'w-2.5 h-2.5 bg-brand-dark/20 dark:bg-slate-700 opacity-70 hover:opacity-100'
+                        ? 'w-7 h-2.5 bg-teal-600 shadow-xs'
+                        : 'w-2.5 h-2.5 bg-slate-300 opacity-70 hover:opacity-100'
                     }`}
                     aria-label={`Ke slide ${idx + 1}`}
                   />
                 ))}
               </div>
 
-              {/* Action Buttons for Tablet / Desktop */}
+              {/* Actions for Desktop/Tablet */}
               <div className="hidden md:flex flex-col space-y-2.5 pt-2">
                 <Button
                   variant="primary"
                   size="lg"
-                  className="w-full text-sm font-black"
+                  className="w-full text-sm font-black rounded-full"
                   onClick={nextSlide}
                   rightIcon={<ArrowRight className="w-4 h-4" />}
                 >
@@ -384,21 +356,12 @@ export const WelcomePage: React.FC = () => {
                 <Button
                   variant="secondary"
                   size="md"
-                  className="w-full text-xs"
+                  className="w-full text-xs rounded-full"
                   onClick={handleGuestDemo}
-                  leftIcon={<Sparkles className="w-3.5 h-3.5 text-brand-primary" />}
+                  leftIcon={<Sparkles className="w-3.5 h-3.5 text-teal-600" />}
                 >
                   Coba Mode Tamu / Demo Langsung
                 </Button>
-
-                <div className="text-center md:text-left pt-1">
-                  <p className="text-xs font-bold text-brand-darkMuted dark:text-slate-400">
-                    Sudah punya akun?{' '}
-                    <Link to="/login" className="text-brand-dark dark:text-brand-primary underline font-black hover:text-brand-primaryHover">
-                      Masuk di sini
-                    </Link>
-                  </p>
-                </div>
               </div>
             </div>
           </div>
@@ -408,7 +371,7 @@ export const WelcomePage: React.FC = () => {
             <Button
               variant="primary"
               size="lg"
-              className="w-full text-sm font-black"
+              className="w-full text-sm font-black rounded-full"
               onClick={nextSlide}
               rightIcon={<ArrowRight className="w-4 h-4" />}
             >
@@ -418,9 +381,9 @@ export const WelcomePage: React.FC = () => {
             <Button
               variant="secondary"
               size="md"
-              className="w-full text-xs"
+              className="w-full text-xs rounded-full"
               onClick={handleGuestDemo}
-              leftIcon={<Sparkles className="w-3.5 h-3.5 text-brand-primary" />}
+              leftIcon={<Sparkles className="w-3.5 h-3.5 text-teal-600" />}
             >
               Coba Mode Tamu / Demo Langsung
             </Button>
@@ -429,7 +392,7 @@ export const WelcomePage: React.FC = () => {
       )}
 
       {/* Bottom spacer for safe area on mobile */}
-      <div className="h-2" />
+      <div className="h-1" />
     </div>
   );
 };

@@ -31,6 +31,7 @@ dist-ssr
 .playwright-mcp/
 *.png
 !public/*.png
+!public/**/*.png
 !public/*.jpg
 !public/*.ico
 !public/*.svg
