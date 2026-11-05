@@ -4,7 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, ArrowRight, ShieldCheck, Coins, Coffee } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Coins, Coffee, Eye, EyeOff } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,6 +13,7 @@ export const LoginPage: React.FC = () => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
@@ -166,13 +167,24 @@ export const LoginPage: React.FC = () => {
                   required
                 />
 
-                <Input
-                  label="Kata Sandi (Password)"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                />
+                <div className="relative">
+                  <Input
+                    label="Kata Sandi (Password)"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3.5 top-[38px] text-brand-darkMuted hover:text-brand-dark dark:hover:text-slate-200 transition-colors cursor-pointer"
+                    title={showPassword ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'}
+                  >
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
+                </div>
 
                 {error && (
                   <div className="p-3 bg-red-50 dark:bg-red-950/50 border-2 border-red-500 rounded-xl text-xs font-bold text-red-600 dark:text-red-400">

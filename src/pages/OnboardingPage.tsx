@@ -13,7 +13,7 @@ import { Sparkles, ArrowRight, Check } from 'lucide-react';
 export const OnboardingPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, updateUser } = useAuth();
-  const { savePockets, accounts, addTransaction } = useData();
+  const { savePockets, accounts, addAccount, addTransaction } = useData();
 
   const [step, setStep] = useState<1 | 2>(1);
   const [monthlyIncome, setMonthlyIncome] = useState<number>(user?.monthly_income || 6000000);
@@ -48,21 +48,33 @@ export const OnboardingPage: React.FC = () => {
 
       await savePockets(initialPockets);
 
-      // 3. Record initial income transaction so Saldo Riil matches entered income
-      if (monthlyIncome > 0) {
-        const availableAccounts = accounts.length > 0 ? accounts : await DataService.getAccounts();
-        const primaryAccount = availableAccounts[0];
-        if (primaryAccount) {
-          const today = new Date().toISOString().split('T')[0];
-          await addTransaction({
-            user_id: user?.id || 'user-demo-1',
-            account_id: primaryAccount.id,
-            amount: monthlyIncome,
-            type: 'income',
-            description: 'Pemasukan Gaji Awal',
-            date: today,
-          });
-        }
+      // 3. Ensure primary account exists (crucial for new Supabase cloud users)
+      const availableAccounts = accounts.length > 0 ? accounts : await DataService.getAccounts();
+      let primaryAccount = availableAccounts[0];
+
+      if (!primaryAccount) {
+        primaryAccount = await addAccount({
+          user_id: user?.id || 'user-demo-1',
+          name: 'Kas & Rekening Utama',
+          type: 'bank',
+          opening_balance: 0,
+          currency: 'IDR',
+          color: '#0F766E',
+          is_archived: false,
+        });
+      }
+
+      // 4. Record initial income transaction so Saldo Riil matches entered income
+      if (monthlyIncome > 0 && primaryAccount) {
+        const today = new Date().toISOString().split('T')[0];
+        await addTransaction({
+          user_id: user?.id || 'user-demo-1',
+          account_id: primaryAccount.id,
+          amount: monthlyIncome,
+          type: 'income',
+          description: 'Pemasukan Gaji Awal',
+          date: today,
+        });
       }
 
       // Trigger celebratory confetti!

@@ -19,14 +19,14 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
         {label && (
           <label 
             htmlFor={inputId} 
-            className="block text-xs font-bold text-brand-dark mb-1.5 uppercase tracking-wider"
+            className="block text-xs font-bold text-brand-dark dark:text-slate-200 mb-1.5 uppercase tracking-wider"
           >
             {label}
           </label>
         )}
         <div className="relative flex items-center">
           {leftIcon && (
-            <div className="absolute left-3.5 flex items-center pointer-events-none text-brand-darkMuted">
+            <div className="absolute left-3.5 flex items-center pointer-events-none text-brand-darkMuted dark:text-slate-400">
               {leftIcon}
             </div>
           )}
@@ -35,28 +35,28 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             aria-invalid={!!error}
             aria-describedby={error ? errorId : helperText ? helperId : undefined}
-            className={`w-full bg-white text-brand-dark placeholder:text-gray-400 font-medium text-sm rounded-xl border-2 transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
+            className={`w-full bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 placeholder:text-gray-400 dark:placeholder:text-slate-500 font-medium text-sm rounded-xl border-2 transition-all duration-150 outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
               leftIcon ? 'pl-10' : 'pl-3.5'
             } ${rightIcon ? 'pr-10' : 'pr-3.5'} py-2.5 ${
               error
                 ? 'border-red-500 focus:border-red-600 focus:shadow-[2px_2px_0px_#EF4444]'
-                : 'border-brand-border focus:border-brand-dark focus:shadow-saweria-sm'
+                : 'border-brand-border dark:border-slate-700 focus:border-brand-dark dark:focus:border-brand-primary focus:shadow-saweria-sm dark:focus:shadow-none'
             } ${className}`}
             {...props}
           />
           {rightIcon && (
-            <div className="absolute right-3.5 flex items-center text-brand-darkMuted">
+            <div className="absolute right-3.5 flex items-center text-brand-darkMuted dark:text-slate-400">
               {rightIcon}
             </div>
           )}
         </div>
         {error && (
-          <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-red-600">
+          <p id={errorId} role="alert" className="mt-1 text-xs font-semibold text-red-600 dark:text-red-400">
             {error}
           </p>
         )}
         {!error && helperText && (
-          <p id={helperId} className="mt-1 text-xs text-brand-darkMuted">
+          <p id={helperId} className="mt-1 text-xs text-brand-darkMuted dark:text-slate-400">
             {helperText}
           </p>
         )}
