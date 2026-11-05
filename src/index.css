@@ -50,7 +50,7 @@
   --color-budget-text: #B45309;
 }
 
-:root[data-theme="midnight"], :root.dark {
+:root[data-theme="midnight"], :root.dark:not([data-theme="teal-mint"]):not([data-theme="saweria"]) {
   --color-primary: #2DD4BF;
   --color-primary-hover: #14B8A6;
   --color-primary-text: #0F172A;
@@ -259,21 +259,67 @@ html.dark [role="dialog"],
 }
 
 
+/* Selection styling based on active theme */
+::selection {
+  background-color: var(--color-primary);
+  color: var(--color-primary-text);
+}
+
 /* ============================================================
-   TEAL-MINT THEME: MINT CARDS & WHITE/MINT TEXT ON TEAL
-   Eliminates black-on-teal overlap and ensures soft mint cards
+   TEAL-MINT THEME: MINT CARDS & CRISP CONTRAST
+   1. All cards and panels in teal-mint have fresh mint background (#E2F5F0)
+   2. Text & numbers on mint surfaces MUST be deep black/spruce (#0B2923) or teal (#0D9488) (NEVER white)
+   3. Only solid teal elements (buttons, badges, active tabs) have crisp white/mint text
    ============================================================ */
 
-/* 1. All cards in teal-mint theme have mint background */
+[data-theme="teal-mint"] {
+  color-scheme: light;
+  color: #0B2923;
+}
+
+/* 1. All cards in teal-mint theme have fresh mint background */
 [data-theme="teal-mint"] .bg-white,
 [data-theme="teal-mint"] .bg-brand-card {
   background-color: var(--color-card) !important;
+  color: #0B2923 !important;
+}
+
+/* 2. Text & numbers on mint cards MUST be deep black/spruce (#0B2923) or teal (#0D9488) */
+[data-theme="teal-mint"] .text-brand-dark,
+[data-theme="teal-mint"] .bg-white .text-brand-dark,
+[data-theme="teal-mint"] .bg-brand-card .text-brand-dark,
+[data-theme="teal-mint"] aside .text-brand-dark,
+[data-theme="teal-mint"] .dark\:text-slate-100,
+[data-theme="teal-mint"] .dark\:text-slate-200,
+[data-theme="teal-mint"] .dark\:text-slate-300 {
+  color: #0B2923 !important;
+}
+
+[data-theme="teal-mint"] .text-brand-darkMuted,
+[data-theme="teal-mint"] .bg-white .text-brand-darkMuted,
+[data-theme="teal-mint"] .bg-brand-card .text-brand-darkMuted,
+[data-theme="teal-mint"] aside .text-brand-darkMuted,
+[data-theme="teal-mint"] .dark\:text-slate-400,
+[data-theme="teal-mint"] .dark\:text-slate-500 {
+  color: #245048 !important;
+}
+
+/* Headings on mint cards */
+[data-theme="teal-mint"] .bg-white h1,
+[data-theme="teal-mint"] .bg-white h2,
+[data-theme="teal-mint"] .bg-white h3,
+[data-theme="teal-mint"] .bg-white h4,
+[data-theme="teal-mint"] .bg-brand-card h1,
+[data-theme="teal-mint"] .bg-brand-card h2,
+[data-theme="teal-mint"] .bg-brand-card h3,
+[data-theme="teal-mint"] .bg-brand-card h4 {
+  color: #0B2923 !important;
 }
 
 /* Modals & Dialogs surface in teal-mint mode */
 [data-theme="teal-mint"] [role="dialog"] {
   background-color: var(--color-card) !important;
-  color: var(--color-dark) !important;
+  color: #0B2923 !important;
   border-color: var(--color-border-dark) !important;
 }
 
@@ -282,40 +328,41 @@ html.dark [role="dialog"],
 [data-theme="teal-mint"] select,
 [data-theme="teal-mint"] textarea {
   background-color: #FFFFFF !important;
-  color: #0F2E28 !important;
+  color: #0B2923 !important;
   border-color: #0F3B34 !important;
 }
 
-/* 2. Any teal/emerald background in teal-mint or globally must have crisp white or mint text (NEVER black/dark) */
-.bg-brand-primary,
-[class*="bg-brand-primary"]:not([class*="/"]):not([class*="-hover"]),
-[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]),
-[class*="bg-emerald-500"]:not([class*="/"]),
-[class*="bg-emerald-600"]:not([class*="/"]),
-.bg-\[\#0D9488\],
-.bg-\[\#14B8A6\],
-.bg-\[\#0F766E\] {
+/* 3. Solid Teal Action Elements (Buttons, Badges, Tabs, Active NavLinks):
+      Crisp White or Soft Mint text (never black) */
+[data-theme="teal-mint"] button.bg-brand-primary,
+[data-theme="teal-mint"] button[class~="bg-brand-primary"],
+[data-theme="teal-mint"] a.bg-brand-primary,
+[data-theme="teal-mint"] a[class~="bg-brand-primary"],
+[data-theme="teal-mint"] span.bg-brand-primary,
+[data-theme="teal-mint"] span[class~="bg-brand-primary"],
+[data-theme="teal-mint"] button[class*="bg-teal-600"],
+[data-theme="teal-mint"] span[class*="bg-teal-600"],
+[data-theme="teal-mint"] button[class*="bg-emerald-600"],
+[data-theme="teal-mint"] span[class*="bg-emerald-600"],
+[data-theme="teal-mint"] .bg-brand-primary.text-brand-primaryText,
+[data-theme="teal-mint"] .bg-brand-primary.text-white {
+  background-color: var(--color-primary) !important;
   color: #FFFFFF !important;
 }
 
-.bg-brand-primary.text-brand-dark,
-.bg-brand-primary .text-brand-dark,
-[class*="bg-brand-primary"]:not([class*="/"]).text-brand-dark,
-[class*="bg-brand-primary"]:not([class*="/"]) .text-brand-dark,
-[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]).text-brand-dark,
-[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]) .text-brand-dark,
-[class*="bg-emerald-500"]:not([class*="/"]).text-brand-dark,
-[class*="bg-emerald-500"]:not([class*="/"]) .text-brand-dark,
-[class*="bg-emerald-600"]:not([class*="/"]).text-brand-dark,
-[class*="bg-emerald-600"]:not([class*="/"]) .text-brand-dark {
+[data-theme="teal-mint"] button.bg-brand-primary *,
+[data-theme="teal-mint"] button[class~="bg-brand-primary"] *,
+[data-theme="teal-mint"] a.bg-brand-primary *,
+[data-theme="teal-mint"] a[class~="bg-brand-primary"] *,
+[data-theme="teal-mint"] span.bg-brand-primary * {
   color: #FFFFFF !important;
 }
 
-/* Ensure SVG icons inside teal backgrounds inherit white/mint color */
-.bg-brand-primary svg,
-[class*="bg-brand-primary"]:not([class*="/"]) svg,
-[class*="bg-teal-"]:not([class*="bg-teal-50"]):not([class*="bg-teal-100"]):not([class*="bg-teal-200"]):not([class*="/"]) svg,
-[class*="bg-emerald-500"]:not([class*="/"]) svg,
-[class*="bg-emerald-600"]:not([class*="/"]) svg {
-  stroke: currentColor;
+[data-theme="teal-mint"] button.bg-brand-primary svg,
+[data-theme="teal-mint"] button[class~="bg-brand-primary"] svg,
+[data-theme="teal-mint"] a.bg-brand-primary svg,
+[data-theme="teal-mint"] a[class~="bg-brand-primary"] svg,
+[data-theme="teal-mint"] span.bg-brand-primary svg,
+[data-theme="teal-mint"] span[class~="bg-brand-primary"] svg {
+  stroke: #FFFFFF !important;
 }
