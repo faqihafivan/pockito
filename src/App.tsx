@@ -11,7 +11,7 @@ import { PageLoader } from './components/ui/PageLoader';
 // Root Entry Page (Eagerly loaded for instant LCP & zero landing layout shift)
 import { LandingPage } from './pages/LandingPage';
 
-// Smart Root Resolver: Directs user seamlessly to Dashboard, Login, or Tour based on state
+// Smart Root Resolver: Directs user seamlessly to Dashboard or Welcome based on auth state
 function SmartAppEntry() {
   const { user, authStatus, isDemo, isLoading } = useAuth();
 
@@ -24,19 +24,7 @@ function SmartAppEntry() {
     return <Navigate to="/app/dashboard" replace />;
   }
 
-  // 2. If user has previously seen or skipped the tour -> go straight to Login
-  let hasSeenTour = false;
-  try {
-    hasSeenTour = localStorage.getItem('pockito_has_seen_tour') === 'true';
-  } catch {
-    // ignore
-  }
-
-  if (hasSeenTour) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // 3. Brand new user opening for the first time -> Tour Play (3 slides)
+  // 2. Unauthenticated user opening root '/' -> always go to Welcome!
   return <Navigate to="/welcome" replace />;
 }
 
