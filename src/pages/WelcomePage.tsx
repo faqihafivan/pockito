@@ -181,14 +181,14 @@ export const WelcomePage: React.FC = () => {
 
         {/* Step Indicator Pill & Skip Button */}
         <div className="flex items-center gap-2">
-          <span className="text-[11px] font-black text-slate-500 bg-white/60 px-2.5 py-1 rounded-full border border-slate-200/80">
+          <span className="text-[11px] font-black text-slate-500 bg-white/60 px-2.5 py-1.5 rounded-full border border-slate-200/80">
             {currentSlide + 1} / {totalSlides}
           </span>
 
           <button
             type="button"
             onClick={handleSkip}
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 px-3 py-1 rounded-full bg-white/70 hover:bg-white border border-slate-200/80 transition-all cursor-pointer shadow-xs"
+            className="text-xs font-bold text-slate-600 hover:text-slate-900 px-3.5 py-1.5 min-h-[36px] rounded-full bg-white/70 hover:bg-white border border-slate-200/80 transition-all cursor-pointer shadow-xs active:scale-95"
           >
             Lewati
           </button>
@@ -323,48 +323,53 @@ export const WelcomePage: React.FC = () => {
           BOTTOM CONTROLS & ACTION BUTTONS (Clean, Modern, Accessible)
           ============================================================ */}
       <footer className="px-5 sm:px-8 pb-5 pt-1 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full z-20 space-y-3">
-        {/* Animated Dots Indicator with Prev/Next chevron taps */}
-        <div className="flex items-center justify-between px-2">
-          {/* Prev Arrow */}
+        {/* Animated Dots Indicator with Accessible 44px Prev/Next chevron taps */}
+        <div className="flex items-center justify-between px-1">
+          {/* Prev Arrow - 44x44px Touch Target for Mobile Thumb */}
           <button
             type="button"
             onClick={prevSlide}
             disabled={isFirstSlide}
-            className={`w-8 h-8 rounded-full border border-slate-300 bg-white/80 flex items-center justify-center text-slate-700 shadow-xs transition-all ${
-              isFirstSlide ? 'opacity-0 pointer-events-none' : 'hover:bg-white active:scale-95 cursor-pointer'
+            className={`w-11 h-11 rounded-full border border-slate-300 bg-white/90 flex items-center justify-center text-slate-800 shadow-xs transition-all ${
+              isFirstSlide ? 'opacity-0 pointer-events-none' : 'hover:bg-white active:scale-90 cursor-pointer hover:shadow-sm'
             }`}
             aria-label="Slide sebelumnya"
           >
-            <ChevronLeft className="w-4 h-4 stroke-[2.5]" />
+            <ChevronLeft className="w-5 h-5 stroke-[2.5]" />
           </button>
 
-          {/* Dots */}
-          <div className="flex items-center gap-1.5">
+          {/* Dots Indicator with Accessible Tap Target */}
+          <div className="flex items-center gap-1">
             {SLIDES.map((s, idx) => (
               <button
                 key={s.id}
+                type="button"
                 onClick={() => setCurrentSlide(idx)}
-                className={`transition-all duration-300 rounded-full border border-slate-400 cursor-pointer ${
-                  currentSlide === idx
-                    ? 'w-7 h-2 bg-slate-900 border-slate-900 shadow-xs'
-                    : 'w-2 h-2 bg-slate-300 opacity-70 hover:opacity-100'
-                }`}
+                className="py-2.5 px-1 cursor-pointer flex items-center justify-center"
                 aria-label={`Ke slide ${idx + 1}`}
-              />
+              >
+                <span
+                  className={`transition-all duration-300 rounded-full border border-slate-400 block ${
+                    currentSlide === idx
+                      ? 'w-7 h-2.5 bg-slate-900 border-slate-900 shadow-xs'
+                      : 'w-2.5 h-2.5 bg-slate-300 opacity-70 hover:opacity-100'
+                  }`}
+                />
+              </button>
             ))}
           </div>
 
-          {/* Next Arrow (visible if not on last slide) */}
+          {/* Next Arrow - 44x44px Touch Target for Mobile Thumb */}
           <button
             type="button"
             onClick={nextSlide}
             disabled={isLastSlide}
-            className={`w-8 h-8 rounded-full border border-slate-300 bg-white/80 flex items-center justify-center text-slate-700 shadow-xs transition-all ${
-              isLastSlide ? 'opacity-0 pointer-events-none' : 'hover:bg-white active:scale-95 cursor-pointer'
+            className={`w-11 h-11 rounded-full border border-slate-300 bg-white/90 flex items-center justify-center text-slate-800 shadow-xs transition-all ${
+              isLastSlide ? 'opacity-0 pointer-events-none' : 'hover:bg-white active:scale-90 cursor-pointer hover:shadow-sm'
             }`}
             aria-label="Slide berikutnya"
           >
-            <ChevronRight className="w-4 h-4 stroke-[2.5]" />
+            <ChevronRight className="w-5 h-5 stroke-[2.5]" />
           </button>
         </div>
 

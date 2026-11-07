@@ -747,11 +747,11 @@ export const DashboardPage: React.FC = () => {
                       return (
                         <div key={goal.id} className="p-3.5 rounded-2xl bg-brand-cream border border-brand-border space-y-2 flex flex-col justify-between hover:bg-brand-cream/80 transition-colors">
                           <div>
-                            <div className="flex items-center justify-between text-xs font-bold text-brand-dark">
+                            <div className="flex items-center justify-between text-xs font-bold text-brand-dark dark:text-slate-100">
                               <span className="truncate pr-2 font-black">{goal.name}</span>
-                              <span className="font-black text-brand-primary shrink-0">{percent}%</span>
+                              <span className="font-black text-brand-primary tabular-nums shrink-0">{percent}%</span>
                             </div>
-                            <div className="w-full h-2 bg-gray-200 rounded-full mt-2 overflow-hidden">
+                            <div className="w-full h-2 bg-gray-200 dark:bg-slate-700 rounded-full mt-2 overflow-hidden">
                               <div
                                 className="h-full bg-brand-primary rounded-full"
                                 style={{ width: `${percent}%` }}
@@ -759,8 +759,8 @@ export const DashboardPage: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex items-center justify-between text-xs pt-2">
-                            <span className="text-[10px] text-brand-darkMuted font-bold">Terkumpul:</span>
-                            <span className="font-black text-brand-dark tabular-nums">{formatMoney(goal.current_amount)}</span>
+                            <span className="text-[10px] text-brand-darkMuted dark:text-slate-400 font-bold">Terkumpul:</span>
+                            <span className="font-black text-brand-dark dark:text-slate-100 tabular-nums">{formatMoney(goal.current_amount)}</span>
                           </div>
                         </div>
                       );
@@ -809,19 +809,19 @@ export const DashboardPage: React.FC = () => {
                     {subscriptions.slice(0, 3).map((sub) => (
                       <div
                         key={sub.id}
-                        className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                        className="p-3 rounded-2xl bg-brand-cream dark:bg-slate-800 border border-brand-border dark:border-slate-700 flex items-center justify-between gap-3"
                       >
                         <div className="min-w-0">
-                          <span className="text-xs font-black text-brand-dark block truncate">{sub.name}</span>
-                          <span className="text-[10px] font-bold text-brand-darkMuted block truncate">
+                          <span className="text-xs font-black text-brand-dark dark:text-slate-100 block truncate">{sub.name}</span>
+                          <span className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400 block truncate">
                             Jatuh tempo tgl {sub.due_day}
                           </span>
                         </div>
                         <div className="text-right shrink-0">
-                          <span className="text-xs font-black text-brand-dark tabular-nums block">
+                          <span className="text-xs font-black text-brand-dark dark:text-slate-100 tabular-nums block">
                             {formatMoney(sub.amount)}
                           </span>
-                          <span className="text-[10px] font-bold text-sky-700 bg-sky-100 px-1.5 py-0.2 rounded border border-sky-300">
+                          <span className="text-[10px] font-bold text-sky-700 dark:text-sky-300 bg-sky-100 dark:bg-sky-950/60 px-1.5 py-0.5 rounded border border-sky-300 dark:border-sky-700">
                             Rutin
                           </span>
                         </div>
@@ -831,7 +831,7 @@ export const DashboardPage: React.FC = () => {
                   <div className="pt-2 flex justify-end">
                     <Link
                       to="/app/subscriptions"
-                      className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
+                      className="text-xs font-black text-brand-dark hover:text-brand-primary dark:text-slate-200 dark:hover:text-brand-primary flex items-center gap-1 group"
                     >
                       <span>Lihat Semua Tagihan ({subscriptions.length})</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -877,30 +877,30 @@ export const DashboardPage: React.FC = () => {
                         return (
                           <div
                             key={debt.id}
-                            className="p-3 rounded-2xl bg-brand-cream border border-brand-border flex items-center justify-between gap-3"
+                            className="p-3 rounded-2xl bg-brand-cream dark:bg-slate-800 border border-brand-border dark:border-slate-700 flex items-center justify-between gap-3"
                           >
                             <div>
                               <div className="flex items-center gap-1.5">
                                 <span
-                                  className={`text-[9px] font-black uppercase px-1.5 py-0.2 rounded border ${
+                                  className={`text-[9px] font-black uppercase px-1.5 py-0.5 rounded border ${
                                     isRec
-                                      ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                                      : 'bg-rose-100 text-rose-800 border-rose-300'
+                                      ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-300 dark:border-emerald-700'
+                                      : 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-300 dark:border-rose-700'
                                   }`}
                                 >
                                   {isRec ? 'Piutang' : 'Hutang'}
                                 </span>
-                                <span className="text-xs font-black text-brand-dark">{debt.person_name}</span>
+                                <span className="text-xs font-black text-brand-dark dark:text-slate-100">{debt.person_name}</span>
                               </div>
-                              <div className="text-[11px] font-bold text-brand-darkMuted mt-0.5">
+                              <div className="text-[11px] font-bold text-brand-darkMuted dark:text-slate-400 mt-0.5">
                                 {debt.description}
                               </div>
                             </div>
                             <div className="text-right">
-                              <div className="text-xs font-black text-brand-dark tabular-nums">
+                              <div className="text-xs font-black text-brand-dark dark:text-slate-100 tabular-nums">
                                 {formatMoney(remaining)}
                               </div>
-                              <div className="text-[10px] font-bold text-brand-darkMuted">
+                              <div className="text-[10px] font-bold text-brand-darkMuted dark:text-slate-400">
                                 {debt.due_date ? `Target ${debt.due_date}` : 'Belum lunas'}
                               </div>
                             </div>
@@ -911,7 +911,7 @@ export const DashboardPage: React.FC = () => {
                   <div className="pt-2 flex justify-end">
                     <Link
                       to="/app/debts"
-                      className="text-xs font-black text-brand-dark hover:text-brand-primary flex items-center gap-1 group"
+                      className="text-xs font-black text-brand-dark hover:text-brand-primary dark:text-slate-200 dark:hover:text-brand-primary flex items-center gap-1 group"
                     >
                       <span>Buka Buku Hutang ({debts.filter((d) => !d.is_settled).length})</span>
                       <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
