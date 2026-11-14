@@ -188,7 +188,7 @@ export const BudgetPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2.5">
+        <div className="flex flex-wrap sm:flex-nowrap items-center gap-2">
           {/* Slider Lock / Unlock Toggle Button */}
           <Button
             variant={isGlobalLocked ? 'secondary' : 'outline'}
@@ -203,9 +203,11 @@ export const BudgetPage: React.FC = () => {
                 'info'
               );
             }}
+            aria-label={isGlobalLocked ? 'Buka Kunci Semua Slider' : 'Kunci Semua Slider'}
             leftIcon={isGlobalLocked ? <Lock className="w-4 h-4 text-amber-600" /> : <Unlock className="w-4 h-4" />}
           >
-            {isGlobalLocked ? 'Buka Kunci Semua' : 'Kunci Semua Slider'}
+            <span className="hidden sm:inline">{isGlobalLocked ? 'Buka Kunci Semua' : 'Kunci Semua Slider'}</span>
+            <span className="sm:hidden">{isGlobalLocked ? 'Buka' : 'Kunci'}</span>
           </Button>
 
           {/* One-tap balance button if not balanced */}
@@ -214,9 +216,11 @@ export const BudgetPage: React.FC = () => {
               variant="primary"
               size="sm"
               onClick={handleAutoBalance}
+              aria-label="Seimbangkan Alokasi ke 100%"
               leftIcon={<Sparkles className="w-4 h-4" />}
             >
-              Seimbangkan (100%)
+              <span className="hidden sm:inline">Seimbangkan (100%)</span>
+              <span className="sm:hidden">Pas 100%</span>
             </Button>
           )}
 
@@ -224,9 +228,11 @@ export const BudgetPage: React.FC = () => {
             variant="secondary"
             size="sm"
             onClick={() => setIsRecommendationOpen(true)}
+            aria-label="Rekomendasi Anggaran Cerdas"
             leftIcon={<SlidersHorizontal className="w-4 h-4" />}
           >
-            Rekomendasi
+            <span className="hidden sm:inline">Rekomendasi</span>
+            <span className="sm:hidden">Saran</span>
           </Button>
           <Button
             variant="primary"
@@ -235,9 +241,10 @@ export const BudgetPage: React.FC = () => {
               setPocketToEdit(null);
               setIsPocketModalOpen(true);
             }}
+            aria-label="Buat Kantong Anggaran Baru"
             leftIcon={<Plus className="w-4 h-4" />}
           >
-            Buat Kantong
+            <span>Buat Kantong</span>
           </Button>
         </div>
       </div>
@@ -331,7 +338,8 @@ export const BudgetPage: React.FC = () => {
                       <button
                         onClick={() => handleToggleStar(pocket)}
                         title="Tandai Prioritas"
-                        className="p-1 hover:scale-110 transition-transform"
+                        aria-label={pocket.is_starred ? `Hapus ${pocket.name} dari prioritas` : `Tandai ${pocket.name} sebagai prioritas`}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-brand-cream/60 transition-transform active:scale-95"
                       >
                         <Star
                           className={`w-4 h-4 ${
@@ -349,15 +357,17 @@ export const BudgetPage: React.FC = () => {
                 <div className="flex items-center gap-1.5">
                   <button
                     onClick={() => handleEdit(pocket)}
-                    className="p-1.5 rounded-lg border border-brand-border hover:border-brand-dark hover:bg-brand-cream text-brand-dark"
+                    className="w-9 h-9 flex items-center justify-center rounded-lg border border-brand-border hover:border-brand-dark hover:bg-brand-cream text-brand-dark transition-colors"
                     title="Edit Kantong"
+                    aria-label={`Edit kantong ${pocket.name}`}
                   >
                     <Edit2 className="w-3.5 h-3.5" />
                   </button>
                   <button
                     onClick={() => handleDelete(pocket.id, pocket.name)}
-                    className="p-1.5 rounded-lg border border-brand-border hover:border-red-500 hover:bg-red-50 text-red-600"
+                    className="w-9 h-9 flex items-center justify-center rounded-lg border border-brand-border hover:border-red-500 hover:bg-red-50 text-red-600 transition-colors"
                     title="Hapus Kantong"
+                    aria-label={`Hapus kantong ${pocket.name}`}
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
@@ -399,12 +409,13 @@ export const BudgetPage: React.FC = () => {
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage - 1)}
                       disabled={isPocketLocked(pocket.id)}
-                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark dark:border-slate-600 font-black flex items-center justify-center transition-transform ${
+                      className={`w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark dark:border-slate-600 font-black flex items-center justify-center transition-transform ${
                         isPocketLocked(pocket.id)
                           ? 'opacity-30 cursor-not-allowed text-gray-400'
                           : 'hover:bg-brand-primary active:scale-95 cursor-pointer text-brand-dark dark:text-slate-100'
                       }`}
                       title={isPocketLocked(pocket.id) ? 'Buka kunci untuk mengubah' : 'Kurangi 1%'}
+                      aria-label={`Kurangi 1% alokasi ${pocket.name}`}
                     >
                       -
                     </button>
@@ -414,12 +425,13 @@ export const BudgetPage: React.FC = () => {
                     <button
                       onClick={() => handlePercentageChange(pocket.id, pocket.allocation_percentage + 1)}
                       disabled={isPocketLocked(pocket.id)}
-                      className={`w-6 h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark dark:border-slate-600 font-black flex items-center justify-center transition-transform ${
+                      className={`w-7 h-7 sm:w-6 sm:h-6 rounded-lg bg-white dark:bg-slate-800 border border-brand-dark dark:border-slate-600 font-black flex items-center justify-center transition-transform ${
                         isPocketLocked(pocket.id)
                           ? 'opacity-30 cursor-not-allowed text-gray-400'
                           : 'hover:bg-brand-primary active:scale-95 cursor-pointer text-brand-dark dark:text-slate-100'
                       }`}
                       title={isPocketLocked(pocket.id) ? 'Buka kunci untuk mengubah' : 'Tambah 1%'}
+                      aria-label={`Tambah 1% alokasi ${pocket.name}`}
                     >
                       +
                     </button>
@@ -448,6 +460,75 @@ export const BudgetPage: React.FC = () => {
               </div>
             </Card>
           ))}
+        </div>
+      </div>
+
+      {/* Mobile Sticky Quick-Allocation & Lock Floating Bar */}
+      <div className="fixed bottom-16 left-0 right-0 z-30 p-2.5 px-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t-2 border-brand-dark dark:border-slate-700 shadow-saweria flex items-center justify-between sm:hidden">
+        <div className="flex items-center gap-2">
+          <span
+            className={`text-xs font-black tabular-nums px-2 py-0.5 rounded-md border ${
+              overview.totalAllocationPercentage === 100
+                ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-emerald-400'
+                : overview.isOverallocated
+                ? 'bg-rose-100 dark:bg-rose-950/60 text-rose-800 dark:text-rose-300 border-rose-400'
+                : 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300 border-amber-400'
+            }`}
+          >
+            {overview.totalAllocationPercentage}% / 100%
+          </span>
+          <span className="text-[11px] font-bold text-brand-darkMuted truncate max-w-[110px]">
+            {overview.totalAllocationPercentage === 100
+              ? 'Seimbang'
+              : overview.isOverallocated
+              ? 'Kelebihan'
+              : `Sisa ${overview.unallocatedPercentage}%`}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {overview.totalAllocationPercentage !== 100 && (
+            <button
+              type="button"
+              onClick={handleAutoBalance}
+              className="px-2.5 py-1.5 bg-brand-primary text-brand-dark font-black text-xs rounded-lg border border-brand-dark shadow-saweria-xs flex items-center gap-1 active:scale-95 cursor-pointer"
+              aria-label="Seimbangkan Alokasi Otomatis ke 100%"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Pas 100%</span>
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => {
+              const next = !isGlobalLocked;
+              setIsGlobalLocked(next);
+              showToast(
+                next
+                  ? 'Semua Slider Terkunci 🔒: Aman dari sentuhan scroll pada mobile.'
+                  : 'Semua Slider Terbuka 🔓: Mode geser alokasi aktif.',
+                'info'
+              );
+            }}
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-black flex items-center gap-1.5 transition-colors active:scale-95 cursor-pointer ${
+              isGlobalLocked
+                ? 'bg-amber-500 text-white border-amber-600 shadow-saweria-xs'
+                : 'bg-white dark:bg-slate-800 text-brand-dark dark:text-slate-100 border-brand-dark'
+            }`}
+            aria-label={isGlobalLocked ? 'Buka Kunci Semua Slider' : 'Kunci Semua Slider'}
+          >
+            {isGlobalLocked ? (
+              <>
+                <Lock className="w-3.5 h-3.5 text-white" />
+                <span>Terkunci</span>
+              </>
+            ) : (
+              <>
+                <Unlock className="w-3.5 h-3.5 text-brand-primary" />
+                <span>Kunci</span>
+              </>
+            )}
+          </button>
         </div>
       </div>
 

@@ -18,7 +18,7 @@ import {
 import { useNotification } from '../context/NotificationContext';
 
 export const TransactionsPage: React.FC = () => {
-  const { transactions, pockets, accounts, deleteTransaction, formatMoney } = useData();
+  const { transactions, pockets, accounts, deleteTransaction, formatMoney, isLoading } = useData();
   const { showConfirm, showToast } = useNotification();
 
   const [searchParams] = useSearchParams();
@@ -213,11 +213,36 @@ export const TransactionsPage: React.FC = () => {
         </div>
 
         <div className="divide-y divide-brand-border">
-          {filteredTransactions.length === 0 ? (
-            <div className="p-12 text-center text-xs text-brand-darkMuted space-y-2">
-              <p>Tidak ada transaksi yang cocok dengan kriteria filter.</p>
+          {isLoading ? (
+            <div className="divide-y divide-brand-border animate-pulse">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="p-4 flex items-center justify-between gap-4">
+                  <div className="flex items-center gap-3.5">
+                    <div className="w-10 h-10 rounded-xl bg-slate-200 dark:bg-slate-800 shrink-0 border border-brand-border" />
+                    <div className="space-y-2">
+                      <div className="h-4 w-32 bg-slate-200 dark:bg-slate-800 rounded-md" />
+                      <div className="h-3 w-44 bg-slate-100 dark:bg-slate-700 rounded-md" />
+                    </div>
+                  </div>
+                  <div className="h-5 w-24 bg-slate-200 dark:bg-slate-800 rounded-md shrink-0" />
+                </div>
+              ))}
+            </div>
+          ) : filteredTransactions.length === 0 ? (
+            <div className="p-10 sm:p-12 text-center flex flex-col items-center justify-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl border-2 border-brand-dark bg-brand-cream/80 dark:bg-slate-800 flex items-center justify-center shadow-saweria-sm">
+                <Search className="w-6 h-6 text-brand-dark dark:text-slate-200 stroke-[2.2]" />
+              </div>
+              <div className="space-y-1 max-w-sm">
+                <h4 className="text-sm font-black text-brand-dark dark:text-slate-100">
+                  Tidak Ada Transaksi yang Cocok
+                </h4>
+                <p className="text-xs text-brand-darkMuted leading-relaxed">
+                  Kriteria pencarian atau filter yang dipilih tidak menemukan riwayat. Coba ubah kata kunci atau bersihkan filter.
+                </p>
+              </div>
               <Button
-                variant="outline"
+                variant="secondary"
                 size="sm"
                 onClick={() => {
                   setSearchQuery('');
@@ -225,8 +250,10 @@ export const TransactionsPage: React.FC = () => {
                   setFilterPocket('all');
                   setFilterAccount('all');
                 }}
+                aria-label="Reset Semua Filter Transaksi"
+                className="mt-2"
               >
-                Reset Filter
+                Reset Semua Filter
               </Button>
             </div>
           ) : (
@@ -301,8 +328,9 @@ export const TransactionsPage: React.FC = () => {
                     </div>
                     <button
                       onClick={() => handleDelete(tx.id, tx.description)}
-                      className="p-1.5 rounded-lg text-brand-darkMuted hover:text-red-600 hover:bg-red-50 transition-colors"
+                      className="w-10 h-10 min-w-[40px] min-h-[40px] flex items-center justify-center rounded-xl text-brand-darkMuted hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
                       title="Hapus Transaksi"
+                      aria-label={`Hapus transaksi ${tx.description}`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

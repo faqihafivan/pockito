@@ -38,7 +38,7 @@ const SLIDES: SlideData[] = [
   {
     id: 2,
     type: 'image',
-    image: '/slide1.jpg?v=2',
+    image: '/slide1.webp?v=3',
     highlight: 'Kunci Kantong Anti-Impulsif',
     title: 'Kunci Tabungan dari Godaan Impulsif',
     subtitle:
@@ -49,7 +49,7 @@ const SLIDES: SlideData[] = [
   {
     id: 3,
     type: 'image',
-    image: '/slide2.jpg?v=2',
+    image: '/slide2.webp?v=3',
     highlight: 'Planner & Tagihan Bebas Denda',
     title: 'Tak Ada Lagi Tagihan yang Terlewat',
     subtitle:
@@ -60,7 +60,7 @@ const SLIDES: SlideData[] = [
   {
     id: 4,
     type: 'image',
-    image: '/slide3.jpg?v=2',
+    image: '/slide3.webp?v=3',
     highlight: 'Target Tabungan Ceria',
     title: 'Kumpulkan Impian Langkah demi Langkah',
     subtitle:
@@ -219,10 +219,14 @@ export const WelcomePage: React.FC = () => {
 
                 {/* 2. SLIDES 2, 3, 4: Beautiful Rounded Tour Slide Image */}
                 {item.type === 'image' && item.image && (
-                  <div className="relative w-full max-w-[280px] sm:max-w-[320px] aspect-[4/3] rounded-3xl overflow-hidden border-2 border-slate-800 shadow-xl bg-white animate-in fade-in duration-300">
+                  <div className="relative w-full max-w-[280px] sm:max-w-[320px] aspect-[4/3] rounded-3xl overflow-hidden border-2 border-slate-800 shadow-xl bg-slate-100 animate-in fade-in duration-300">
                     <img
                       src={item.image}
                       alt={item.title}
+                      width={320}
+                      height={240}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute top-2.5 left-2.5 bg-white/95 backdrop-blur-sm border border-slate-700 px-3 py-1 rounded-full text-[10px] font-black text-slate-900 shadow-xs flex items-center gap-1.5">
