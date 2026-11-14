@@ -24,7 +24,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenNewTransaction, onOpenNewT
   const totalNotificationCount = dailyBriefing.items.length + alerts.length;
 
   return (
-    <header className="sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-brand-dark dark:border-slate-800 px-3 sm:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 transition-colors">
+    <header className="app-header sticky top-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b-2 border-brand-dark dark:border-slate-800 px-3 sm:px-8 py-2.5 sm:py-3 flex items-center justify-between gap-2 sm:gap-4 transition-colors">
       {/* Left: Dynamic Realtime Period Selector & Brand Logo (Clean on Mobile & Desktop) */}
       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
         {/* Mobile-Only Mini Logo Brand */}

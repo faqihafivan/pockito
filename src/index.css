@@ -99,9 +99,9 @@ html.dark .bg-white,
   background-color: #1E293B !important;
 }
 
-/* Header and Sidebar dark backgrounds in dark mode */
-html.dark header,
-[data-theme="midnight"] header {
+/* Header and Sidebar dark backgrounds in dark mode (scoped to app layout) */
+html.dark header.app-header,
+[data-theme="midnight"] header.app-header {
   background-color: rgba(15, 23, 42, 0.95) !important;
   border-color: #334155 !important;
   color: #F8FAFC !important;

@@ -167,28 +167,31 @@ export const WelcomePage: React.FC = () => {
       {/* ============================================================
           TOP HEADER: Clean bar with Logo, Slide Count, & Skip/Login
           ============================================================ */}
-      <header className="px-5 sm:px-8 pt-3 pb-1 flex items-center justify-between z-30 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full">
-        <div className="flex items-center gap-2">
+      <header
+        className="welcome-header w-full max-w-4xl lg:max-w-5xl mx-auto px-5 sm:px-8 pt-4 pb-1 flex items-center justify-between z-30 !bg-transparent border-0 shadow-none"
+        style={{ backgroundColor: 'transparent' }}
+      >
+        <div className="flex items-center gap-2.5">
           <img
             src="/pockito.png"
             alt="Pockito"
-            className="w-7 h-7 sm:w-8 sm:h-8 rounded-xl object-contain bg-white/90 border border-slate-300/80 shadow-xs"
+            className="w-8 h-8 rounded-xl object-contain bg-white/95 border border-slate-300 shadow-xs"
           />
-          <span className="font-black text-base sm:text-lg text-slate-900 tracking-tight">
+          <span className="font-black text-lg sm:text-xl text-slate-900 tracking-tight">
             Pockito<span className="text-teal-600">.</span>
           </span>
         </div>
 
         {/* Step Indicator Pill & Skip Button */}
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-black text-slate-500 bg-white/60 px-2.5 py-1.5 rounded-full border border-slate-200/80">
+        <div className="flex items-center gap-2 sm:gap-2.5">
+          <span className="text-xs font-bold text-slate-700 bg-white/80 backdrop-blur-md px-3 py-1 rounded-full border border-slate-200/90 shadow-xs">
             {currentSlide + 1} / {totalSlides}
           </span>
 
           <button
             type="button"
             onClick={handleSkip}
-            className="text-xs font-bold text-slate-600 hover:text-slate-900 px-3.5 py-1.5 min-h-[36px] rounded-full bg-white/70 hover:bg-white border border-slate-200/80 transition-all cursor-pointer shadow-xs active:scale-95"
+            className="text-xs font-bold text-slate-700 hover:text-slate-900 px-3.5 py-1.5 min-h-[34px] rounded-full bg-white/80 hover:bg-white backdrop-blur-md border border-slate-200/90 transition-all cursor-pointer shadow-xs active:scale-95"
           >
             Lewati
           </button>
@@ -198,7 +201,7 @@ export const WelcomePage: React.FC = () => {
       {/* ============================================================
           SLIDE TRACK CAROUSEL (Horizontally Sliding Viewport)
           ============================================================ */}
-      <div className="flex-1 w-full max-w-sm sm:max-w-md md:max-w-lg mx-auto overflow-hidden relative z-10 flex flex-col justify-center">
+      <div className="flex-1 w-full max-w-md sm:max-w-xl lg:max-w-2xl mx-auto overflow-hidden relative z-10 flex flex-col justify-center min-h-0">
         <div
           className="flex transition-transform duration-300 ease-out h-full"
           style={{ transform: `translateX(-${currentSlide * 100}%)` }}
@@ -206,25 +209,25 @@ export const WelcomePage: React.FC = () => {
           {SLIDES.map((item) => (
             <div
               key={item.id}
-              className="w-full shrink-0 h-full flex flex-col justify-between px-5 sm:px-6 py-2"
+              className="w-full shrink-0 h-full flex flex-col justify-center px-4 sm:px-6 py-1 space-y-2 sm:space-y-3"
             >
               {/* TOP VISUAL STAGE OF THE SLIDE */}
-              <div className="flex-1 flex items-center justify-center min-h-[220px] sm:min-h-[260px] relative">
+              <div className="flex items-center justify-center min-h-[170px] sm:min-h-[200px] md:min-h-[220px] max-h-[240px] relative shrink-0">
                 {/* 1. SLIDE 1: 3D Floating Cards Hero Stage */}
                 {item.type === 'floating-hero' && (
-                  <div className="w-full max-w-xs scale-90 sm:scale-100 origin-center">
+                  <div className="w-full max-w-[240px] sm:max-w-[270px] md:max-w-[290px] origin-center">
                     <FloatingHeroVisual />
                   </div>
                 )}
 
                 {/* 2. SLIDES 2, 3, 4: Beautiful Rounded Tour Slide Image */}
                 {item.type === 'image' && item.image && (
-                  <div className="relative w-full max-w-[280px] sm:max-w-[320px] aspect-[4/3] rounded-3xl overflow-hidden border-2 border-slate-800 shadow-xl bg-slate-100 animate-in fade-in duration-300">
+                  <div className="relative w-full max-w-[240px] sm:max-w-[280px] md:max-w-[300px] aspect-[16/11] rounded-3xl overflow-hidden border-2 border-slate-800 shadow-xl bg-slate-100 animate-in fade-in duration-300">
                     <img
                       src={item.image}
                       alt={item.title}
                       width={320}
-                      height={240}
+                      height={220}
                       loading="lazy"
                       decoding="async"
                       className="w-full h-full object-cover"
@@ -238,12 +241,12 @@ export const WelcomePage: React.FC = () => {
 
                 {/* 3. SLIDE 5: Feature Summary Grid (Final Onboarding Card) */}
                 {item.type === 'feature-summary' && (
-                  <div className="w-full max-w-[310px] sm:max-w-[340px] p-4 rounded-3xl bg-white/90 backdrop-blur-md border-2 border-slate-800 shadow-xl space-y-2.5 animate-in fade-in duration-300">
+                  <div className="w-full max-w-[280px] sm:max-w-[320px] p-3 sm:p-4 rounded-3xl bg-white/90 backdrop-blur-md border-2 border-slate-800 shadow-xl space-y-2 animate-in fade-in duration-300">
                     <div className="flex items-center gap-2 pb-1 border-b border-slate-200">
                       <img
                         src="/pockito.png"
                         alt="Pockito"
-                        className="w-9 h-9 rounded-xl object-contain bg-white border border-slate-300 shadow-xs"
+                        className="w-8 h-8 rounded-xl object-contain bg-white border border-slate-300 shadow-xs"
                       />
                       <div>
                         <div className="text-xs font-black text-slate-900">Pockito Workspace</div>
@@ -286,7 +289,7 @@ export const WelcomePage: React.FC = () => {
               </div>
 
               {/* BOTTOM TEXT & DESCRIPTION OF THE SLIDE */}
-              <div className="space-y-3 pt-1 text-center">
+              <div className="space-y-1.5 sm:space-y-2 pt-1 text-center shrink-0">
                 {/* Badge Tag */}
                 <div>
                   <span className="inline-block text-[10px] font-black uppercase tracking-wider px-3 py-0.5 rounded-full bg-teal-500/15 text-teal-900 border border-teal-600/30">
@@ -296,20 +299,20 @@ export const WelcomePage: React.FC = () => {
 
                 {/* Headline & Subtitle */}
                 <div className="space-y-1">
-                  <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-snug">
+                  <h1 className="text-lg sm:text-xl md:text-2xl font-black text-slate-900 tracking-tight leading-tight">
                     {item.title}
                   </h1>
-                  <p className="text-xs sm:text-sm text-slate-600 font-medium leading-relaxed max-w-xs sm:max-w-sm mx-auto">
+                  <p className="text-xs sm:text-[13px] md:text-sm text-slate-600 font-medium leading-relaxed max-w-sm sm:max-w-lg mx-auto">
                     {item.subtitle}
                   </p>
                 </div>
 
                 {/* Compact Mascot Speech Bubble */}
-                <div className="bg-white/80 backdrop-blur-sm border border-slate-300/80 p-2.5 rounded-2xl shadow-xs text-left flex items-center gap-2.5 max-w-xs sm:max-w-sm mx-auto">
+                <div className="bg-white/85 backdrop-blur-sm border border-slate-300/80 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl shadow-xs text-left flex items-center gap-2 max-w-xs sm:max-w-sm md:max-w-md mx-auto">
                   <img
                     src="/pockito.png"
                     alt="Maskot"
-                    className="w-8 h-8 rounded-lg bg-white border border-slate-200 shrink-0 object-contain shadow-xs"
+                    className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-white border border-slate-200 shrink-0 object-contain shadow-xs"
                   />
                   <div className="space-y-0.5 flex-1 min-w-0">
                     <p className="text-[11px] font-bold text-slate-800 leading-tight">
@@ -326,7 +329,7 @@ export const WelcomePage: React.FC = () => {
       {/* ============================================================
           BOTTOM CONTROLS & ACTION BUTTONS (Clean, Modern, Accessible)
           ============================================================ */}
-      <footer className="px-5 sm:px-8 pb-5 pt-1 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full z-20 space-y-3">
+      <footer className="px-5 sm:px-8 pb-4 pt-0.5 max-w-sm sm:max-w-md md:max-w-lg mx-auto w-full z-20 space-y-2 sm:space-y-2.5 shrink-0">
         {/* Animated Dots Indicator with Accessible 44px Prev/Next chevron taps */}
         <div className="flex items-center justify-between px-1">
           {/* Prev Arrow - 44x44px Touch Target for Mobile Thumb */}
