@@ -1,14 +1,19 @@
-// Pockito Service Worker v1.0.0
-const CACHE_NAME = 'pockito-cache-v1';
+// Pockito Service Worker v2.0.0
+const CACHE_NAME = 'pockito-cache-v2';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
   '/manifest.json',
   '/pockito.jpg',
   '/pockito.png',
-  '/slide1.jpg',
-  '/slide2.jpg',
-  '/slide3.jpg',
+  '/slide1.webp',
+  '/slide2.webp',
+  '/slide3.webp',
+  '/welcome/coins-star.webp',
+  '/welcome/pocket-card.webp',
+  '/welcome/goal-ring.webp',
+  '/welcome/bill-guard.webp',
+  '/welcome/daily-limit.webp',
 ];
 
 self.addEventListener('install', (event) => {
