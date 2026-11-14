@@ -4,7 +4,7 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Card } from '../components/ui/Card';
 import { useAuth } from '../context/AuthContext';
-import { Sparkles, ArrowRight, ShieldCheck, Coins, Coffee, Eye, EyeOff } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, Coins, Coffee, Eye, EyeOff, AlertTriangle, ExternalLink } from 'lucide-react';
 
 export const LoginPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,12 +15,13 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
+  const [isNetworkError, setIsNetworkError] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const from = (location.state as any)?.from?.pathname || '/app/dashboard';
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async (e?: React.FormEvent, forceLocal = false) => {
+    if (e) e.preventDefault();
     if (!email.trim()) {
       setError('Email wajib diisi');
       return;
@@ -28,12 +29,14 @@ export const LoginPage: React.FC = () => {
 
     setIsLoading(true);
     setError('');
+    setIsNetworkError(false);
 
-    const res = await login(email.trim(), password);
+    const res = await login(email.trim(), password, { forceLocal });
     setIsLoading(false);
 
     if (res.error) {
       setError(res.error);
+      setIsNetworkError(Boolean(res.isNetworkError));
     } else {
       navigate(from, { replace: true });
     }
@@ -187,8 +190,32 @@ export const LoginPage: React.FC = () => {
                 </div>
 
                 {error && (
-                  <div className="p-3 bg-red-50 dark:bg-red-950/50 border-2 border-red-500 rounded-xl text-xs font-bold text-red-600 dark:text-red-400">
-                    {error}
+                  <div className="p-3.5 bg-red-50 dark:bg-red-950/50 border-2 border-red-500 rounded-2xl text-xs font-bold text-red-700 dark:text-red-300 space-y-2.5">
+                    <div className="flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0 mt-0.5" />
+                      <p className="leading-relaxed">{error}</p>
+                    </div>
+                    {isNetworkError && (
+                      <div className="pt-2.5 border-t border-red-200 dark:border-red-800/80 flex flex-col gap-2">
+                        <a
+                          href="https://supabase.com/dashboard/project/uzmfdkxxsxovvunvpcqu"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-white dark:bg-slate-800 border-2 border-red-400 rounded-xl text-red-800 dark:text-red-200 hover:bg-red-100 text-xs font-black transition-colors"
+                        >
+                          <ExternalLink className="w-3.5 h-3.5" />
+                          <span>Buka Dashboard Supabase (Resume Project)</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={() => handleLogin(undefined, true)}
+                          className="inline-flex items-center justify-center gap-1.5 px-3 py-2.5 bg-brand-primary text-brand-dark border-2 border-brand-dark rounded-xl text-xs font-black shadow-saweria-xs hover:bg-brand-primaryHover active:scale-95 transition-all cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5" />
+                          <span>Masuk Sekarang dengan Mode Offline</span>
+                        </button>
+                      </div>
+                    )}
                   </div>
                 )}
 

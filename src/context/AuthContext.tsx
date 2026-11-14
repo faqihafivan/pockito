@@ -15,9 +15,18 @@ interface AuthContextType {
   isCloudMode: boolean;
   isDemo: boolean;
   authStatus: AuthStatus;
-  login: (email: string, password?: string) => Promise<{ error?: string }>;
+  login: (
+    email: string,
+    password?: string,
+    options?: { forceLocal?: boolean }
+  ) => Promise<{ error?: string; isNetworkError?: boolean }>;
   enterDemoMode: () => Promise<void>;
-  register: (fullName: string, email: string, password?: string) => Promise<{ error?: string }>;
+  register: (
+    fullName: string,
+    email: string,
+    password?: string,
+    options?: { forceLocal?: boolean }
+  ) => Promise<{ error?: string; isNetworkError?: boolean }>;
   logout: () => Promise<void>;
   updateUser: (updates: Partial<UserProfile>) => Promise<void>;
 }
@@ -161,27 +170,64 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     initializeAuth();
   }, [isCloudMode]);
 
-  const login = async (email: string, password?: string): Promise<{ error?: string }> => {
+  const isNetworkFailure = (msg?: string): boolean => {
+    if (!msg) return false;
+    const lower = msg.toLowerCase();
+    return (
+      lower.includes('failed to fetch') ||
+      lower.includes('networkerror') ||
+      lower.includes('fetch failed') ||
+      lower.includes('network request failed') ||
+      lower.includes('enotfound')
+    );
+  };
+
+  const login = async (
+    email: string,
+    password?: string,
+    options?: { forceLocal?: boolean }
+  ): Promise<{ error?: string; isNetworkError?: boolean }> => {
     try {
-      if (isCloudMode && supabase) {
+      if (isCloudMode && supabase && !options?.forceLocal) {
         if (!password) {
           return { error: 'Password wajib diisi untuk login akun cloud.' };
         }
-        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) return { error: error.message };
-        if (!data.user) return { error: 'Autentikasi gagal' };
-
-        DataService.setMode('cloud', data.user.id);
-        const profile = await DataService.getProfile();
-        setUser(profile);
-        setIsDemo(false);
-        setAuthStatus('authenticated');
         try {
-          sessionStorage.removeItem('pockito_active_mode');
-        } catch {
-          // ignore
+          const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+          if (error) {
+            if (isNetworkFailure(error.message)) {
+              return {
+                error:
+                  'Koneksi ke server database Supabase gagal dihubungi ("Failed to fetch"). Kemungkinan besar proyek Supabase sedang dijeda (paused) otomatis oleh Supabase karena inaktif lebih dari 7 hari di paket gratis. Buka dashboard Supabase dan klik "Resume project", atau masuk dengan Mode Offline di bawah.',
+                isNetworkError: true,
+              };
+            }
+            return { error: error.message };
+          }
+          if (!data.user) return { error: 'Autentikasi gagal' };
+
+          DataService.setMode('cloud', data.user.id);
+          const profile = await DataService.getProfile();
+          setUser(profile);
+          setIsDemo(false);
+          setAuthStatus('authenticated');
+          try {
+            sessionStorage.removeItem('pockito_active_mode');
+          } catch {
+            // ignore
+          }
+          return {};
+        } catch (fetchErr: unknown) {
+          const msg = (fetchErr as Error)?.message || '';
+          if (isNetworkFailure(msg)) {
+            return {
+              error:
+                'Koneksi ke server database Supabase gagal dihubungi ("Failed to fetch"). Kemungkinan besar proyek Supabase sedang dijeda (paused) otomatis oleh Supabase karena inaktif lebih dari 7 hari di paket gratis. Buka dashboard Supabase dan klik "Resume project", atau masuk dengan Mode Offline di bawah.',
+              isNetworkError: true,
+            };
+          }
+          return { error: msg || 'Gagal masuk akun cloud' };
         }
-        return {};
       }
 
       // Local offline mode login
@@ -209,51 +255,77 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const register = async (fullName: string, email: string, password?: string): Promise<{ error?: string }> => {
+  const register = async (
+    fullName: string,
+    email: string,
+    password?: string,
+    options?: { forceLocal?: boolean }
+  ): Promise<{ error?: string; isNetworkError?: boolean }> => {
     try {
-      if (isCloudMode && supabase) {
+      if (isCloudMode && supabase && !options?.forceLocal) {
         if (!password) {
           return { error: 'Password wajib diisi untuk mendaftar.' };
         }
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: { data: { full_name: fullName } },
-        });
-        if (error) return { error: error.message };
+        try {
+          const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: { data: { full_name: fullName } },
+          });
+          if (error) {
+            if (isNetworkFailure(error.message)) {
+              return {
+                error:
+                  'Koneksi ke server database Supabase gagal dihubungi ("Failed to fetch"). Kemungkinan besar proyek Supabase sedang dijeda (paused) otomatis oleh Supabase karena inaktif lebih dari 7 hari di paket gratis. Buka dashboard Supabase dan klik "Resume project", atau daftar sekarang dengan Mode Offline di bawah.',
+                isNetworkError: true,
+              };
+            }
+            return { error: error.message };
+          }
 
-        // If email confirmation is enabled in Supabase, data.session will be null
-        let activeSession = data.session;
-        if (data.user && !activeSession) {
-          // Attempt automatic sign in
-          const signInAttempt = await supabase.auth.signInWithPassword({ email, password });
-          if (signInAttempt.data?.session) {
-            activeSession = signInAttempt.data.session;
-          } else {
+          // If email confirmation is enabled in Supabase, data.session will be null
+          let activeSession = data.session;
+          if (data.user && !activeSession) {
+            // Attempt automatic sign in
+            const signInAttempt = await supabase.auth.signInWithPassword({ email, password });
+            if (signInAttempt.data?.session) {
+              activeSession = signInAttempt.data.session;
+            } else {
+              return {
+                error: 'Pendaftaran berhasil di Supabase! Namun konfirmasi email sedang aktif. Silakan matikan opsi "Confirm email" di Dashboard Supabase (Authentication > Providers > Email) atau cek tautan verifikasi di inbox email Anda.',
+              };
+            }
+          }
+
+          if (data.user) {
+            DataService.setMode('cloud', data.user.id);
+            const newProfile: UserProfile = {
+              id: data.user.id,
+              full_name: fullName,
+              email,
+              currency: 'IDR',
+              timezone: 'Asia/Jakarta',
+              monthly_income: 0,
+              onboarding_completed: false,
+            };
+            await DataService.updateProfile(newProfile);
+            DataService.initializeCleanUserData(newProfile.id);
+            setUser(newProfile);
+            setIsDemo(false);
+            setAuthStatus('authenticated');
+          }
+          return {};
+        } catch (fetchErr: unknown) {
+          const msg = (fetchErr as Error)?.message || '';
+          if (isNetworkFailure(msg)) {
             return {
-              error: 'Pendaftaran berhasil di Supabase! Namun konfirmasi email sedang aktif. Silakan matikan opsi "Confirm email" di Dashboard Supabase (Authentication > Providers > Email) atau cek tautan verifikasi di inbox email Anda.',
+              error:
+                'Koneksi ke server database Supabase gagal dihubungi ("Failed to fetch"). Kemungkinan besar proyek Supabase sedang dijeda (paused) otomatis oleh Supabase karena inaktif lebih dari 7 hari di paket gratis. Buka dashboard Supabase dan klik "Resume project", atau daftar sekarang dengan Mode Offline di bawah.',
+              isNetworkError: true,
             };
           }
+          return { error: msg || 'Gagal mendaftar akun' };
         }
-
-        if (data.user) {
-          DataService.setMode('cloud', data.user.id);
-          const newProfile: UserProfile = {
-            id: data.user.id,
-            full_name: fullName,
-            email,
-            currency: 'IDR',
-            timezone: 'Asia/Jakarta',
-            monthly_income: 0,
-            onboarding_completed: false,
-          };
-          await DataService.updateProfile(newProfile);
-          DataService.initializeCleanUserData(newProfile.id);
-          setUser(newProfile);
-          setIsDemo(false);
-          setAuthStatus('authenticated');
-        }
-        return {};
       }
 
       // Local mode register
