@@ -93,9 +93,9 @@ html.dark,
   color-scheme: dark;
 }
 
-/* Force dark card surface on elements using bg-white in midnight mode */
-html.dark .bg-white,
-[data-theme="midnight"] .bg-white {
+/* Force dark card surface on elements using bg-white in midnight mode (except welcome screen) */
+html.dark:not(:has(.welcome-screen)) .bg-white,
+[data-theme="midnight"]:not(:has(.welcome-screen)) .bg-white {
   background-color: #1E293B !important;
 }
 
@@ -170,13 +170,13 @@ html.dark .shadow-saweria-lg,
   box-shadow: 4px 4px 0px #020617 !important;
 }
 
-/* Hover highlights in dark mode */
-html.dark .hover\:bg-brand-cream:hover,
-html.dark .hover\:bg-brand-cream\/80:hover,
-html.dark .hover\:bg-white:hover,
-[data-theme="midnight"] .hover\:bg-brand-cream:hover,
-[data-theme="midnight"] .hover\:bg-brand-cream\/80:hover,
-[data-theme="midnight"] .hover\:bg-white:hover {
+/* Hover highlights in dark mode (except welcome screen) */
+html.dark:not(:has(.welcome-screen)) .hover\:bg-brand-cream:hover,
+html.dark:not(:has(.welcome-screen)) .hover\:bg-brand-cream\/80:hover,
+html.dark:not(:has(.welcome-screen)) .hover\:bg-white:hover,
+[data-theme="midnight"]:not(:has(.welcome-screen)) .hover\:bg-brand-cream:hover,
+[data-theme="midnight"]:not(:has(.welcome-screen)) .hover\:bg-brand-cream\/80:hover,
+[data-theme="midnight"]:not(:has(.welcome-screen)) .hover\:bg-white:hover {
   background-color: #334155 !important;
 }
 

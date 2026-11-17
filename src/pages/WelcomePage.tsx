@@ -152,7 +152,7 @@ export const WelcomePage: React.FC = () => {
 
   return (
     <div
-      className="h-[100dvh] max-h-screen w-full bg-gradient-to-b from-[#EBF3FC] via-[#E2EEFB] to-[#D5E5F7] text-slate-900 flex flex-col justify-between select-none relative overflow-hidden"
+      className="welcome-screen h-[100dvh] max-h-screen w-full bg-gradient-to-b from-[#EBF3FC] via-[#E2EEFB] to-[#D5E5F7] text-slate-900 flex flex-col justify-between select-none relative overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -191,7 +191,7 @@ export const WelcomePage: React.FC = () => {
           <button
             type="button"
             onClick={handleSkip}
-            className="text-[11px] sm:text-xs font-bold text-slate-700 hover:text-slate-900 px-3 py-1 sm:py-1.5 min-h-[30px] sm:min-h-[34px] rounded-full bg-white/80 hover:bg-white backdrop-blur-md border border-slate-200/90 transition-all cursor-pointer shadow-xs active:scale-95"
+            className="text-[11px] sm:text-xs font-bold text-slate-700 hover:text-slate-950 px-3 py-1 sm:py-1.5 min-h-[30px] sm:min-h-[34px] rounded-full !bg-white/80 hover:!bg-white backdrop-blur-md border border-slate-200/90 transition-all cursor-pointer shadow-xs active:scale-95"
           >
             Lewati
           </button>
@@ -349,10 +349,10 @@ export const WelcomePage: React.FC = () => {
             type="button"
             onClick={prevSlide}
             disabled={isFirstSlide}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-300 bg-white/90 flex items-center justify-center text-slate-800 shadow-xs transition-all ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-300 !bg-white/90 hover:!bg-white flex items-center justify-center text-slate-800 shadow-xs transition-all ${
               isFirstSlide
                 ? 'opacity-0 pointer-events-none'
-                : 'hover:bg-white active:scale-90 cursor-pointer hover:shadow-sm'
+                : 'active:scale-90 cursor-pointer hover:shadow-sm'
             }`}
             aria-label="Slide sebelumnya"
           >
@@ -385,10 +385,10 @@ export const WelcomePage: React.FC = () => {
             type="button"
             onClick={nextSlide}
             disabled={isLastSlide}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-300 bg-white/90 flex items-center justify-center text-slate-800 shadow-xs transition-all ${
+            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-slate-300 !bg-white/90 hover:!bg-white flex items-center justify-center text-slate-800 shadow-xs transition-all ${
               isLastSlide
                 ? 'opacity-0 pointer-events-none'
-                : 'hover:bg-white active:scale-90 cursor-pointer hover:shadow-sm'
+                : 'active:scale-90 cursor-pointer hover:shadow-sm'
             }`}
             aria-label="Slide berikutnya"
           >
@@ -444,10 +444,10 @@ export const WelcomePage: React.FC = () => {
 
               <Link
                 to="/login"
-                className="w-full py-2.5 rounded-full bg-white/80 hover:bg-white text-slate-800 font-bold text-xs border border-slate-300/80 shadow-xs hover:shadow-sm active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-1.5 min-h-[38px]"
+                className="w-full py-2.5 sm:py-3 rounded-full !bg-white hover:!bg-slate-50 !text-slate-800 hover:!text-slate-950 font-bold text-xs sm:text-sm border border-slate-300/90 shadow-xs hover:shadow-md active:scale-[0.99] transition-all cursor-pointer flex items-center justify-center gap-2 min-h-[42px]"
               >
                 <span>Sudah Punya Akun? Masuk di Sini</span>
-                <ArrowRight className="w-3.5 h-3.5" />
+                <ArrowRight className="w-4 h-4 text-slate-700" />
               </Link>
             </>
           )}
