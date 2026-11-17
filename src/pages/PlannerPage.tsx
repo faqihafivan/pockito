@@ -280,9 +280,30 @@ export const PlannerPage: React.FC = () => {
       <Card variant="saweria" className="bg-white p-0 overflow-hidden">
         <div className="divide-y divide-brand-border">
           {currentList.length === 0 ? (
-            <div className="p-12 text-center text-xs text-brand-darkMuted space-y-2">
-              <CheckCircle2 className="w-8 h-8 text-brand-primary mx-auto" />
-              <p className="font-bold">Tidak ada agenda atau belanjaan pada tab ini.</p>
+            <div className="p-8 sm:p-12 text-center flex flex-col items-center justify-center space-y-3">
+              <div className="w-14 h-14 rounded-2xl bg-teal-50 border-2 border-brand-dark shadow-saweria-xs flex items-center justify-center text-teal-700">
+                <CheckCircle2 className="w-7 h-7 stroke-[2.2]" />
+              </div>
+              <div className="space-y-1 max-w-xs mx-auto">
+                <h4 className="text-sm sm:text-base font-display font-black text-brand-dark">
+                  Tidak Ada Agenda di Tab Ini
+                </h4>
+                <p className="text-xs font-medium text-brand-darkMuted leading-relaxed">
+                  Semua tugas atau daftar belanja pokok sudah terselesaikan dengan rapi.
+                </p>
+              </div>
+              <Button
+                variant="primary"
+                size="sm"
+                onClick={() => {
+                  setTaskToEdit(null);
+                  setIsModalOpen(true);
+                }}
+                leftIcon={<Plus className="w-3.5 h-3.5 stroke-[3]" />}
+                className="min-h-[40px] mt-1"
+              >
+                + Tambah Agenda / Belanja
+              </Button>
             </div>
           ) : (
             currentList.map((task) => {

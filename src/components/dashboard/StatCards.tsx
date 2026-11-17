@@ -58,7 +58,7 @@ export const StatCards: React.FC<StatCardsProps> = ({
           </div>
 
           <div className="mt-3">
-            <div className="text-base sm:text-xl lg:text-2xl font-black text-rose-950 dark:text-rose-100 tabular-nums tracking-tight truncate">
+            <div className="text-base sm:text-xl lg:text-2xl font-black text-rose-950 dark:text-rose-100 font-mono tabular-nums tracking-tight truncate">
               -{formatMoney(overview.totalMonthlyExpense)}
             </div>
             <div className="flex items-center justify-between mt-1">
@@ -103,7 +103,7 @@ export const StatCards: React.FC<StatCardsProps> = ({
           </div>
 
           <div className="mt-3">
-            <div className="text-base sm:text-xl lg:text-2xl font-black text-emerald-950 dark:text-emerald-100 tabular-nums tracking-tight truncate">
+            <div className="text-base sm:text-xl lg:text-2xl font-black text-emerald-950 dark:text-emerald-100 font-mono tabular-nums tracking-tight truncate">
               +{formatMoney(overview.monthlyIncome)}
             </div>
             <div className="flex items-center justify-between mt-1">

@@ -438,10 +438,10 @@ export const ReportsPage: React.FC = () => {
                       <span>{pocket.name}</span>
                       {pocket.is_starred && <span>⭐</span>}
                     </td>
-                    <td className="p-3.5 tabular-nums">{pocket.allocation_percentage}%</td>
-                    <td className="p-3.5 tabular-nums">{formatMoney(pocket.plannedAmount)}</td>
-                    <td className="p-3.5 tabular-nums">{formatMoney(pocket.spentAmount)}</td>
-                    <td className={`p-3.5 tabular-nums ${isOver ? 'text-red-600 dark:text-red-400' : 'text-[#047857] dark:text-emerald-300'}`}>
+                    <td className="p-3.5 font-mono tabular-nums">{pocket.allocation_percentage}%</td>
+                    <td className="p-3.5 font-mono tabular-nums">{formatMoney(pocket.plannedAmount)}</td>
+                    <td className="p-3.5 font-mono tabular-nums">{formatMoney(pocket.spentAmount)}</td>
+                    <td className={`p-3.5 font-mono tabular-nums ${isOver ? 'text-red-600 dark:text-red-400' : 'text-[#047857] dark:text-emerald-300'}`}>
                       {formatMoney(pocket.remainingAmount)}
                     </td>
                     <td className="p-3.5">

@@ -112,10 +112,11 @@ export const DashboardHeroBalance: React.FC<DashboardHeroBalanceProps> = ({
             <button
               type="button"
               onClick={onOpenInfoModal}
-              className={`w-4 h-4 rounded-full flex items-center justify-center transition-colors cursor-pointer border ${heroStyles.infoBtn}`}
+              className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors cursor-pointer border ${heroStyles.infoBtn}`}
               title="Pelajari bagaimana Saldo Riil dihitung dan diakumulasikan setiap bulan"
+              aria-label="Informasi Saldo Riil"
             >
-              <Info className="w-2.5 h-2.5 stroke-[2.5]" />
+              <Info className="w-3 h-3 stroke-[2.5]" />
             </button>
           </div>
 
@@ -124,14 +125,14 @@ export const DashboardHeroBalance: React.FC<DashboardHeroBalanceProps> = ({
             <button
               type="button"
               onClick={handlePrivacyToggle}
-              className={`p-1.5 rounded-xl border transition-all active:scale-95 flex items-center justify-center cursor-pointer ${heroStyles.privacyBtn}`}
+              className={`min-w-[36px] min-h-[36px] p-2 rounded-xl border transition-all active:scale-95 flex items-center justify-center cursor-pointer ${heroStyles.privacyBtn}`}
               title={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
               aria-label={isPrivacyMode ? 'Buka sensor saldo' : 'Sensor nominal saldo'}
             >
               {isPrivacyMode ? (
-                <EyeOff className="w-3.5 h-3.5 stroke-[2.4]" />
+                <EyeOff className="w-4 h-4 stroke-[2.4]" />
               ) : (
-                <Eye className="w-3.5 h-3.5 stroke-[2.2]" />
+                <Eye className="w-4 h-4 stroke-[2.2]" />
               )}
             </button>
 
@@ -146,7 +147,7 @@ export const DashboardHeroBalance: React.FC<DashboardHeroBalanceProps> = ({
 
         {/* Card Center: Hero Balance Number */}
         <div className="py-0.5">
-          <div className={`text-3xl sm:text-4xl md:text-5xl font-black tabular-nums tracking-tight ${heroStyles.balanceNumber}`}>
+          <div className={`text-3xl sm:text-4xl md:text-5xl font-black font-mono tabular-nums tracking-tight ${heroStyles.balanceNumber}`}>
             {formatMoney(totalBalance)}
           </div>
         </div>

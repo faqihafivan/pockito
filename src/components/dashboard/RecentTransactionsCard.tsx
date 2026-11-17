@@ -85,7 +85,7 @@ export const RecentTransactionsCard: React.FC<RecentTransactionsCardProps> = ({
                 </div>
 
                 <div
-                  className={`text-xs font-black tabular-nums shrink-0 ${
+                  className={`text-xs font-black font-mono tabular-nums shrink-0 ${
                     isIncome ? 'text-emerald-700 dark:text-emerald-300' : isExpense ? 'text-red-600 dark:text-red-400' : 'text-brand-dark dark:text-slate-100'
                   }`}
                 >

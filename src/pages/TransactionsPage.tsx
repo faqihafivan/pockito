@@ -317,7 +317,7 @@ export const TransactionsPage: React.FC = () => {
 
                   <div className="flex items-center gap-3 shrink-0">
                     <div
-                      className={`text-sm font-black tabular-nums text-right ${isIncome ? 'text-emerald-700 dark:text-emerald-300' : isExpense ? 'text-red-600 dark:text-red-400' : 'text-brand-dark dark:text-slate-100'
+                      className={`text-sm font-black font-mono tabular-nums text-right ${isIncome ? 'text-emerald-700 dark:text-emerald-300' : isExpense ? 'text-red-600 dark:text-red-400' : 'text-brand-dark dark:text-slate-100'
                         }`}
                     >
                       {isIncome

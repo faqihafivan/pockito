@@ -28,7 +28,7 @@ export default {
           food: '#FF7A59',
           bills: '#713B3B',
           savings: '#10B981',
-          leisure: '#8B5CF6',
+          leisure: '#0284C7',
           invest: '#0EA5E9',
           star: '#FAAE2B',
         },
@@ -40,7 +40,9 @@ export default {
         'saweria-lg': '4px 4px 0px var(--color-border-dark, #1E293B)',
       },
       fontFamily: {
-        sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+        sans: ['"Plus Jakarta Sans"', 'Inter', 'system-ui', 'sans-serif'],
+        display: ['"Space Grotesk"', '"Plus Jakarta Sans"', 'sans-serif'],
+        mono: ['"JetBrains Mono"', 'ui-monospace', 'monospace'],
       },
       borderRadius: {
         'xl': '12px',

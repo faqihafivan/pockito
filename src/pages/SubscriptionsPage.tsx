@@ -179,27 +179,60 @@ export const SubscriptionsPage: React.FC = () => {
         </button>
       </div>
 
-      {/* Grid of Subscriptions */}
+      {/* Grid of Subscriptions / 3-Layer Rich Empty State */}
       {filteredList.length === 0 ? (
-        <Card variant="saweria" className="p-12 text-center bg-white">
-          <CalendarClock className="w-12 h-12 text-brand-darkMuted mx-auto mb-3 opacity-60" />
-          <h3 className="text-lg font-black text-brand-dark">Tidak Ada Tagihan Rutin</h3>
-          <p className="text-xs font-bold text-brand-darkMuted max-w-sm mx-auto mt-1">
-            {filterStatus === 'pending'
-              ? 'Hebat! Semua tagihan rutinmu untuk periode ini sudah lunas terbayar.'
-              : 'Belum ada tagihan berkala. Tambahkan kos, wifi, atau paket langgananmu sekarang!'}
-          </p>
-          {filterStatus === 'all' && (
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleOpenNew}
-              className="mt-4"
-              leftIcon={<Plus className="w-4 h-4" />}
-            >
-              Tambah Tagihan Sekarang
-            </Button>
-          )}
+        <Card
+          variant="saweria"
+          className="p-8 sm:p-12 text-center bg-white border-2 border-brand-dark shadow-saweria flex flex-col items-center justify-center space-y-4"
+        >
+          {/* Layer 1: Layered SVG Visual with subtle glow */}
+          <div className="relative w-20 h-20 sm:w-24 sm:h-24 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-3xl bg-sky-100/60 blur-xl animate-pulse" />
+            <div className="relative w-16 h-16 sm:w-18 sm:h-18 rounded-2xl bg-gradient-to-tr from-sky-600 to-teal-500 border-2 border-brand-dark shadow-saweria-sm flex items-center justify-center text-white transform -rotate-2 hover:rotate-0 transition-transform">
+              <CalendarClock className="w-8 h-8 sm:w-9 sm:h-9 stroke-[2.2]" />
+            </div>
+            <div className="absolute -top-1 -right-1 w-7 h-7 rounded-xl bg-emerald-400 border-2 border-brand-dark shadow-saweria-xs flex items-center justify-center text-xs">
+              ⚡
+            </div>
+          </div>
+
+          {/* Layer 2: Contextual Friendly Copy */}
+          <div className="space-y-1.5 max-w-sm mx-auto">
+            <h3 className="text-lg sm:text-xl font-display font-black text-brand-dark tracking-tight">
+              {filterStatus === 'pending'
+                ? 'Semua Tagihan Sudah Lunas! 🎉'
+                : 'Belum Ada Tagihan Rutin'}
+            </h3>
+            <p className="text-xs sm:text-sm font-medium text-brand-darkMuted leading-relaxed">
+              {filterStatus === 'pending'
+                ? 'Bagus sekali! Semua tanggal bayar kos, listrik, wifi, dan langgananmu periode ini sudah lunas tanpa denda.'
+                : 'Daftarkan kos, listrik, wifi, atau streaming agar kamu tidak pernah terlambat bayar dan terhindar dari denda.'}
+            </p>
+          </div>
+
+          {/* Layer 3: Actionable Primary CTA */}
+          <div className="pt-2">
+            {filterStatus === 'pending' ? (
+              <Button
+                variant="secondary"
+                size="md"
+                onClick={() => setFilterStatus('all')}
+                className="min-h-[44px]"
+              >
+                Lihat Semua Tagihan ({stats.totalActive})
+              </Button>
+            ) : (
+              <Button
+                variant="primary"
+                size="md"
+                onClick={handleOpenNew}
+                leftIcon={<Plus className="w-4 h-4 stroke-[3]" />}
+                className="min-h-[44px]"
+              >
+                + Tambah Tagihan Sekarang
+              </Button>
+            )}
+          </div>
         </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">

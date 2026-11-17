@@ -59,7 +59,7 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
             <span className="text-[10px] font-bold text-brand-darkMuted uppercase">
               Rencana Budget
             </span>
-            <div className="text-sm font-black text-brand-dark dark:text-slate-100 tabular-nums">
+            <div className="text-sm font-black text-brand-dark dark:text-slate-100 font-mono tabular-nums">
               {formatMoney(pocket.plannedAmount)}
             </div>
           </div>
@@ -68,7 +68,7 @@ export const PocketCard: React.FC<PocketCardProps> = ({ pocket }) => {
               Terpakai
             </span>
             <div
-              className={`text-sm font-black tabular-nums ${
+              className={`text-sm font-black font-mono tabular-nums ${
                 isOverBudget ? 'text-red-600 dark:text-red-400' : 'text-brand-dark dark:text-slate-100'
               }`}
             >

@@ -290,7 +290,7 @@ export const BudgetPage: React.FC = () => {
             </button>
           )}
           <div className="text-right shrink-0">
-            <span className="text-lg font-black tabular-nums text-brand-dark dark:text-emerald-300">{overview.totalAllocationPercentage}%</span>
+            <span className="text-lg font-black font-mono tabular-nums text-brand-dark dark:text-emerald-300">{overview.totalAllocationPercentage}%</span>
             <span className="text-xs font-bold block">/ 100%</span>
           </div>
         </div>
