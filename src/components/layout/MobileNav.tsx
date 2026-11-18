@@ -83,7 +83,7 @@ export const MobileNav: React.FC<MobileNavProps> = ({
   const ActiveIcon = navTabs[activeIndex]?.icon || LayoutGrid;
 
   return (
-    <div className="lg:hidden fixed bottom-4 sm:bottom-6 left-0 right-0 z-40 px-3.5 pointer-events-none select-none flex justify-center pb-[env(safe-area-inset-bottom)]">
+    <div className="lg:hidden fixed bottom-[max(0.75rem,env(safe-area-inset-bottom,12px))] sm:bottom-6 left-0 right-0 z-40 px-3.5 pointer-events-none select-none flex justify-center pb-[env(safe-area-inset-bottom,0px)]">
       {/* Floating Capsule Bar: Elongated & Perfectly Proportioned with Gliding Circular Bubble */}
       <nav
         className="pointer-events-auto relative w-[calc(100vw-28px)] max-w-[390px] sm:max-w-[420px] h-16 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl rounded-full border border-slate-200/80 dark:border-slate-800/80 shadow-[0_12px_36px_-6px_rgba(24,24,27,0.16),0_4px_16px_-2px_rgba(24,24,27,0.06)] dark:shadow-[0_12px_36px_-6px_rgba(0,0,0,0.6)] px-2 flex items-center transition-all duration-300"
@@ -122,11 +122,11 @@ export const MobileNav: React.FC<MobileNavProps> = ({
               // Action Button (Center Catat +)
               if (tab.isAction) {
                 return (
-                  <div key={tab.id} className="flex items-center justify-center">
+                  <div key={tab.id} className="flex items-center justify-center h-full">
                     <button
                       type="button"
                       onClick={tab.action}
-                      className="group relative flex items-center justify-center focus:outline-none cursor-pointer"
+                      className="group relative flex items-center justify-center focus:outline-none cursor-pointer min-h-[48px] min-w-[48px] h-full w-full"
                       aria-label={tab.label}
                       title={tab.label}
                     >
@@ -140,10 +140,10 @@ export const MobileNav: React.FC<MobileNavProps> = ({
 
               // NavLink Page Tabs
               return (
-                <div key={tab.id} className="flex items-center justify-center">
+                <div key={tab.id} className="flex items-center justify-center h-full">
                   <NavLink
                     to={tab.to!}
-                    className="group relative flex items-center justify-center focus:outline-none cursor-pointer w-full h-full py-1"
+                    className="group relative flex items-center justify-center focus:outline-none cursor-pointer min-h-[48px] min-w-[48px] h-full w-full py-1"
                     aria-label={tab.label}
                     title={tab.label}
                   >

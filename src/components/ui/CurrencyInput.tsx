@@ -12,6 +12,7 @@ export interface CurrencyInputProps {
   disabled?: boolean;
   className?: string;
   max?: number;
+  autoScrollOnFocus?: boolean;
 }
 
 export const CurrencyInput: React.FC<CurrencyInputProps> = ({
@@ -25,6 +26,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   disabled = false,
   className = '',
   max = MAX_SAFE_IDR,
+  autoScrollOnFocus = true,
 }) => {
   const inputId = id || (label ? `currency-${label.toLowerCase().replace(/[^a-z0-9]/g, '-')}` : 'currency-input');
   const errorId = `${inputId}-error`;
@@ -45,6 +47,18 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
     const parsed = parseIDRInput(pasted);
     const clamped = Math.min(max, parsed);
     onValueChange(clamped);
+  };
+
+  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
+    if (autoScrollOnFocus) {
+      setTimeout(() => {
+        try {
+          e.target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } catch {
+          // ignore
+        }
+      }, 150);
+    }
   };
 
   return (
@@ -69,11 +83,12 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
           value={displayValue}
           onChange={handleChange}
           onPaste={handlePaste}
+          onFocus={handleFocus}
           placeholder={placeholder}
           disabled={disabled}
           aria-invalid={!!error}
           aria-describedby={error ? errorId : helperText ? helperId : undefined}
-          className={`w-full bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 font-bold text-base tabular-nums rounded-xl border-2 transition-all duration-150 outline-none px-4 py-2.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
+          className={`w-full bg-white dark:bg-slate-900 text-brand-dark dark:text-slate-100 font-mono font-bold text-base tabular-nums rounded-xl border-2 transition-all duration-150 outline-none px-4 py-2.5 focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-1 ${
             error
               ? 'border-red-500 focus:border-red-600 focus:shadow-[2px_2px_0px_#EF4444]'
               : 'border-brand-border dark:border-slate-700 focus:border-brand-dark dark:focus:border-brand-primary focus:shadow-saweria-sm'

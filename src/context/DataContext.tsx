@@ -159,6 +159,25 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   useEffect(() => {
     loadAllData();
+
+    // Auto-replay offline sync queue if connection is restored (BE-3)
+    const handleOnline = async () => {
+      try {
+        const result = await DataService.processSyncQueue();
+        if (result.synced > 0) {
+          await loadAllData();
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    window.addEventListener('online', handleOnline);
+    handleOnline();
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+    };
   }, [user?.id]);
 
   // Derived summaries using financial domain engine
@@ -377,7 +396,43 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     const paymentDate = paidAtDate || getLocalSafeISOString();
 
-    // 1. Create Ledger expense transaction
+    // 0. Attempt Atomic PostgreSQL RPC first (BE-1: Single-Roundtrip Transaction)
+    try {
+      const atomicResult = await DataService.paySubscriptionAtomic({
+        subscriptionId: id,
+        period,
+        accountId: targetAccount,
+        amount: sub.amount,
+        paymentDate,
+        notes: sub.notes,
+      });
+
+      if (atomicResult) {
+        await loadAllData();
+        const found = transactions.find((t) => t.id === atomicResult.transactionId);
+        if (found) return found;
+        return {
+          id: atomicResult.transactionId,
+          user_id: user?.id || 'user-1',
+          account_id: targetAccount,
+          pocket_id: sub.category_pocket_id,
+          type: 'expense',
+          amount: sub.amount,
+          date: paymentDate,
+          description: `Tagihan Rutin: ${sub.name} (${formatPeriod(period, true)})`,
+          notes: sub.notes,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString(),
+        };
+      }
+    } catch (atomicErr) {
+      if ((atomicErr as Error).message?.includes('sudah dibayar') || (atomicErr as Error).message?.includes('tidak ditemukan')) {
+        throw atomicErr;
+      }
+      console.warn('Atomic RPC bypass, falling back to multi-step client mutation:', atomicErr);
+    }
+
+    // 1. Create Ledger expense transaction (Client Multi-Step Fallback)
     const createdTx = await addTransaction({
       user_id: user?.id || 'user-1',
       account_id: targetAccount,
@@ -470,7 +525,36 @@ export const DataProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const originalPaidAmount = debt.paid_amount;
     const originalIsSettled = debt.is_settled;
 
-    // 1. Update debt record
+    // 0. Attempt Atomic PostgreSQL RPC first (BE-1: Single-Roundtrip Transaction)
+    try {
+      const atomicResult = await DataService.recordDebtPaymentAtomic({
+        debtId: id,
+        paymentAmount,
+        accountId,
+        createTransactionRecord,
+        paymentDate,
+        notes: `Pembayaran cicilan untuk ${debt.person_name}`,
+      });
+
+      if (atomicResult) {
+        await loadAllData();
+        const found = debts.find((d) => d.id === id);
+        if (found) return found;
+        return {
+          ...debt,
+          paid_amount: atomicResult.paidAmount,
+          is_settled: atomicResult.isSettled,
+          updated_at: new Date().toISOString(),
+        };
+      }
+    } catch (atomicErr) {
+      if ((atomicErr as Error).message?.includes('tidak ditemukan') || (atomicErr as Error).message?.includes('melebihi sisa')) {
+        throw atomicErr;
+      }
+      console.warn('Atomic debt payment RPC bypass, falling back to multi-step client mutation:', atomicErr);
+    }
+
+    // 1. Update debt record (Client Multi-Step Fallback)
     const updatedDebt = await updateDebt(id, {
       paid_amount: newPaidAmount,
       is_settled: isSettled,

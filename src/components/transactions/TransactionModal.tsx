@@ -7,6 +7,7 @@ import { useData } from '../../context/DataContext';
 import { useAuth } from '../../context/AuthContext';
 import { useNotification } from '../../context/NotificationContext';
 import { TransactionType } from '../../types';
+import { MAX_SAFE_IDR } from '../../domain/finance/financialEngine';
 import {
   AIScannerService,
   ParsedTransaction,
@@ -838,6 +839,54 @@ export const TransactionModal: React.FC<TransactionModalProps> = ({
           error={amount <= 0 && error && error.includes('Nominal') ? error : undefined}
           helperText={amount <= 0 ? 'Masukkan nominal angka tanpa titik/koma' : undefined}
         />
+
+        {/* Quick Amount Chips (FE-3 Fast Nominal Shortcuts) */}
+        <div className="flex flex-wrap items-center gap-1.5 -mt-1 mb-1">
+          <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Cepat:</span>
+          {[
+            { label: '+10rb', add: 10000 },
+            { label: '+20rb', add: 20000 },
+            { label: '+50rb', add: 50000 },
+            { label: '+100rb', add: 100000 },
+          ].map((chip) => (
+            <button
+              key={chip.label}
+              type="button"
+              onClick={() => {
+                setAmount((prev) => Math.min(MAX_SAFE_IDR, prev + chip.add));
+                if (error.includes('Nominal')) setError('');
+              }}
+              className="px-2 py-0.5 rounded-lg text-xs font-mono font-medium bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 border border-slate-200/80 dark:border-slate-700/80 transition-all active:scale-95 cursor-pointer"
+            >
+              {chip.label}
+            </button>
+          ))}
+          {[
+            { label: '50rb', set: 50000 },
+            { label: '100rb', set: 100000 },
+          ].map((chip) => (
+            <button
+              key={chip.label}
+              type="button"
+              onClick={() => {
+                setAmount(chip.set);
+                if (error.includes('Nominal')) setError('');
+              }}
+              className="px-2 py-0.5 rounded-lg text-xs font-mono font-medium bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:hover:bg-emerald-900/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/80 dark:border-emerald-800/80 transition-all active:scale-95 cursor-pointer"
+            >
+              Pas {chip.label}
+            </button>
+          ))}
+          {amount > 0 && (
+            <button
+              type="button"
+              onClick={() => setAmount(0)}
+              className="px-1.5 py-0.5 rounded-lg text-[11px] font-medium text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all ml-auto cursor-pointer"
+            >
+              Reset
+            </button>
+          )}
+        </div>
 
         {/* Description (Always editable) */}
         <Input

@@ -51,6 +51,14 @@ function setLocalItem<T>(key: string, value: T): void {
   }
 }
 
+export interface SyncQueueItem {
+  id: string;
+  action: 'create_transaction' | 'delete_transaction' | 'create_pocket' | 'update_pocket';
+  entity: string;
+  payload: any;
+  timestamp: string;
+}
+
 export class DataService {
   private static activeMode: 'cloud' | 'local' | 'demo' = 'local';
   private static activeUserId: string | null = null;
@@ -127,6 +135,58 @@ export class DataService {
     if (!this.activeUserId && this.activeMode === 'local') {
       setLocalItem(`pockito_${entity}_v1`, value);
     }
+  }
+
+  // ===================== OFFLINE SYNC QUEUE (BE-3) =====================
+  public static getSyncQueue(): SyncQueueItem[] {
+    return getLocalItem<SyncQueueItem[]>('pockito:sync_queue:v1', []);
+  }
+
+  public static enqueueSync(item: Omit<SyncQueueItem, 'id' | 'timestamp'>): void {
+    const queue = this.getSyncQueue();
+    const entry: SyncQueueItem = {
+      ...item,
+      id: generateUUID(),
+      timestamp: new Date().toISOString(),
+    };
+    setLocalItem('pockito:sync_queue:v1', [...queue, entry]);
+  }
+
+  public static clearSyncQueue(): void {
+    setLocalItem('pockito:sync_queue:v1', []);
+  }
+
+  public static async processSyncQueue(): Promise<{ synced: number; failed: number }> {
+    if (!this.isCloud() || !supabase) {
+      return { synced: 0, failed: 0 };
+    }
+
+    const queue = this.getSyncQueue();
+    if (queue.length === 0) return { synced: 0, failed: 0 };
+
+    let synced = 0;
+    let failed = 0;
+    const remainingQueue: SyncQueueItem[] = [];
+
+    for (const item of queue) {
+      try {
+        if (item.action === 'create_transaction') {
+          await supabase.from('transactions').upsert(item.payload);
+        } else if (item.action === 'delete_transaction') {
+          await supabase.from('transactions').delete().eq('id', item.payload.id);
+        } else if (item.action === 'create_pocket' || item.action === 'update_pocket') {
+          await supabase.from('pockets').upsert(item.payload);
+        }
+        synced++;
+      } catch (err) {
+        console.error('Failed to sync offline item:', item, err);
+        failed++;
+        remainingQueue.push(item);
+      }
+    }
+
+    setLocalItem('pockito:sync_queue:v1', remainingQueue);
+    return { synced, failed };
   }
 
   /**
@@ -466,9 +526,17 @@ export class DataService {
   }
 
   static async createTransaction(tx: Omit<Transaction, 'id' | 'created_at' | 'updated_at'>): Promise<Transaction> {
+    // Defensive Boundary Sanitization (BE-2)
+    const sanitizedAmount = Math.min(999999999999, Math.max(1, Math.round(tx.amount || 0)));
+    const sanitizedDescription = (tx.description || '').trim().slice(0, 255);
+    const sanitizedNotes = tx.notes ? tx.notes.trim().slice(0, 1000) : undefined;
+
     const id = generateUUID();
     const newTx: Transaction = {
       ...tx,
+      amount: sanitizedAmount,
+      description: sanitizedDescription,
+      notes: sanitizedNotes,
       id,
       created_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),
@@ -493,6 +561,16 @@ export class DataService {
     const current = await this.getTransactions();
     const updated = [newTx, ...current];
     this.writeStorage('transactions', updated);
+
+    // If local/offline fallback with authenticated user, enqueue for auto-sync (BE-3)
+    if (this.activeUserId && this.activeMode === 'local') {
+      this.enqueueSync({
+        action: 'create_transaction',
+        entity: 'transactions',
+        payload: newTx,
+      });
+    }
+
     return newTx;
   }
 
@@ -862,6 +940,48 @@ export class DataService {
     return newPayment;
   }
 
+  // Atomic Subscription Payment (BE-1)
+  static async paySubscriptionAtomic(params: {
+    subscriptionId: string;
+    period: string;
+    accountId: string;
+    amount: number;
+    paymentDate: string;
+    notes?: string;
+  }): Promise<{ transactionId: string; paymentId: string; period: string } | null> {
+    if (this.isCloud() && supabase) {
+      try {
+        const { data, error } = await supabase.rpc('pay_subscription_atomic', {
+          p_subscription_id: params.subscriptionId,
+          p_period: params.period,
+          p_account_id: params.accountId,
+          p_amount: Math.round(params.amount),
+          p_payment_date: params.paymentDate,
+          p_notes: params.notes || null,
+        });
+        if (error) {
+          if (error.code === 'PGRST202' || error.message?.includes('function') || error.message?.includes('not found')) {
+            console.warn('RPC pay_subscription_atomic not deployed yet, falling back to client-side mutation.');
+            return null;
+          }
+          throw new Error(error.message);
+        }
+        return {
+          transactionId: data.transaction_id,
+          paymentId: data.payment_id,
+          period: data.period,
+        };
+      } catch (err: any) {
+        if (err.message?.includes('tidak ditemukan') || err.message?.includes('sudah dibayar')) {
+          throw err;
+        }
+        console.warn('pay_subscription_atomic RPC failed, using client fallback:', err);
+        return null;
+      }
+    }
+    return null;
+  }
+
   // ===================== DEBTS & RECEIVABLES =====================
   static async getDebts(): Promise<Debt[]> {
     if (this.isCloud() && supabase) {
@@ -1001,6 +1121,56 @@ export class DataService {
     const updated = [newPayment, ...current];
     this.writeStorage('debt_payments', updated);
     return newPayment;
+  }
+
+  // Atomic Debt Payment (BE-1)
+  static async recordDebtPaymentAtomic(params: {
+    debtId: string;
+    paymentAmount: number;
+    accountId?: string;
+    createTransactionRecord?: boolean;
+    paymentDate: string;
+    notes?: string;
+  }): Promise<{
+    debtId: string;
+    paidAmount: number;
+    isSettled: boolean;
+    paymentId: string;
+    transactionId?: string;
+  } | null> {
+    if (this.isCloud() && supabase) {
+      try {
+        const { data, error } = await supabase.rpc('record_debt_payment_atomic', {
+          p_debt_id: params.debtId,
+          p_payment_amount: Math.round(params.paymentAmount),
+          p_account_id: params.accountId || null,
+          p_create_transaction: Boolean(params.createTransactionRecord),
+          p_payment_date: params.paymentDate,
+          p_notes: params.notes || null,
+        });
+        if (error) {
+          if (error.code === 'PGRST202' || error.message?.includes('function') || error.message?.includes('not found')) {
+            console.warn('RPC record_debt_payment_atomic not deployed yet, falling back to client-side mutation.');
+            return null;
+          }
+          throw new Error(error.message);
+        }
+        return {
+          debtId: data.debt_id,
+          paidAmount: Number(data.paid_amount),
+          isSettled: Boolean(data.is_settled),
+          paymentId: data.payment_id,
+          transactionId: data.transaction_id,
+        };
+      } catch (err: any) {
+        if (err.message?.includes('tidak ditemukan') || err.message?.includes('melebihi sisa')) {
+          throw err;
+        }
+        console.warn('record_debt_payment_atomic RPC failed, using client fallback:', err);
+        return null;
+      }
+    }
+    return null;
   }
 
   // ===================== RESET & BACKUP =====================
